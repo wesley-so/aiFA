@@ -4,6 +4,26 @@ workflow:
     - if: $CI_COMMIT_TAG
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/server/.cache/pip"
+  POETRY_CACHE_DIR: "$CI_PROJECT_DIR/server/.cache/poetry"
+
+.python-cache:
+  cache:
+    key:
+      files:
+        - "$CI_PROJECT_DIR/server/poetry.lock"
+    paths:
+      - "$CI_PROJECT_DIR/server/.cache/"
+
+.node-cache:
+  cache:
+    key:
+      files:
+        - "$CI_PROJECT_DIR/web/yarn.lock"
+    paths:
+      - "$CI_PROJECT_DIR/web/.yarn-cache/"
+
 stages:
   - test
   - build
@@ -11,6 +31,7 @@ stages:
 server:lint:
   stage: test
   image: python:3.10-slim
+  extends: .python-cache
   before_script:
     - apt-get update
     - apt-get upgrade -y
@@ -26,14 +47,14 @@ server:build:
     - if: $CI_MERGE_REQUEST_IID
       when: never
   stage: build
-  image: 
+  image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: ["sh"]
   script:
     - export AIFA_SERVER_DIR="${CI_PROJECT_DIR}/server"
-    - if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; 
-      then export AIFA_IMAGE_TAG=latest; 
-      elif [ -z "$CI_COMMIT_TAG" ]; 
+    - if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ];
+      then export AIFA_IMAGE_TAG=latest;
+      elif [ -z "$CI_COMMIT_TAG" ];
       then export AIFA_IMAGE_TAG="$CI_COMMIT_TAG";
       else export AIFA_IMAGE_TAG="$CI_COMMIT_SHA"
       fi
@@ -45,8 +66,11 @@ server:build:
 web:lint:
   stage: test
   image: node:16-slim
+  extends: .node-cache
   script:
     - cd web/
+    - echo 'yarn-offline-mirror ".yarn-cache/"' >> .yarnrc
+    - echo 'yarn-offline-mirror-pruning true' >> .yarnrc
     - yarn install --frozen-lockfile
     - yarn lint
     - yarn test
@@ -58,9 +82,11 @@ web:build:
       when: never
   stage: build
   image: node:16-slim
+  extends: .node-cache
   script:
     - cd web/
     - yarn install --frozen-lockfile
     - yarn build
-
-    
+  artifacts:
+    paths:
+      - "$CI_PROJECT_DIR/web/build/"
