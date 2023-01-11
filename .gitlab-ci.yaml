@@ -1,0 +1,66 @@
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+stages:
+  - test
+  - build
+
+server:lint:
+  stage: test
+  image: python:3.10-slim
+  before_script:
+    - apt-get update
+    - apt-get upgrade -y
+    - apt-get install make
+  script:
+    - cd server/
+    - make setup
+    - make lint
+    - make format-check
+
+server:build:
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      when: never
+  stage: build
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: ["sh"]
+  script:
+    - export AIFA_SERVER_DIR="${CI_PROJECT_DIR}/server"
+    - if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; 
+      then export AIFA_IMAGE_TAG=latest; 
+      elif [ -z "$CI_COMMIT_TAG" ]; 
+      then export AIFA_IMAGE_TAG="$CI_COMMIT_TAG";
+      else export AIFA_IMAGE_TAG="$CI_COMMIT_SHA"
+      fi
+    # - /kaniko/executor
+    #   --context "${AIFA_SERVER_DIR}"
+    #   --dockerfile "${AIFA_SERVER_DIR}/Dockerfile"
+    #   --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}"
+
+web:lint:
+  stage: test
+  image: node:16-slim
+  script:
+    - cd web/
+    - yarn install --frozen-lockfile
+    - yarn lint
+    - yarn test
+    - yarn format-check
+
+web:build:
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      when: never
+  stage: build
+  image: node:16-slim
+  script:
+    - cd web/
+    - yarn install --frozen-lockfile
+    - yarn build
+
+    
