@@ -14,7 +14,7 @@ variables:
       files:
         - "$CI_PROJECT_DIR/server/poetry.lock"
     paths:
-      - "$CI_PROJECT_DIR/server/.cache/"
+      - server/.cache/
 
 .node-cache:
   cache:
@@ -22,13 +22,13 @@ variables:
       files:
         - "$CI_PROJECT_DIR/web/yarn.lock"
     paths:
-      - "$CI_PROJECT_DIR/web/.yarn-cache/"
+      - web/.yarn-cache/
 
 stages:
   - test
   - build
 
-server:lint:
+server:test:
   stage: test
   image: python:3.10-slim
   extends: .python-cache
@@ -47,6 +47,8 @@ server:build:
     - if: $CI_MERGE_REQUEST_IID
       when: never
   stage: build
+  needs:
+    - server:test
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: ["sh"]
@@ -63,7 +65,7 @@ server:build:
     #   --dockerfile "${AIFA_SERVER_DIR}/Dockerfile"
     #   --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}"
 
-web:lint:
+web:test:
   stage: test
   image: node:16-slim
   extends: .node-cache
@@ -81,6 +83,8 @@ web:build:
     - if: $CI_MERGE_REQUEST_IID
       when: never
   stage: build
+  needs:
+    - web:test
   image: node:16-slim
   extends: .node-cache
   script:
