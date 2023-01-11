@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  mongo:
+    image: mongo:5
+    ports:
+      - "27017:27017"
+    volumes:
+      - "mongo_data:/data"
+  server:
+    build: ./server
+    command: make dev
+    ports:
+      - "8000:8000"
+    env_file:
+      - server/.env
+    depends_on:
+      - mongo
+    volumes:
+      - ./server:/aifa
+volumes:
+  mongo_data:
+    driver: local
+  
