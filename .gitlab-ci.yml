@@ -7,12 +7,13 @@ workflow:
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/server/.cache/pip"
   POETRY_CACHE_DIR: "$CI_PROJECT_DIR/server/.cache/poetry"
+  POETRY_HOME: /opt/poetry
 
 .python-cache:
   cache:
     key:
       files:
-        - "$CI_PROJECT_DIR/server/poetry.lock"
+        - server/poetry.lock
     paths:
       - server/.cache/
 
@@ -20,7 +21,7 @@ variables:
   cache:
     key:
       files:
-        - "$CI_PROJECT_DIR/web/yarn.lock"
+        - web/yarn.lock
     paths:
       - web/.yarn-cache/
 
@@ -35,7 +36,9 @@ server:test:
   before_script:
     - apt-get update
     - apt-get upgrade -y
-    - apt-get install make
+    - apt-get install -y curl make
+    - curl -sSL https://install.python-poetry.org | python3 -
+    - export PATH="$POETRY_HOME/bin:$PATH"
   script:
     - cd server/
     - make setup
@@ -46,6 +49,7 @@ server:build:
   rules:
     - if: $CI_MERGE_REQUEST_IID
       when: never
+    - when: always
   stage: build
   needs:
     - server:test
@@ -82,6 +86,7 @@ web:build:
   rules:
     - if: $CI_MERGE_REQUEST_IID
       when: never
+    - when: always
   stage: build
   needs:
     - web:test
