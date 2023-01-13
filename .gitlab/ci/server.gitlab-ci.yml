@@ -18,7 +18,8 @@
     - curl -sSL https://install.python-poetry.org | python3 -
     - export PATH="$POETRY_HOME/bin:$PATH"
   after_script:
-    - poetry env remove `basename $(poetry env info --path)`
+    - export PATH="$POETRY_HOME/bin:$PATH"
+    - poetry env remove --all
 
 server:lint:
   stage: test
