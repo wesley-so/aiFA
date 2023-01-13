@@ -2,6 +2,8 @@ FROM python:3.10-slim
 
 ARG POETRY_HOME=/opt/poetry
 ARG BUILD_NO_CACHE=1
+ARG PIP_NO_CACHE_DIR=true
+
 # Pre-install script
 RUN apt-get update \ 
     && apt-get upgrade -y \
