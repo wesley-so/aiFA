@@ -21,9 +21,13 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx src && tsc --noEmit",
+    "lint": "yarn lint:eslint && yarn lint:tsc",
+    "lint:eslint": "eslint --ext .js,.jsx,.ts,.tsx src",
+    "lint:tsc": "tsc --noEmit",
     "format": "prettier --write --list-different 'src/**/*.{js,jsx,ts,tsx,css}'",
-    "format-check": "prettier --list-different 'src/**/*.{js,jsx,ts,tsx,css}'"
+    "format-check": "prettier --list-different 'src/**/*.{js,jsx,ts,tsx,css}'",
+    "ci:lint": "yarn lint:eslint --format junit --output-file eslint.junit.xml && yarn lint:tsc",
+    "ci:test": "yarn test --ci --coverage --coverageDirectory=coverage --coverageReporters=cobertura --reporters=default --reporters=jest-junit"
   },
   "eslintConfig": {
     "extends": [
@@ -48,6 +52,7 @@
     "eslint": "8.31.0",
     "eslint-config-prettier": "8.6.0",
     "eslint-plugin-prettier": "4.2.1",
+    "jest-junit": "15.0.0",
     "prettier": "2.8.2"
   }
 }

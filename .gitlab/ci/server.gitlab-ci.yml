@@ -1,0 +1,55 @@
+# Template job for Python project build
+.server-python-template:
+  image: python:3.10-slim
+  variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/server/.cache/pip"
+    POETRY_CACHE_DIR: "$CI_PROJECT_DIR/server/.cache/poetry"
+    POETRY_HOME: /opt/poetry
+  cache:
+    key:
+      files:
+        - server/poetry.lock
+    paths:
+      - server/.cache/
+  before_script:
+    - apt-get update
+    - apt-get upgrade -y
+    - apt-get install -y curl make
+    - curl -sSL https://install.python-poetry.org | python3 -
+    - export PATH="$POETRY_HOME/bin:$PATH"
+  after_script:
+    - export PATH="$POETRY_HOME/bin:$PATH"
+    - cd server/
+    - poetry env remove --all
+
+server:lint:
+  stage: test
+  extends:
+    - .server-python-template
+  script:
+    - cd server/
+    - make setup
+    - make lint
+    - make format-check
+
+server:build:
+  stage: build
+  extends:
+    - .skip-merge-request
+  needs:
+    - server:lint
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: ["sh"]
+  script:
+    - export AIFA_SERVER_DIR="${CI_PROJECT_DIR}/server"
+    - if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ];
+      then export AIFA_IMAGE_TAG=latest;
+      elif [ -n "$CI_COMMIT_TAG" ];
+      then export AIFA_IMAGE_TAG="$CI_COMMIT_TAG";
+      else export AIFA_IMAGE_TAG="$CI_COMMIT_SHORT_SHA";
+      fi
+    - /kaniko/executor
+      --context "${AIFA_SERVER_DIR}"
+      --dockerfile "${AIFA_SERVER_DIR}/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}/server:${CI_COMMIT_TAG}"
