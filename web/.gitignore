@@ -179,3 +179,7 @@ thumb
 sketch
 
 # End of https://www.toptal.com/developers/gitignore/api/node,react
+
+# JUnit report
+junit.xml
+*.junit.xml

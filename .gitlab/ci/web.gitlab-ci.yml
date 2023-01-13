@@ -1,0 +1,46 @@
+# Template job for NodeJS project build
+.web-node-template:
+  image: node:16-slim
+  cache:
+    key:
+      files:
+        - web/yarn.lock
+    paths:
+      - web/.yarn-cache/
+  before_script:
+    - echo 'yarn-offline-mirror "$CI_PROJECT_DIR/web/.yarn-cache/"' >> "$CI_PROJECT_DIR/web/.yarnrc"
+    - echo 'yarn-offline-mirror-pruning true' >> "web/.yarnrc"
+
+web:lint:
+  stage: test
+  extends:
+    - .web-node-template
+  script:
+    - cd web/
+    - yarn install --frozen-lockfile
+    - yarn ci:lint
+    - yarn ci:test
+    - yarn format-check
+  artifacts:
+    reports:
+      junit:
+        - web/junit.xml
+        - web/*.junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: web/coverage/cobertura-coverage.xml
+
+web:build:
+  stage: build
+  needs:
+    - web:lint
+  extends:
+    - .skip-merge-request
+    - .web-node-template
+  script:
+    - cd web/
+    - yarn install --frozen-lockfile
+    - yarn build
+  artifacts:
+    paths:
+      - "$CI_PROJECT_DIR/web/build/"
