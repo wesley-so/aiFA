@@ -19,6 +19,7 @@
     - export PATH="$POETRY_HOME/bin:$PATH"
   after_script:
     - export PATH="$POETRY_HOME/bin:$PATH"
+    - cd server/
     - poetry env remove --all
 
 server:lint:
