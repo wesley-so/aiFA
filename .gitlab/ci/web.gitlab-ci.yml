@@ -8,19 +8,34 @@
     paths:
       - web/.yarn-cache/
   before_script:
-    - echo 'yarn-offline-mirror "$CI_PROJECT_DIR/web/.yarn-cache/"' >> "$CI_PROJECT_DIR/web/.yarnrc"
-    - echo 'yarn-offline-mirror-pruning true' >> "web/.yarnrc"
+    - yarn config set yarn-offline-mirror "$CI_PROJECT_DIR/web/.yarn-cache/" --global
+    - yarn config set yarn-offline-mirror-pruning true --global
 
 web:lint:
-  stage: test
+  stage: check
   extends:
     - .web-node-template
   script:
     - cd web/
     - yarn install --frozen-lockfile
     - yarn ci:lint
-    - yarn ci:test
     - yarn format-check
+  artifacts:
+    reports:
+      junit:
+        - web/junit.xml
+        - web/*.junit.xml
+
+web:test:
+  stage: check
+  needs:
+    - web:lint
+  extends:
+    - .web-node-template
+  script:
+    - cd web/
+    - yarn install --frozen-lockfile
+    - yarn ci:test
   artifacts:
     reports:
       junit:
@@ -34,6 +49,7 @@ web:build:
   stage: build
   needs:
     - web:lint
+    - web:test
   extends:
     - .skip-merge-request
     - .web-node-template
