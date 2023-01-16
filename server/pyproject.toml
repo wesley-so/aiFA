@@ -4,13 +4,13 @@ version = "0.1.0"
 description = "Financial advisor with artificial intelligence (AI) system to predict 20 NASDAQ stock price"
 authors = ["Wesley So <wesleyso0614@gmail.com>"]
 license = "PROPRIETARY"
-readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "~3.10"
 fastapi = {extras = ["all"], version = "^0.89.0"}
-tensorflow = "^2.11.0"
-
+tensorflow = {version="^2.11.0", markers = "sys_platform != 'darwin'"}
+tensorflow-macos = {version="^2.11.0", markers = "sys_platform == 'darwin'"}
+tensorflow-metal = {version="^0.7.0", markers = "sys_platform == 'darwin'"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.12.0"
