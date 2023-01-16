@@ -64,7 +64,7 @@ server:build:
       /kaniko/executor \
         --cache \
         --cache-dir "/cache" \
-        --compressed-caching false \
+        --compressed-caching \
         --image "python:3.10-slim" \
         --context "${AIFA_SERVER_DIR}" \
         --dockerfile "${AIFA_SERVER_DIR}/Dockerfile" \
