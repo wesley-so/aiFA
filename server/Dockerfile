@@ -16,7 +16,7 @@ RUN curl -sSL https://install.python-poetry.org | python3 - \
 
 WORKDIR /aifa
 COPY Makefile poetry.lock pyproject.toml ./
-RUN make setup
+RUN make setup-production
 COPY . .
 
 CMD ["make","start"]

@@ -15,6 +15,7 @@ tensorflow-metal = {version="^0.7.0", markers = "sys_platform == 'darwin'"}
 [tool.poetry.group.dev.dependencies]
 black = "^22.12.0"
 flake8 = "^6.0.0"
+flake8-gl-codeclimate = "^0.1.6"
 
 [tool.black]
 line-length = 88
