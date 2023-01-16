@@ -6,4 +6,6 @@ include:
 
 container_scanning:
   variables:
-    CS_DEFAULT_BRANCH_IMAGE: $CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA
+    CS_DISABLE_LANGUAGE_VULNERABILITY_SCAN: "true"
+    CS_DOCKERFILE_PATH: "$CI_PROJECT_DIR/server/Dockerfile"
+    CS_IMAGE: "$CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA"
