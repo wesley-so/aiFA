@@ -60,7 +60,7 @@ server:build:
       elif [ -n "$CI_COMMIT_TAG" ]; then
         export AIFA_KANIKO_ARGS="${AIFA_KANIKO_ARGS} --destination \"${AIFA_IMAGE_NAME}:${CI_COMMIT_TAG}\"";
       fi
-    - |
+    - >
       /kaniko/executor
         --cache
         --cache-dir "/cache"
