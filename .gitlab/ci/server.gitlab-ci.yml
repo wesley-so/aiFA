@@ -53,7 +53,7 @@ server:build:
   script:
     - export AIFA_SERVER_DIR="${CI_PROJECT_DIR}/server"
     - export AIFA_IMAGE_NAME="${CI_REGISTRY_IMAGE}/server"
-    - export AIFA_KANIKO_ARGS="--destination \"${AIFA_IMAGE_NAME}:CI_COMMIT_SHA\""
+    - export AIFA_KANIKO_ARGS="--destination \"${AIFA_IMAGE_NAME}:${CI_COMMIT_SHA}\""
     - |
       if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
         export AIFA_KANIKO_ARGS="${AIFA_KANIKO_ARGS} --destination \"${AIFA_IMAGE_NAME}:latest\"";
