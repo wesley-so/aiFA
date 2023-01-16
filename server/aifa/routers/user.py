@@ -1,6 +1,5 @@
 import bcrypt
 from fastapi import APIRouter, Path
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from pymongo import MongoClient
@@ -9,8 +8,8 @@ import os
 router = APIRouter(prefix="/user", tags=["user"])
 MONGO_HOST = os.getenv("MONGO_HOST")
 MONGO_PORT = os.getenv("MONGO_PORT")
-mongo = MongoClient(f"mongodb://{MONGO_HOST}:{MONGO_PORT}")
-db = mongo["aifa"]
+conn = MongoClient(f"mongodb://{MONGO_HOST}:{MONGO_PORT}")
+db = conn["aifa"]
 userCol = db["user"]
 
 
@@ -51,7 +50,7 @@ async def login(login: LoginModel):
     userQuery = userCol.find(query)
 
     # Check if the username is empty
-    if userQuery == None:
+    if userQuery.count() == 0:
         return JSONResponse(
             status_code=400, content="Username or password incorrect! Please try again."
         )
@@ -123,7 +122,7 @@ async def edit(edit: UserModel, userId: int = Path(title="User ID")):
             status_code=400, content="Some fields are missing or invalid!"
         )
 
-    if userInfo == None:
+    if userInfo.count() == 0:
         return JSONResponse(
             status_code=401, content="User is unauthorized to update account."
         )
@@ -149,7 +148,7 @@ async def info(userId: int = Path(title="User ID")):
     username = userInfo.username
     email = userInfo.email
 
-    if userInfo == None:
+    if userInfo.count() == 0:
         return JSONResponse(
             status_code=401, content="User is unauthorized to get account information."
         )
