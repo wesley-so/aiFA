@@ -60,12 +60,12 @@ server:build:
       elif [ -n "$CI_COMMIT_TAG" ]; then
         export AIFA_KANIKO_ARGS="${AIFA_KANIKO_ARGS} --destination \"${AIFA_IMAGE_NAME}:${CI_COMMIT_TAG}\"";
       fi
-    - >
-      /kaniko/executor
-        --cache
-        --cache-dir "/cache"
-        --compressed-caching false
-        --image "python:3.10-slim"
-        --context "${AIFA_SERVER_DIR}"
-        --dockerfile "${AIFA_SERVER_DIR}/Dockerfile"
+    - |
+      /kaniko/executor \
+        --cache \
+        --cache-dir "/cache" \
+        --compressed-caching false \
+        --image "python:3.10-slim" \
+        --context "${AIFA_SERVER_DIR}" \
+        --dockerfile "${AIFA_SERVER_DIR}/Dockerfile" \
         ${AIFA_KANIKO_ARGS}
