@@ -1,8 +1,7 @@
 import bcrypt
-from fastapi import APIRouter
+from fastapi import APIRouter, Path
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from hashlib import pbkdf2_hmac
 from pydantic import BaseModel, Field
 from pymongo import MongoClient
 import os
@@ -29,7 +28,7 @@ class RegisterModel(BaseModel):
 
 class UserModel(BaseModel):
     username: str = Field(title="Username", max_length=50)
-    email: str = Field(title="User email", max_length=254)
+    email: str | None = Field(title="User email", max_length=254)
     password: str = Field(title="User password", max_length=20)
 
 
@@ -113,14 +112,48 @@ async def register(register: RegisterModel):
 
 
 @router.post("/{userId}", response_class=JSONResponse)
-async def edit(edit: UserModel):
-    username = edit.username
-    email = edit.email
-    password = edit.password
+async def edit(edit: UserModel, userId: int = Path(title="User ID")):
+    query = {"_id": userId}
+    userInfo = userCol.find(query)
+    new_username = edit.username
+    new_password = edit.password
+
+    if new_username.__len__ == 0 and new_password.__len__ == 0:
+        return JSONResponse(
+            status_code=400, content="Some fields are missing or invalid!"
+        )
+
+    if userInfo == None:
+        return JSONResponse(
+            status_code=401, content="User is unauthorized to update account."
+        )
+    else:
+        if userInfo.username == new_username:
+            return JSONResponse(
+                status_code=400,
+                content="Username repeated! Please change another username.",
+            )
+        if bcrypt.checkpw(new_password, userInfo.password):
+            return JSONResponse(
+                status_code=400,
+                content="Password repeated! Please change another password.",
+            )
+        newValues = {"$set": {"username": new_username, "password": new_password}}
+        userCol.update_one(query, newValues)
 
 
 @router.get("/{userId}", response_class=JSONResponse)
-async def info(info: UserModel):
-    username = info.username
-    email = info.email
-    password = info.password
+async def info(userId: int = Path(title="User ID")):
+    query = {"_id": userId}
+    userInfo = userCol.find(query)
+    username = userInfo.username
+    email = userInfo.email
+
+    if userInfo == None:
+        return JSONResponse(
+            status_code=401, content="User is unauthorized to get account information."
+        )
+    else:
+        return JSONResponse(
+            status_code=200, content=f"Username: {username} \n Email: {email}"
+        )
