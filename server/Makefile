@@ -12,6 +12,9 @@ all: setup
 setup:
 	poetry install $(POETRY_INSTALL_ARGS)
 
+setup-production:
+	poetry install --without dev $(POETRY_INSTALL_ARGS)
+
 start:
 	poetry run uvicorn aifa.app:app --host "$(AIFA_SERVER_HOST)" --port "$(AIFA_SERVER_PORT)"
 
@@ -20,6 +23,9 @@ dev:
 
 lint:
 	poetry run flake8 aifa
+
+ci-lint:
+	poetry run flake8 --format gl-codeclimate --output-file gl-codequality.json aifa
 
 format:
 	poetry run black aifa

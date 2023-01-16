@@ -235,6 +235,20 @@ pycodestyle = ">=2.10.0,<2.11.0"
 pyflakes = ">=3.0.0,<3.1.0"
 
 [[package]]
+name = "flake8-gl-codeclimate"
+version = "0.1.6"
+description = "Gitlab Code Quality artifact Flake8 formatter."
+category = "dev"
+optional = false
+python-versions = "*"
+files = [
+    {file = "flake8-gl-codeclimate-0.1.6.tar.gz", hash = "sha256:77ccde164b2c14f558891f44d179fabba4b1f3f9bd8b543c6f6083f30c00f218"},
+]
+
+[package.dependencies]
+flake8 = ">3.0.0"
+
+[[package]]
 name = "flatbuffers"
 version = "23.1.4"
 description = "The FlatBuffers serialization format for Python"
@@ -1827,4 +1841,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.10"
-content-hash = "29aacf067a0c287fa352853f35d063be921baf7af40b54d1f493cdef36c1dc7f"
+content-hash = "6b5c7c19d792ceee9ac22f529bca9df8e90617d4d59f5efe93079919f6214685"

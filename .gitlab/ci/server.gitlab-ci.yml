@@ -17,6 +17,7 @@
     - apt-get install -y curl make
     - curl -sSL https://install.python-poetry.org | python3 -
     - export PATH="$POETRY_HOME/bin:$PATH"
+    - poetry config cache-dir "$POETRY_CACHE_DIR"
   after_script:
     - export PATH="$POETRY_HOME/bin:$PATH"
     - cd server/
@@ -40,8 +41,12 @@ server:lint:
   script:
     - cd server/
     - make setup
-    - make lint
+    - make ci-lint
     - make format-check
+  artifacts:
+    when: always
+    reports:
+      codequality: server/gl-codequality.json
 
 server:build:
   stage: build

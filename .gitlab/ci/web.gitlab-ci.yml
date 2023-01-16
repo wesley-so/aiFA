@@ -16,15 +16,15 @@ web:lint:
   extends:
     - .web-node-template
   script:
+    - export ESLINT_CODE_QUALITY_REPORT="$CI_PROJECT_DIR/server/gl-codequality.json"
     - cd web/
     - yarn install --frozen-lockfile
     - yarn ci:lint
     - yarn format-check
   artifacts:
+    when: always
     reports:
-      junit:
-        - web/junit.xml
-        - web/*.junit.xml
+      codequality: server/gl-codequality.json
 
 web:test:
   stage: check
@@ -37,6 +37,7 @@ web:test:
     - yarn install --frozen-lockfile
     - yarn ci:test
   artifacts:
+    when: always
     reports:
       junit:
         - web/junit.xml
