@@ -36,12 +36,12 @@ web:test:
     - cd web/
     - yarn install --frozen-lockfile
     - yarn ci:test
+  coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
   artifacts:
     when: always
     reports:
       junit:
         - web/junit.xml
-        - web/*.junit.xml
       coverage_report:
         coverage_format: cobertura
         path: web/coverage/cobertura-coverage.xml

@@ -4,7 +4,7 @@
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/server/.cache/pip"
     POETRY_CACHE_DIR: "$CI_PROJECT_DIR/server/.cache/poetry"
-    POETRY_HOME: /opt/poetry
+    POETRY_VERSION: "1.3.2"
   cache:
     key:
       files:
@@ -13,33 +13,24 @@
       - server/.cache/
   before_script:
     - apt-get update
-    - apt-get upgrade -y
-    - apt-get install -y curl make
-    - curl -sSL https://install.python-poetry.org | python3 -
-    - export PATH="$POETRY_HOME/bin:$PATH"
+    - apt-get install -y --no-install-recommends make
+    - pip3 install "poetry==$POETRY_VERSION"
     - poetry config cache-dir "$POETRY_CACHE_DIR"
   after_script:
-    - export PATH="$POETRY_HOME/bin:$PATH"
-    - cd server/
+    - cd "$CI_PROJECT_DIR/server"
     - poetry env remove --all
 
 .kaniko-image-build:
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: ["sh"]
-  cache:
-    key:
-      files:
-        - server/Dockerfile
-    paths:
-      - /cache
 
 server:lint:
   stage: check
   extends:
     - .server-python-template
   script:
-    - cd server/
+    - cd "$CI_PROJECT_DIR/server"
     - make setup
     - make ci-lint
     - make format-check
@@ -55,6 +46,7 @@ server:build:
     - .skip-merge-request
   needs:
     - server:lint
+  cache: []
   script:
     - export AIFA_SERVER_DIR="${CI_PROJECT_DIR}/server"
     - export AIFA_IMAGE_NAME="${CI_REGISTRY_IMAGE}/server"
@@ -65,11 +57,4 @@ server:build:
       elif [ -n "$CI_COMMIT_TAG" ]; then
         export AIFA_KANIKO_ARGS="${AIFA_KANIKO_ARGS} --destination ${AIFA_IMAGE_NAME}:${CI_COMMIT_TAG}";
       fi
-    - |
-      /kaniko/executor \
-        --cache \
-        --cache-dir "/cache" \
-        --compressed-caching \
-        --context "${AIFA_SERVER_DIR}" \
-        --dockerfile "${AIFA_SERVER_DIR}/Dockerfile" \
-        ${AIFA_KANIKO_ARGS}
+    - /kaniko/executor --cache --context "${AIFA_SERVER_DIR}" --dockerfile "${AIFA_SERVER_DIR}/Dockerfile" ${AIFA_KANIKO_ARGS}

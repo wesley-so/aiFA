@@ -27,14 +27,17 @@
     "format": "prettier --write --list-different 'src/**/*.{js,jsx,ts,tsx,css}'",
     "format-check": "prettier --list-different 'src/**/*.{js,jsx,ts,tsx,css}'",
     "ci:lint": "yarn lint:eslint --format gitlab && yarn lint:tsc",
-    "ci:test": "yarn test --ci --coverage --coverageDirectory=coverage --coverageReporters=cobertura --reporters=default --reporters=jest-junit"
+    "ci:test": "yarn test --ci --coverage --coverageDirectory=coverage --coverageReporters=text --coverageReporters=cobertura --reporters=default --reporters=jest-junit"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest",
-      "prettier"
-    ]
+      "plugin:prettier/recommended"
+    ],
+    "rules": {
+      "prettier/prettier": "warn"
+    }
   },
   "browserslist": {
     "production": [
