@@ -4,3 +4,27 @@
     - if: $CI_MERGE_REQUEST_IID
       when: never
     - when: on_success
+
+.mr-check-backend-if-edit:
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      changes:
+        paths:
+          - server/**/*
+        compare_to: main
+      when: on_success
+    - if: $CI_MERGE_REQUEST_IID == null || $CI_MERGE_REQUEST_IID == ""
+      when: on_success
+    - when: never
+
+.mr-check-frontend-if-edit:
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      changes:
+        paths:
+          - web/**/*
+        compare_to: main
+      when: on_success
+    - if: $CI_MERGE_REQUEST_IID == null || $CI_MERGE_REQUEST_IID == ""
+      when: on_success
+    - when: never

@@ -28,6 +28,7 @@
 server:lint:
   stage: check
   extends:
+    - .mr-check-backend-if-edit
     - .server-python-template
   script:
     - cd "$CI_PROJECT_DIR/server"
