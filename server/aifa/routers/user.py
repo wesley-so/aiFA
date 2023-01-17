@@ -138,9 +138,10 @@ async def register(register: RegisterModel):
 
 @router.post("/{userId}", response_class=JSONResponse)
 async def edit(edit: UserModel, userId: str = Path(title="User ID")):
+    userId = ObjectId(userId)
     query = {"_id": userId}
     projection = {"_id": 0, "username": 1, "password": 1}
-    userInfo = userCol.find_one(query, projection)
+    userInfo = userCol.find(query, projection)
     for i in userInfo:
         username = i["username"]
         password = i["password"]
