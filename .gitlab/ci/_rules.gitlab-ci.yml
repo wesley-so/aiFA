@@ -1,6 +1,30 @@
 # Template job for skipping merge request
-.skip-merge-request:
+.mr-job-skip:
   rules:
     - if: $CI_MERGE_REQUEST_IID
       when: never
     - when: on_success
+
+.mr-backend-job-rules:
+  rules:
+    - if: $CI_MERGE_REQUEST_IID == null || $CI_MERGE_REQUEST_IID == ""
+      when: on_success
+    - if: $CI_MERGE_REQUEST_IID && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+      changes:
+        paths:
+          - server/**/*
+        compare_to: main
+      when: on_success
+    - when: never
+
+.mr-frontend-job-rules:
+  rules:
+    - if: $CI_MERGE_REQUEST_IID == null || $CI_MERGE_REQUEST_IID == ""
+      when: on_success
+    - if: $CI_MERGE_REQUEST_IID && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+      changes:
+        paths:
+          - web/**/*
+        compare_to: main
+      when: on_success
+    - when: never

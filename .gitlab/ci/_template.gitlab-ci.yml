@@ -1,0 +1,6 @@
+# Template job for Kaniko image build
+.kaniko-image-build-template:
+  cache: []
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: ["sh"]

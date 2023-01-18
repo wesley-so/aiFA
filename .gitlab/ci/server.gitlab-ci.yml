@@ -20,14 +20,10 @@
     - cd "$CI_PROJECT_DIR/server"
     - poetry env remove --all
 
-.kaniko-image-build:
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: ["sh"]
-
 server:lint:
   stage: check
   extends:
+    - .mr-backend-job-rules
     - .server-python-template
   script:
     - cd "$CI_PROJECT_DIR/server"
@@ -42,11 +38,10 @@ server:lint:
 server:build:
   stage: build
   extends:
-    - .kaniko-image-build
-    - .skip-merge-request
+    - .kaniko-image-build-template
+    - .mr-job-skip
   needs:
     - server:lint
-  cache: []
   script:
     - export AIFA_SERVER_DIR="${CI_PROJECT_DIR}/server"
     - export AIFA_IMAGE_NAME="${CI_REGISTRY_IMAGE}/server"
