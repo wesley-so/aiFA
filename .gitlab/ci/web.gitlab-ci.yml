@@ -14,7 +14,7 @@
 web:lint:
   stage: check
   extends:
-    - .mr-check-frontend-if-edit
+    - .mr-frontend-job-rules
     - .web-node-template
   script:
     - export ESLINT_CODE_QUALITY_REPORT="$CI_PROJECT_DIR/server/gl-codequality.json"
@@ -32,6 +32,7 @@ web:test:
   needs:
     - web:lint
   extends:
+    - .mr-frontend-job-rules
     - .web-node-template
   script:
     - cd web/
@@ -53,7 +54,7 @@ web:build:
     - web:lint
     - web:test
   extends:
-    - .skip-merge-request
+    - .mr-job-skip
     - .web-node-template
   script:
     - cd web/
