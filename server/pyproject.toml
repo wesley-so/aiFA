@@ -14,6 +14,7 @@ tensorflow = {version="^2.11.0", markers = "sys_platform != 'darwin'"}
 tensorflow-macos = {version="^2.11.0", markers = "sys_platform == 'darwin'"}
 tensorflow-metal = {version="^0.7.0", markers = "sys_platform == 'darwin'"}
 pyjwt = "^2.6.0"
+python-multipart = "^0.0.5"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.12.0"
