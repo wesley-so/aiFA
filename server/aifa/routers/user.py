@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from pymongo import MongoClient
 import os
+from ..service.jwt import signJWT, expireJWT
 
 router = APIRouter(prefix="/user", tags=["user"])
 MONGO_HOST = os.getenv("MONGO_HOST")
@@ -43,14 +44,21 @@ async def login(login: LoginModel):
     username = login.username
     password = login.password
 
-    query = {"username": username}
-    projection = {"_id": 0, "username": 1, "password": 1}
-    userQuery = userCol.find(query, projection)
-    for i in userQuery:
-        user_password = i["password"]
+    if len(username) == 0 or len(password) == 0:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "message": "Some fields are missing or invalid!",
+            },
+        )
 
-    # Check if the username matches the database data
-    if userCol.count_documents(query) == 0:
+    query = {"username": username}
+    projection = {"_id": 1, "username": 1, "password": 1}
+    userQuery = userCol.find_one(query, projection)
+    print(userQuery)
+    if userQuery == 0:
+        # Username incorrect
         return JSONResponse(
             status_code=400,
             content={
@@ -58,10 +66,17 @@ async def login(login: LoginModel):
                 "message": "Username or password incorrect! Please try again.",
             },
         )
+    else:
+        userPassword = userQuery["password"]
+        userId = str(userQuery["_id"])
+
     # Check password match or not
-    if bcrypt.checkpw(password, user_password):
+    if bcrypt.checkpw(password, userPassword):
+        token = signJWT(userId)
+        session.insert_one({"token": token}, True)
         return JSONResponse(status_code=200, content="Login successfully!")
     else:
+        # Password incorrect
         return JSONResponse(
             status_code=400,
             content={
@@ -71,18 +86,27 @@ async def login(login: LoginModel):
         )
 
 
-@router.post("/logout")
-async def logout():
-    return
+@router.post("/logout", response_class=JSONResponse)
+async def logout(token):
+    print(token)
+    expireJWT(token)
+    return JSONResponse(
+        status_code=200,
+        content={"success": True, "message": "Logout successfully!"},
+    )
 
 
 @router.post("/register", response_class=JSONResponse)
 async def register(register: RegisterModel):
+    username = register.username
+    email = register.email
+    password = register.password
+    passwordConfirm = register.passwordConfirm
     if (
-        register.username.count() == 0
-        or register.email.count() == 0
-        or register.password.count() == 0
-        or register.passwordConfirm.count() == 0
+        len(username) == 0
+        or len(email) == 0
+        or len(password) == 0
+        or len(passwordConfirm) == 0
     ):
         return JSONResponse(
             status_code=400,
@@ -91,10 +115,6 @@ async def register(register: RegisterModel):
                 "message": "Some fields are missing or invalid!",
             },
         )
-    username = register.username
-    email = register.email
-    password = register.password
-    passwordConfirm = register.passwordConfirm
 
     # Check password and passwordConfirm
     if password != passwordConfirm:
@@ -127,11 +147,13 @@ async def register(register: RegisterModel):
     hashed = hash_password(password, salt)
     newUser = {"username": username, "email": email, "password": hashed, "salt": salt}
     insertUser = userCol.insert_one(newUser)
+    userId = insertUser.inserted_id
+
     return JSONResponse(
         status_code=201,
         content={
             "success": True,
-            "message": f"Account created successfully! ID: {insertUser.inserted_id}",
+            "message": f"Account created successfully! ID: {userId}",
         },
     )
 
@@ -141,10 +163,10 @@ async def edit(edit: UserModel, userId: str = Path(title="User ID")):
     userId = ObjectId(userId)
     query = {"_id": userId}
     projection = {"_id": 0, "username": 1, "password": 1}
-    userInfo = userCol.find(query, projection)
-    for i in userInfo:
-        username = i["username"]
-        password = i["password"]
+    userInfo = userCol.find_one(query, projection)
+    username = userInfo["username"]
+    password = userInfo["password"]
+
     new_username = edit.username
     new_password = edit.password
     new_salt = bcrypt.gensalt(16)
@@ -204,13 +226,11 @@ async def info(userId: str = Path(title="User ID")):
     userId = ObjectId(userId)
     query = {"_id": userId}
     projection = {"_id": 0, "username": 1, "email": 1}
-    userInfo = userCol.find(query, projection)
-    for i in userInfo:
-        username = i["username"]
-        email = i["email"]
+    userInfo = userCol.find_one(query, projection)
+    username = userInfo["username"]
+    email = userInfo["email"]
 
     return JSONResponse(
         status_code=200,
         content={"success": True, "message": f"Username: {username}, Email: {email}"},
-        # headers={"username": username, "email": email}
     )
