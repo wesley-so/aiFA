@@ -20,6 +20,7 @@ python-multipart = "^0.0.5"
 black = "^22.12.0"
 flake8 = "^6.0.0"
 flake8-gl-codeclimate = "^0.1.6"
+isort = "^5.12.0"
 
 [tool.black]
 line-length = 88
