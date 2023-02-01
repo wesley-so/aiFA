@@ -9,7 +9,7 @@ from ..config import config
 from .database import session_collection
 
 
-def create_session(userId: str, expires_sec: int = 259200) -> str:
+async def create_session(userId: str, expires_sec: int = 259200) -> str:
     """Create a user session with a user ID and an optional expire time in second.
 
     The expire time are default to 3 days.
@@ -22,7 +22,7 @@ def create_session(userId: str, expires_sec: int = 259200) -> str:
     exp = ceil(epoch_sec) + expires_sec
     sessionId = secrets.token_urlsafe(32)
     payload = {"userId": userId, "nbf": nbf, "exp": exp, "sessionId": sessionId}
-    session_collection.insert_one(
+    await session_collection.insert_one(
         {
             "sessionId": sessionId,
             "exp": datetime.fromtimestamp(epoch_sec, timezone.utc),
@@ -31,7 +31,7 @@ def create_session(userId: str, expires_sec: int = 259200) -> str:
     return jwt.encode(payload, config["jwt_secret"], algorithm="HS256")
 
 
-def read_session(token):
+async def read_session(token):
     payload = jwt.decode(
         token, config["jwt_secret"], algorithms="HS256", options={"verify_exp": True}
     )
@@ -39,7 +39,7 @@ def read_session(token):
     if payload["sessionId"] is None:
         raise jwt.InvalidTokenError("session ID not found in JWT.")
 
-    session = session_collection.find_one({"sessionId", payload["sessionId"]})
+    session = await session_collection.find_one({"sessionId", payload["sessionId"]})
 
     if session["exp"] is None:
         raise jwt.ExpiredSignatureError("Session expired.")
@@ -47,8 +47,8 @@ def read_session(token):
     return payload
 
 
-def destroy_session(token):
+async def destroy_session(token):
     payload = jwt.decode(
         token, config["jwt_secret"], algorithms="HS256", options={"verify_exp": False}
     )
-    session_collection.delete_one({"sessionId": payload["sessionId"]})
+    await session_collection.delete_one({"sessionId": payload["sessionId"]})

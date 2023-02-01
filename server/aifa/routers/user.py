@@ -43,10 +43,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = read_session(token)
+        payload = await read_session(token)
         if payload["userId"] is None:
             raise Exception()
-        user_data = user_collection.find_one({"_id": ObjectId(payload["userId"])})
+        user_data = await user_collection.find_one({"_id": ObjectId(payload["userId"])})
         if user_data is None:
             raise Exception()
     except Exception:
@@ -74,7 +74,7 @@ async def login(login: LoginModel):
 
     query = {"username": username}
     projection = {"_id": 1, "username": 1, "password": 1}
-    userQuery = user_collection.find_one(query, projection)
+    userQuery = await user_collection.find_one(query, projection)
     print(type(userQuery), "->", userQuery)
     if userQuery is None:
         # Username incorrect
@@ -97,14 +97,14 @@ async def login(login: LoginModel):
             },
         )
 
-    token = create_session(userId)
+    token = await create_session(userId)
     return JSONResponse(status_code=200, content={"token": token})
 
 
 @router.post("/logout", response_class=JSONResponse)
 async def logout(token=Depends(oauth2_scheme)):
     try:
-        destroy_session(token)
+        await destroy_session(token)
     except Exception:
         return JSONResponse(
             status_code=401, content={"error": "Token invalid or already expired."}
@@ -130,20 +130,20 @@ async def register(register: RegisterModel):
             status_code=400,
             content={"error": "Password do not match!"},
         )
-    if user_collection.find_one({"username": username}) is not None:
-        return JSONResponse(
-            status_code=400,
-            content={"error": "Username repeated! Please create another username."},
-        )
-    if user_collection.find_one({"email": email}) is not None:
-        return JSONResponse(
-            status_code=400,
-            content={"error": "Email repeated! Please type another email."},
-        )
+
+    repeated_user = await user_collection.find_one(
+        {"$or": [{"username": username}, {"email": email}]}
+    )
+    if repeated_user is not None:
+        if username == repeated_user["username"]:
+            error_msg = "Username repeated! Please create another username."
+        else:
+            error_msg = "Email repeated! Please type another email."
+        return JSONResponse(status_code=400, content={"error": error_msg})
 
     hashed = await hash_password(password)
     new_user = {"username": username, "email": email, "password": hashed}
-    insert_result = user_collection.insert_one(new_user)
+    insert_result = await user_collection.insert_one(new_user)
     userId = str(insert_result.inserted_id)
 
     return JSONResponse(
