@@ -1,21 +1,14 @@
-import bcrypt
 from bson.objectid import ObjectId
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, Field
-from pymongo import MongoClient
-import os
-from ..service.jwt import decodeJWT, expireJWT, signJWT
+
+from ..services.database import user_collection
+from ..services.session import create_session, destroy_session, read_session
+from ..utils.password import hash_password, validate_password
 
 router = APIRouter(prefix="/user", tags=["user"])
-MONGO_HOST = os.getenv("MONGO_HOST")
-MONGO_PORT = os.getenv("MONGO_PORT")
-conn = MongoClient(f"mongodb://{MONGO_HOST}:{MONGO_PORT}/")
-db = conn.aifa
-userCol = db.user
-session = db.session
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
@@ -27,14 +20,14 @@ class UserModel(BaseModel):
 
 class LoginModel(BaseModel):
     username: str = Field(title="Username", max_length=50)
-    password: bytes = Field(title="User password", max_length=20)
+    password: str = Field(title="User password", max_length=20)
 
 
 class RegisterModel(BaseModel):
     username: str = Field(title="Username", max_length=50)
     email: str = Field(title="User email", max_length=254)
-    password: bytes = Field(title="User password", max_length=20)
-    password_confirm: bytes = Field(title="Password confirmation", max_length=20)
+    password: str = Field(title="User password", max_length=20)
+    password_confirm: str = Field(title="Password confirmation", max_length=20)
 
 
 class UserEditModel(BaseModel):
@@ -43,39 +36,35 @@ class UserEditModel(BaseModel):
     password: bytes = Field(title="User password", max_length=20)
 
 
-# Hash password function
-async def hash_password(password, salt):
-    return bcrypt.hashpw(password=password, salt=salt)
-
-
 async def get_current_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = JSONResponse(
+    credentials_exception = HTTPException(
         status_code=401,
-        content="Could not validate credential",
+        detail="Could not validate credential",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = decodeJWT(token)
-        userId = payload["userId"]
-        if userId is None:
-            raise credentials_exception
-    except Exception as error:
-        return error
-    user_data = userCol.find_one({"_id": ObjectId(userId)})
-    if user_data is None:
+        payload = read_session(token)
+        if payload["userId"] is None:
+            raise Exception()
+        user_data = user_collection.find_one({"_id": ObjectId(payload["userId"])})
+        if user_data is None:
+            raise Exception()
+    except Exception:
         raise credentials_exception
-    user = UserModel(
-        username=user_data["username"], userId=userId, email=user_data["email"]
+
+    return UserModel(
+        userId=payload["userId"],
+        username=user_data["username"],
+        email=user_data["email"],
     )
-    return user
 
 
 @router.post("/login", response_class=JSONResponse)
 async def login(login: LoginModel):
-    username = login.username
+    username = login.username.strip()
     password = login.password
 
-    if len(username) == 0 or len(password) == 0:
+    if not username or not password:
         return JSONResponse(
             status_code=400,
             content={
@@ -85,9 +74,9 @@ async def login(login: LoginModel):
 
     query = {"username": username}
     projection = {"_id": 1, "username": 1, "password": 1}
-    userQuery = userCol.find_one(query, projection)
-    print(userQuery)
-    if userQuery == 0:
+    userQuery = user_collection.find_one(query, projection)
+    print(type(userQuery), "->", userQuery)
+    if userQuery is None:
         # Username incorrect
         return JSONResponse(
             status_code=400,
@@ -95,17 +84,12 @@ async def login(login: LoginModel):
                 "error": "Username or password incorrect! Please try again.",
             },
         )
-    else:
-        user_password = userQuery["password"]
-        userId = str(userQuery["_id"])
+
+    password_hash = userQuery["password"]
+    userId = str(userQuery["_id"])
 
     # Check password match or not
-    if bcrypt.checkpw(password, user_password):
-        token = signJWT(userId)
-        session.insert_one({"token": token}, True)
-        return JSONResponse(status_code=200, content={"token": token})
-    else:
-        # Password incorrect
+    if not await validate_password(password, password_hash):
         return JSONResponse(
             status_code=400,
             content={
@@ -113,29 +97,31 @@ async def login(login: LoginModel):
             },
         )
 
+    token = create_session(userId)
+    return JSONResponse(status_code=200, content={"token": token})
+
 
 @router.post("/logout", response_class=JSONResponse)
-async def logout(token):
-    expireJWT(token)
+async def logout(token=Depends(oauth2_scheme)):
+    try:
+        destroy_session(token)
+    except Exception:
+        return JSONResponse(
+            status_code=401, content={"error": "Token invalid or already expired."}
+        )
+    return JSONResponse(status_code=200, content={})
 
 
 @router.post("/register", response_class=JSONResponse)
 async def register(register: RegisterModel):
-    username = register.username
+    username = register.username.strip()
     email = register.email
     password = register.password
     password_confirm = register.password_confirm
-    if (
-        len(username) == 0
-        or len(email) == 0
-        or len(password) == 0
-        or len(password_confirm) == 0
-    ):
+    if not (username and email and password and password_confirm):
         return JSONResponse(
             status_code=400,
-            content={
-                "error": "Some fields are missing or invalid!",
-            },
+            content={"error": "Some fields are missing or invalid!"},
         )
 
     # Check password and passwordConfirm
@@ -144,103 +130,95 @@ async def register(register: RegisterModel):
             status_code=400,
             content={"error": "Password do not match!"},
         )
-
-    if userCol.find_one({"username": username}) is not None:
+    if user_collection.find_one({"username": username}) is not None:
         return JSONResponse(
             status_code=400,
-            content={
-                "error": "Username repeated! Please create another username.",
-            },
+            content={"error": "Username repeated! Please create another username."},
         )
-    if userCol.find_one({"email": email}) is not None:
+    if user_collection.find_one({"email": email}) is not None:
         return JSONResponse(
             status_code=400,
-            content={
-                "error": "Email repeated! Please type another email.",
-            },
+            content={"error": "Email repeated! Please type another email."},
         )
 
-    salt = bcrypt.gensalt(16)
-    hashed = hash_password(password, salt)
-    new_user = {"username": username, "email": email, "password": hashed, "salt": salt}
-    insert_user = userCol.insert_one(new_user)
-    userId = insert_user.inserted_id
+    hashed = await hash_password(password)
+    new_user = {"username": username, "email": email, "password": hashed}
+    insert_result = user_collection.insert_one(new_user)
+    userId = str(insert_result.inserted_id)
 
     return JSONResponse(
         status_code=201,
-        content={
-            "message": f"Account created successfully! ID: {userId}",
-        },
+        content={"message": "Account created successfully.", "userId": userId},
     )
 
 
-@router.post("/{userId}", response_class=JSONResponse)
-async def edit(edit: UserEditModel, userId: str = Path(title="User ID")):
-    userId = ObjectId(userId)
-    query = {"_id": userId}
-    projection = {"_id": 0, "username": 1, "password": 1}
-    user_info = userCol.find_one(query, projection)
-    username = user_info["username"]
-    password = user_info["password"]
+# @router.post("/{userId}", response_class=JSONResponse)
+# async def edit(edit: UserEditModel, userId: str = Path(title="User ID")):
+#     userId = ObjectId(userId)
+#     query = {"_id": userId}
+#     projection = {"_id": 0, "username": 1, "password": 1}
+#     user_info = user_collection.find_one(query, projection)
+#     username = user_info["username"]
+#     password = user_info["password"]
 
-    new_username = edit.username
-    new_password = edit.password
-    new_salt = bcrypt.gensalt(16)
-    new_hashed_password = hash_password(new_password, new_salt)
+#     new_username = edit.username
+#     new_password = edit.password
+#     new_salt = bcrypt.gensalt(16)
+#     new_hashed_password = hash_password(new_password, new_salt)
 
-    # Check if username and password is empty
-    if len(new_username) == 0 and len(new_password) == 0:
-        return JSONResponse(
-            status_code=400,
-            content={
-                "error": "Some fields are missing or invalid!",
-            },
-        )
-    # Check if user is logged in
-    # if userInfo.count() == 0:
-    #     return JSONResponse(
-    #         status_code=401, content="User is unauthorized to update account."
-    #     )
+#     # Check if username and password is empty
+#     if len(new_username) == 0 and len(new_password) == 0:
+#         return JSONResponse(
+#             status_code=400,
+#             content={
+#                 "error": "Some fields are missing or invalid!",
+#             },
+#         )
+#     # Check if user is logged in
+#     # if userInfo.count() == 0:
+#     #     return JSONResponse(
+#     #         status_code=401, content="User is unauthorized to update account."
+#     #     )
 
-    # Check if username is repeated with the original one
-    if username == new_username:
-        return JSONResponse(
-            status_code=400,
-            content={
-                "error": "Username repeated! Please change another username.",
-            },
-        )
-    # Check if the password is repeated with the original one
-    if bcrypt.checkpw(new_password, password):
-        return JSONResponse(
-            status_code=400,
-            content={
-                "error": "Password repeated! Please change another password.",
-            },
-        )
+#     # Check if username is repeated with the original one
+#     if username == new_username:
+#         return JSONResponse(
+#             status_code=400,
+#             content={
+#                 "error": "Username repeated! Please change another username.",
+#             },
+#         )
+#     # Check if the password is repeated with the original one
+#     if bcrypt.checkpw(new_password, password):
+#         return JSONResponse(
+#             status_code=400,
+#             content={
+#                 "error": "Password repeated! Please change another password.",
+#             },
+#         )
 
-    # Update username and hashed password in
-    new_values = {
-        "$set": {
-            "username": new_username,
-            "password": new_hashed_password,
-            "salt": new_salt,
-        }
-    }
-    userCol.update_one(query, new_values)
-    return JSONResponse(status_code=200)
+#     # Update username and hashed password in
+#     new_values = {
+#         "$set": {
+#             "username": new_username,
+#             "password": new_hashed_password,
+#             "salt": new_salt,
+#         }
+#     }
+#     user_collection.update_one(query, new_values)
+#     return JSONResponse(status_code=200)
 
 
-@router.get("/{userId}", response_class=JSONResponse)
-async def info(userId: str = Path(title="User ID")):
-    userId = ObjectId(userId)
-    query = {"_id": userId}
-    projection = {"_id": 0, "username": 1, "email": 1}
-    user_info = userCol.find_one(query, projection)
-    username = user_info["username"]
-    email = user_info["email"]
+# @router.get("/{userId}", response_class=JSONResponse)
+# async def info(userId: str = Path(title="User ID")):
+#     userId = ObjectId(userId)
+#     query = {"_id": userId}
+#     projection = {"_id": 0, "username": 1, "email": 1}
+#     user_info = user_collection.find_one(query, projection)
+#     username = user_info["username"]
+#     email = user_info["email"]
 
-    return JSONResponse(
-        status_code=200,
-        content={"username": username, "email": email},
-    )
+#     return JSONResponse(
+#         status_code=200,
+#         content={"username": username, "email": email},
+#     )
