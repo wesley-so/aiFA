@@ -9,12 +9,13 @@ license = "PROPRIETARY"
 python = "~3.10"
 bcrypt = "^4.0.1"
 fastapi = {extras = ["all"], version = "^0.89.0"}
+motor = "^3.1.1"
+pyjwt = "^2.6.0"
 pymongo = {extras = ["snappy", "srv", "tls"], version = "^4.3.3"}
+python-multipart = "^0.0.5"
 tensorflow = {version="^2.11.0", markers = "sys_platform != 'darwin'"}
 tensorflow-macos = {version="^2.11.0", markers = "sys_platform == 'darwin'"}
 tensorflow-metal = {version="^0.7.0", markers = "sys_platform == 'darwin'"}
-pyjwt = "^2.6.0"
-python-multipart = "^0.0.5"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.12.0"
