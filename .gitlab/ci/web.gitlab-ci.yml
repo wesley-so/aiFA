@@ -48,18 +48,18 @@ web:test:
         coverage_format: cobertura
         path: web/coverage/cobertura-coverage.xml
 
-web:build:
-  stage: build
-  needs:
-    - web:lint
-    - web:test
-  extends:
-    - .mr-job-skip
-    - .web-node-template
-  script:
-    - cd web/
-    - yarn install --frozen-lockfile
-    - yarn build
-  artifacts:
-    paths:
-      - "$CI_PROJECT_DIR/web/build/"
+# web:build:
+#   stage: build
+#   needs:
+#     - web:lint
+#     - web:test
+#   extends:
+#     - .mr-job-skip
+#     - .web-node-template
+#   script:
+#     - cd web/
+#     - yarn install --frozen-lockfile
+#     - yarn build
+#   artifacts:
+#     paths:
+#       - "$CI_PROJECT_DIR/web/build/"
