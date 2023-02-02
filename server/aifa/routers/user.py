@@ -1,66 +1,17 @@
-from bson.objectid import ObjectId
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
-from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel, Field
 
+from ..dependencies.session import get_session_token
+from ..models.user import UserLoginSchema, UserRegisterSchema
 from ..services.database import user_collection
-from ..services.session import create_session, destroy_session, read_session
+from ..services.session import create_session, destroy_session
 from ..utils.password import hash_password, validate_password
 
 router = APIRouter(prefix="/user", tags=["user"])
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
-
-class UserModel(BaseModel):
-    username: str
-    userId: str
-    email: str
-
-
-class LoginModel(BaseModel):
-    username: str = Field(title="Username", max_length=50)
-    password: str = Field(title="User password", max_length=20)
-
-
-class RegisterModel(BaseModel):
-    username: str = Field(title="Username", max_length=50)
-    email: str = Field(title="User email", max_length=254)
-    password: str = Field(title="User password", max_length=20)
-    password_confirm: str = Field(title="Password confirmation", max_length=20)
-
-
-class UserEditModel(BaseModel):
-    username: str = Field(title="Username", max_length=50)
-    email: str | None = Field(title="User email", max_length=254)
-    password: bytes = Field(title="User password", max_length=20)
-
-
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=401,
-        detail="Could not validate credential",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = await read_session(token)
-        if payload["userId"] is None:
-            raise Exception()
-        user_data = await user_collection.find_one({"_id": ObjectId(payload["userId"])})
-        if user_data is None:
-            raise Exception()
-    except Exception:
-        raise credentials_exception
-
-    return UserModel(
-        userId=payload["userId"],
-        username=user_data["username"],
-        email=user_data["email"],
-    )
 
 
 @router.post("/login", response_class=JSONResponse)
-async def login(login: LoginModel):
+async def login(login: UserLoginSchema):
     username = login.username.strip()
     password = login.password
 
@@ -73,7 +24,7 @@ async def login(login: LoginModel):
         )
 
     query = {"username": username}
-    projection = {"_id": 1, "username": 1, "password": 1}
+    projection = {"_id": 1, "username": 1, "password_hash": 1}
     userQuery = await user_collection.find_one(query, projection)
     print(type(userQuery), "->", userQuery)
     if userQuery is None:
@@ -85,8 +36,8 @@ async def login(login: LoginModel):
             },
         )
 
-    password_hash = userQuery["password"]
-    userId = str(userQuery["_id"])
+    password_hash = userQuery["password_hash"]
+    user_id = str(userQuery["_id"])
 
     # Check password match or not
     if not await validate_password(password, password_hash):
@@ -97,12 +48,12 @@ async def login(login: LoginModel):
             },
         )
 
-    token = await create_session(userId)
+    token = await create_session(user_id)
     return JSONResponse(status_code=200, content={"token": token})
 
 
 @router.post("/logout", response_class=JSONResponse)
-async def logout(token=Depends(oauth2_scheme)):
+async def logout(token=Depends(get_session_token)):
     try:
         await destroy_session(token)
     except Exception:
@@ -113,7 +64,7 @@ async def logout(token=Depends(oauth2_scheme)):
 
 
 @router.post("/register", response_class=JSONResponse)
-async def register(register: RegisterModel):
+async def register(register: UserRegisterSchema):
     username = register.username.strip()
     email = register.email
     password = register.password
@@ -142,20 +93,20 @@ async def register(register: RegisterModel):
         return JSONResponse(status_code=400, content={"error": error_msg})
 
     hashed = await hash_password(password)
-    new_user = {"username": username, "email": email, "password": hashed}
+    new_user = {"username": username, "email": email, "password_hash": hashed}
     insert_result = await user_collection.insert_one(new_user)
-    userId = str(insert_result.inserted_id)
+    user_id = str(insert_result.inserted_id)
 
     return JSONResponse(
         status_code=201,
-        content={"message": "Account created successfully.", "userId": userId},
+        content={"message": "Account created successfully.", "user_id": user_id},
     )
 
 
-# @router.post("/{userId}", response_class=JSONResponse)
-# async def edit(edit: UserEditModel, userId: str = Path(title="User ID")):
-#     userId = ObjectId(userId)
-#     query = {"_id": userId}
+# @router.post("/{user_id}", response_class=JSONResponse)
+# async def edit(edit: UserEditModel, user_id: str = Path(title="User ID")):
+#     user_id = ObjectId(user_id)
+#     query = {"_id": user_id}
 #     projection = {"_id": 0, "username": 1, "password": 1}
 #     user_info = user_collection.find_one(query, projection)
 #     username = user_info["username"]
@@ -209,10 +160,10 @@ async def register(register: RegisterModel):
 #     return JSONResponse(status_code=200)
 
 
-# @router.get("/{userId}", response_class=JSONResponse)
-# async def info(userId: str = Path(title="User ID")):
-#     userId = ObjectId(userId)
-#     query = {"_id": userId}
+# @router.get("/{user_id}", response_class=JSONResponse)
+# async def info(user_id: str = Path(title="User ID")):
+#     user_id = ObjectId(user_id)
+#     query = {"_id": user_id}
 #     projection = {"_id": 0, "username": 1, "email": 1}
 #     user_info = user_collection.find_one(query, projection)
 #     username = user_info["username"]

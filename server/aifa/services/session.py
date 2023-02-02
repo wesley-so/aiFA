@@ -9,7 +9,7 @@ from ..config import config
 from .database import session_collection
 
 
-async def create_session(userId: str, expires_sec: int = 259200) -> str:
+async def create_session(user_id: str, expires_sec: int = 259200) -> str:
     """Create a user session with a user ID and an optional expire time in second.
 
     The expire time are default to 3 days.
@@ -21,7 +21,7 @@ async def create_session(userId: str, expires_sec: int = 259200) -> str:
     nbf = floor(epoch_sec)
     exp = ceil(epoch_sec) + expires_sec
     sessionId = secrets.token_urlsafe(32)
-    payload = {"userId": userId, "nbf": nbf, "exp": exp, "sessionId": sessionId}
+    payload = {"user_id": user_id, "nbf": nbf, "exp": exp, "sessionId": sessionId}
     await session_collection.insert_one(
         {
             "sessionId": sessionId,
