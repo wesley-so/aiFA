@@ -12,7 +12,15 @@ services:
       interval: 5s
       retries: 6
   server:
-    build: ./server
+    build:
+      context: ./server
+    ###########################################################
+    # Uncomment below lines to use Tensorflow with Nvidia GPU #
+    ###########################################################
+    #   dockerfile: Dockerfile.gpu
+    # environment:
+    #   NVIDIA_VISIBLE_DEVICES: all
+    #   NVIDIA_DRIVER_CAPABILITIES: compute,utility
     command: make dev
     ports:
       - "8000:8000"
