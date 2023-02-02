@@ -35,21 +35,21 @@ server:lint:
     reports:
       codequality: server/gl-codequality.json
 
-server:build:
-  stage: build
-  extends:
-    - .kaniko-image-build-template
-    - .mr-job-skip
-  needs:
-    - server:lint
-  script:
-    - export AIFA_SERVER_DIR="${CI_PROJECT_DIR}/server"
-    - export AIFA_IMAGE_NAME="${CI_REGISTRY_IMAGE}/server"
-    - export AIFA_KANIKO_ARGS="--destination ${AIFA_IMAGE_NAME}:${CI_COMMIT_SHA}"
-    - |
-      if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
-        export AIFA_KANIKO_ARGS="${AIFA_KANIKO_ARGS} --destination ${AIFA_IMAGE_NAME}:latest";
-      elif [ -n "$CI_COMMIT_TAG" ]; then
-        export AIFA_KANIKO_ARGS="${AIFA_KANIKO_ARGS} --destination ${AIFA_IMAGE_NAME}:${CI_COMMIT_TAG}";
-      fi
-    - /kaniko/executor --cache --context "${AIFA_SERVER_DIR}" --dockerfile "${AIFA_SERVER_DIR}/Dockerfile" ${AIFA_KANIKO_ARGS}
+# server:build:
+#   stage: build
+#   extends:
+#     - .kaniko-image-build-template
+#     - .mr-job-skip
+#   needs:
+#     - server:lint
+#   script:
+#     - export AIFA_SERVER_DIR="${CI_PROJECT_DIR}/server"
+#     - export AIFA_IMAGE_NAME="${CI_REGISTRY_IMAGE}/server"
+#     - export AIFA_KANIKO_ARGS="--destination ${AIFA_IMAGE_NAME}:${CI_COMMIT_SHA}"
+#     - |
+#       if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+#         export AIFA_KANIKO_ARGS="${AIFA_KANIKO_ARGS} --destination ${AIFA_IMAGE_NAME}:latest";
+#       elif [ -n "$CI_COMMIT_TAG" ]; then
+#         export AIFA_KANIKO_ARGS="${AIFA_KANIKO_ARGS} --destination ${AIFA_IMAGE_NAME}:${CI_COMMIT_TAG}";
+#       fi
+#     - /kaniko/executor --cache --context "${AIFA_SERVER_DIR}" --dockerfile "${AIFA_SERVER_DIR}/Dockerfile" ${AIFA_KANIKO_ARGS}
