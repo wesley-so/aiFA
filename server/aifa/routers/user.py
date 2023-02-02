@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
-from ..dependencies.session import get_session_token
-from ..models.user import UserLoginSchema, UserRegisterSchema
+from ..dependencies.session import get_session_token, get_session_user
+from ..models.user import UserLoginSchema, UserModel, UserRegisterSchema
 from ..services.database import user_collection
 from ..services.session import create_session, destroy_session
 from ..utils.password import hash_password, validate_password
@@ -103,73 +103,6 @@ async def register(register: UserRegisterSchema):
     )
 
 
-# @router.post("/{user_id}", response_class=JSONResponse)
-# async def edit(edit: UserEditModel, user_id: str = Path(title="User ID")):
-#     user_id = ObjectId(user_id)
-#     query = {"_id": user_id}
-#     projection = {"_id": 0, "username": 1, "password": 1}
-#     user_info = user_collection.find_one(query, projection)
-#     username = user_info["username"]
-#     password = user_info["password"]
-
-#     new_username = edit.username
-#     new_password = edit.password
-#     new_salt = bcrypt.gensalt(16)
-#     new_hashed_password = hash_password(new_password, new_salt)
-
-#     # Check if username and password is empty
-#     if len(new_username) == 0 and len(new_password) == 0:
-#         return JSONResponse(
-#             status_code=400,
-#             content={
-#                 "error": "Some fields are missing or invalid!",
-#             },
-#         )
-#     # Check if user is logged in
-#     # if userInfo.count() == 0:
-#     #     return JSONResponse(
-#     #         status_code=401, content="User is unauthorized to update account."
-#     #     )
-
-#     # Check if username is repeated with the original one
-#     if username == new_username:
-#         return JSONResponse(
-#             status_code=400,
-#             content={
-#                 "error": "Username repeated! Please change another username.",
-#             },
-#         )
-#     # Check if the password is repeated with the original one
-#     if bcrypt.checkpw(new_password, password):
-#         return JSONResponse(
-#             status_code=400,
-#             content={
-#                 "error": "Password repeated! Please change another password.",
-#             },
-#         )
-
-#     # Update username and hashed password in
-#     new_values = {
-#         "$set": {
-#             "username": new_username,
-#             "password": new_hashed_password,
-#             "salt": new_salt,
-#         }
-#     }
-#     user_collection.update_one(query, new_values)
-#     return JSONResponse(status_code=200)
-
-
-# @router.get("/{user_id}", response_class=JSONResponse)
-# async def info(user_id: str = Path(title="User ID")):
-#     user_id = ObjectId(user_id)
-#     query = {"_id": user_id}
-#     projection = {"_id": 0, "username": 1, "email": 1}
-#     user_info = user_collection.find_one(query, projection)
-#     username = user_info["username"]
-#     email = user_info["email"]
-
-#     return JSONResponse(
-#         status_code=200,
-#         content={"username": username, "email": email},
-#     )
+@router.get("/me", response_class=JSONResponse)
+async def self_info(self_info: UserModel = Depends(get_session_user)):
+    return JSONResponse(status_code=200, content=self_info.dict())

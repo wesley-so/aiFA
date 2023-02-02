@@ -1,6 +1,5 @@
 import secrets
 from datetime import datetime, timezone
-from math import ceil, floor
 from time import time
 
 import jwt
@@ -16,18 +15,22 @@ async def create_session(user_id: str, expires_sec: int = 259200) -> str:
     Return with a JWT token for later authentication of the user.
     """
 
-    epoch_sec = time()
-
-    nbf = floor(epoch_sec)
-    exp = ceil(epoch_sec) + expires_sec
+    nbf = time()
+    exp = nbf + expires_sec
     session_id = secrets.token_urlsafe(32)
-    payload = {"user_id": user_id, "nbf": nbf, "exp": exp, "session_id": session_id}
+    payload = {
+        "user_id": user_id,
+        "nbf": datetime.fromtimestamp(nbf, timezone.utc),
+        "exp": datetime.fromtimestamp(exp, timezone.utc),
+        "session_id": session_id,
+    }
     await session_collection.insert_one(
         {
             "session_id": session_id,
-            "exp": datetime.fromtimestamp(epoch_sec, timezone.utc),
+            "exp": payload["exp"],
         }
     )
+
     return jwt.encode(payload, config["jwt_secret"], algorithm="HS256")
 
 
