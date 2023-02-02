@@ -29,6 +29,8 @@ ci-lint:
 
 format:
 	poetry run black aifa
+	poetry run isort aifa
 
 format-check:
 	poetry run black aifa --check
+	poetry run isort aifa --check-only
