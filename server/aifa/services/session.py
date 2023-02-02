@@ -20,11 +20,11 @@ async def create_session(user_id: str, expires_sec: int = 259200) -> str:
 
     nbf = floor(epoch_sec)
     exp = ceil(epoch_sec) + expires_sec
-    sessionId = secrets.token_urlsafe(32)
-    payload = {"user_id": user_id, "nbf": nbf, "exp": exp, "sessionId": sessionId}
+    session_id = secrets.token_urlsafe(32)
+    payload = {"user_id": user_id, "nbf": nbf, "exp": exp, "session_id": session_id}
     await session_collection.insert_one(
         {
-            "sessionId": sessionId,
+            "session_id": session_id,
             "exp": datetime.fromtimestamp(epoch_sec, timezone.utc),
         }
     )
@@ -36,12 +36,12 @@ async def read_session(token):
         token, config["jwt_secret"], algorithms="HS256", options={"verify_exp": True}
     )
 
-    if payload["sessionId"] is None:
+    if payload["session_id"] is None:
         raise jwt.InvalidTokenError("session ID not found in JWT.")
 
-    session = await session_collection.find_one({"sessionId", payload["sessionId"]})
+    session = await session_collection.find_one({"session_id": payload["session_id"]})
 
-    if session["exp"] is None:
+    if session is None:
         raise jwt.ExpiredSignatureError("Session expired.")
 
     return payload
@@ -51,4 +51,4 @@ async def destroy_session(token):
     payload = jwt.decode(
         token, config["jwt_secret"], algorithms="HS256", options={"verify_exp": False}
     )
-    await session_collection.delete_one({"sessionId": payload["sessionId"]})
+    await session_collection.delete_one({"session_id": payload["session_id"]})
