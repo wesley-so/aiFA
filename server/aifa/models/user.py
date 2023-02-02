@@ -5,7 +5,7 @@ class UserModel(BaseModel):
     user_id: str
     username: str
     email: str
-    password_hash: str
+    # password_hash: str
 
 
 class UserLoginSchema(BaseModel):
