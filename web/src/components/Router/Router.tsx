@@ -6,6 +6,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import App from "../App/App";
+import Dashboard from "../Dashboard/Dashboard";
 import HomePage from "../HomePage/HomePage";
 import LoginPage from "../LoginPage/LoginPage";
 import RegisterPage from "../RegisterPage/RegisterPage";
@@ -16,6 +17,7 @@ const router = createBrowserRouter(
     <>
       <Route path="/" element={<HomePage />}></Route>
       <Route path="app" element={<App />}></Route>
+      <Route path="dashboard" element={<Dashboard />}></Route>
       <Route path="login" element={<LoginPage />}></Route>
       <Route path="register" element={<RegisterPage />}></Route>
       <Route path="profile" element={<UserProfilePage />}></Route>
