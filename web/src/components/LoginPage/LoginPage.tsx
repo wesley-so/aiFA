@@ -9,12 +9,32 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { FC } from "react";
+import { ChangeEventHandler, FC, useState } from "react";
 import { useHref } from "react-router-dom";
+import useUser from "../../hooks/useUser";
 import UserNavigationBar from "../UserNavigationBar/UserNavigationBar";
 
 const LoginPage: FC = () => {
+  const userContext = useUser();
   const registerUri = useHref("/register");
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const onTextFieldChange = (
+    setValue: (value: string) => void
+  ): ChangeEventHandler<HTMLInputElement> => {
+    return (event) => {
+      setValue(event.currentTarget.value);
+    };
+  };
+
+  const clickLoginHandler = () => {
+    console.log(
+      `Clicked login with user ${username} with password ${password}`
+    );
+    userContext.fetchLogin(username, password);
+  };
   return (
     <>
       <UserNavigationBar />
@@ -30,8 +50,7 @@ const LoginPage: FC = () => {
           <Typography variant="h5" component="h1">
             Login
           </Typography>
-          {/* <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}> */}
-          <Box component="form" noValidate sx={{ mt: 1 }}>
+          <Box component="div" sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required
@@ -41,6 +60,8 @@ const LoginPage: FC = () => {
               name="username"
               autoComplete="username"
               autoFocus
+              value={username}
+              onChange={onTextFieldChange(setUsername)}
             />
             <TextField
               margin="normal"
@@ -51,6 +72,8 @@ const LoginPage: FC = () => {
               type="password"
               id="password"
               autoComplete="current-password"
+              value={password}
+              onChange={onTextFieldChange(setPassword)}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
@@ -60,6 +83,13 @@ const LoginPage: FC = () => {
               type="submit"
               fullWidth
               variant="contained"
+              disabled={
+                !username.trim() ||
+                !password ||
+                userContext.loginStatus.isLoginPending ||
+                userContext.loginStatus.isLoggedIn
+              }
+              onClick={clickLoginHandler}
               sx={{ mt: 3, mb: 2 }}
             >
               Sign In
