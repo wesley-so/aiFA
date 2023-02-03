@@ -9,13 +9,13 @@ import {
 } from "@mui/material";
 import { FC } from "react";
 import { useHref } from "react-router-dom";
-import NavigationBar from "../NavigationBar/NavigationBar";
+import UserNavigationBar from "../UserNavigationBar/UserNavigationBar";
 
 const RegisterPage: FC = () => {
   const loginUri = useHref("/login");
   return (
     <>
-      <NavigationBar></NavigationBar>
+      <UserNavigationBar />
       <Container component="main" maxWidth="xs">
         <Box
           sx={{

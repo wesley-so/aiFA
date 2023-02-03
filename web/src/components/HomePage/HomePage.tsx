@@ -1,11 +1,11 @@
 import { Grid, Typography } from "@mui/material";
 import { FC } from "react";
-import NavigationBar from "../NavigationBar/NavigationBar";
+import UserNavigationBar from "../UserNavigationBar/UserNavigationBar";
 
 const HomePage: FC = () => {
   return (
     <>
-      <NavigationBar></NavigationBar>
+      <UserNavigationBar />
       <Grid
         container
         spacing={0}

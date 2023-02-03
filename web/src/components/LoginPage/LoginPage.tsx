@@ -11,13 +11,13 @@ import {
 } from "@mui/material";
 import { FC } from "react";
 import { useHref } from "react-router-dom";
-import NavigationBar from "../NavigationBar/NavigationBar";
+import UserNavigationBar from "../UserNavigationBar/UserNavigationBar";
 
 const LoginPage: FC = () => {
   const registerUri = useHref("/register");
   return (
     <>
-      <NavigationBar></NavigationBar>
+      <UserNavigationBar />
       <Container component="main" maxWidth="xs">
         <Box
           sx={{
@@ -27,7 +27,7 @@ const LoginPage: FC = () => {
             alignItems: "center",
           }}
         >
-          <Typography component="h1" variant="h5">
+          <Typography variant="h5" component="h1">
             Login
           </Typography>
           {/* <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}> */}
