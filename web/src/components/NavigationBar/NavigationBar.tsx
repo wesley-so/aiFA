@@ -2,7 +2,7 @@ import { AppBar, Box, Button, Stack, Toolbar, Typography } from "@mui/material";
 import { FC } from "react";
 import { Link, useHref } from "react-router-dom";
 
-const NavigationBar: FC<{}> = () => {
+const NavigationBar: FC = () => {
   const homeUri = useHref("/");
   const loginUri = useHref("/login");
   const registerUri = useHref("/register");

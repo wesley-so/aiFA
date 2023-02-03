@@ -2,7 +2,7 @@ import logo from "./logo.svg";
 import "./App.css";
 import { FC } from "react";
 
-const App: FC<{}> = () => {
+const App: FC = () => {
   return (
     <div className="App">
       <header className="App-header">
