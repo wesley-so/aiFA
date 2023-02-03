@@ -1,8 +1,8 @@
-import { AppBar, Box, Button, Stack, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Button, Link, Stack, Toolbar, Typography } from "@mui/material";
 import { FC } from "react";
-import { Link, useHref } from "react-router-dom";
+import { useHref } from "react-router-dom";
 
-const NavigationBar: FC = () => {
+const UserNavigationBar: FC = () => {
   const homeUri = useHref("/");
   const loginUri = useHref("/login");
   const registerUri = useHref("/register");
@@ -11,7 +11,12 @@ const NavigationBar: FC = () => {
       <AppBar position="absolute">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <Link to={homeUri}>aiFA</Link>
+            <Link
+              href={homeUri}
+              style={{ textDecoration: "none", color: "#FFF" }}
+            >
+              aiFA
+            </Link>
           </Typography>
           <Stack direction="row" spacing={2}>
             <Button variant="outlined" color="inherit" href={loginUri}>
@@ -27,4 +32,4 @@ const NavigationBar: FC = () => {
   );
 };
 
-export default NavigationBar;
+export default UserNavigationBar;
