@@ -64,8 +64,8 @@ const LoginPage: FC = () => {
             >
               Sign In
             </Button>
-            <Grid container>
-              <Grid item xs>
+            <Grid container justifyContent="flex-end">
+              <Grid item>
                 <Link href={registerUri} variant="body2">
                   {"Don't have an account? Register "}
                 </Link>
