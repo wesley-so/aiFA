@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { FC } from "react";
 import DashboardNavigationBar from "../DashboardNavigationBar/DashboardNavigationBar";
 
@@ -6,13 +6,22 @@ const Dashboard: FC = () => {
   return (
     <>
       <DashboardNavigationBar />
-      <Typography
-        variant="h3"
-        component="h1"
-        style={{ paddingTop: "5vh", marginLeft: "15px" }}
+      <Grid
+        container
+        spacing={0}
+        direction="column"
+        alignItems="left"
+        justifyContent="left"
+        marginLeft="15px"
+        paddingTop="5vh"
       >
-        Dashboard
-      </Typography>
+        <Typography
+          variant="h3"
+          component="h1"
+        >
+          Dashboard
+        </Typography>
+      </Grid>
     </>
   );
 };

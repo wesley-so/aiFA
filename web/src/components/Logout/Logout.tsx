@@ -1,12 +1,7 @@
 import { Grid, Typography } from "@mui/material";
 import { FC } from "react";
-// import { useNavigate } from "react-router-dom";
+import { redirect } from "react-router-dom";
 import DashboardNavigationBar from "../DashboardNavigationBar/DashboardNavigationBar";
-
-// async function handleLogout() {
-//     const nav = useNavigate();
-//     nav("/")
-// }
 
 const LogoutPage: FC = () => {
   return (
