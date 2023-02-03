@@ -8,7 +8,7 @@ const useUser = () => {
     throw new Error("`useUser` hooks cannot use outside `UserContext`.");
   }
 
-  return [props.user, props.loginStatus, props.fetchLogin, props.fetchLogout];
+  return props;
 };
 
 export default useUser;
