@@ -11,7 +11,7 @@ import { FC } from "react";
 import { useHref } from "react-router-dom";
 import NavigationBar from "../NavigationBar/NavigationBar";
 
-const RegisterPage: FC<{}> = () => {
+const RegisterPage: FC = () => {
   const loginUri = useHref("/login");
   return (
     <>

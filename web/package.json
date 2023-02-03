@@ -38,13 +38,22 @@
       "react-app",
       "react-app/jest",
       "eslint:recommended",
+      "plugin:@typescript-eslint/recommended",
       "plugin:react/recommended",
       "plugin:prettier/recommended"
     ],
     "rules": {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { 
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "caughtErrorsIgnorePattern": "^_"
+        }
+      ],
+      "prettier/prettier": "warn",
       "react/jsx-uses-react": "off",
-      "react/react-in-jsx-scope": "off",
-      "prettier/prettier": "warn"
+      "react/react-in-jsx-scope": "off"
     }
   },
   "browserslist": {

@@ -2,7 +2,7 @@ import { Grid, Typography } from "@mui/material";
 import { FC } from "react";
 import NavigationBar from "../NavigationBar/NavigationBar";
 
-const HomePage: FC<{}> = () => {
+const HomePage: FC = () => {
   return (
     <>
       <NavigationBar></NavigationBar>
