@@ -30,11 +30,13 @@ server:lint:
     - make setup
     - make ci-lint
     - make format-check
+  after_script:
+    - cd "$CI_PROJECT_DIR/server"
+    - python3 scripts/codequality_abs_path.py server gl-codequality.json
   artifacts:
     when: always
     reports:
       codequality: server/gl-codequality.json
-
 # server:build:
 #   stage: build
 #   extends:

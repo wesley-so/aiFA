@@ -3,7 +3,6 @@ from fastapi.responses import JSONResponse
 
 from ..dependencies.session import get_session_token, get_session_user
 from ..models.user import UserLoginSchema, UserModel, UserRegisterSchema
-from ..services.database import user_collection
 from ..services.session import create_session, destroy_session
 from ..services.user import UserRegisterError, create_user, get_password_hash
 from ..utils.password import hash_password, validate_password
