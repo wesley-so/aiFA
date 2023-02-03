@@ -12,7 +12,7 @@ export const UserContextProvider: FC<{ children?: ReactNode }> = ({
   });
 
   const fetchLogin = useCallback(
-    (username: string, password: string): void => {
+    (_username: string, _password: string): void => {
       setLoginStatus({ isLoginPending: true, isLoggedIn: false });
 
       // TODO: Write login function with API calls.
