@@ -1,6 +1,6 @@
 import { Grid, Typography } from "@mui/material";
 import { FC } from "react";
-import { redirect } from "react-router-dom";
+// import { redirect } from "react-router-dom";
 import DashboardNavigationBar from "../DashboardNavigationBar/DashboardNavigationBar";
 
 const LogoutPage: FC = () => {

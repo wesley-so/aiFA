@@ -15,10 +15,7 @@ const Dashboard: FC = () => {
         marginLeft="15px"
         paddingTop="5vh"
       >
-        <Typography
-          variant="h3"
-          component="h1"
-        >
+        <Typography variant="h3" component="h1">
           Dashboard
         </Typography>
       </Grid>
