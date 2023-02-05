@@ -72,7 +72,6 @@ const LoginPage: FC = () => {
               autoFocus
               error={loginStatus.loginError !== null}
               fullWidth
-              helperText={loginStatus.loginError?.message}
               label="Username"
               margin="normal"
               onChange={onTextFieldChange(setUsername)}

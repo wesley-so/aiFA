@@ -1,16 +1,24 @@
 import axios, { AxiosError } from "axios";
-import { FC, ReactNode, useCallback, useState } from "react";
+import { decodeJwt } from "jose";
+import { FC, ReactNode, useCallback, useEffect, useState } from "react";
 import { redirect } from "react-router-dom";
 import { useSetState } from "react-use";
 import config from "../../config";
 import UserContext from "../../context/UserContext";
 import LoginStatus from "../../models/LoginStatus";
 import User from "../../models/User";
+import { getUser, login } from "../../services/aifaAPI/user";
+import {
+  getSessionToken,
+  removeSessionToken,
+  setSessionToken,
+} from "../../services/session";
 
 export const UserContextProvider: FC<{ children?: ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<User>();
+  const [token, setToken] = useState<string>();
   const [loginStatus, setLoginStatus] = useSetState<LoginStatus>({
     isLoginPending: false,
     isLoggedIn: false,
@@ -18,7 +26,11 @@ export const UserContextProvider: FC<{ children?: ReactNode }> = ({
   });
 
   const fetchLogin = useCallback(
-    async (username: string, password: string): Promise<void> => {
+    async (
+      username: string,
+      password: string,
+      existingToken?: string
+    ): Promise<void> => {
       setLoginStatus({
         isLoginPending: true,
         isLoggedIn: false,
@@ -26,21 +38,14 @@ export const UserContextProvider: FC<{ children?: ReactNode }> = ({
       });
 
       try {
-        const loginResponse = await axios.post<{ token: string }>(
-          `${config.apiUrl}/user/login`,
-          { username, password },
-          { headers: { "Content-Type": "application/json" } }
-        );
+        const token = existingToken ?? (await login(username, password));
+        const user = await getUser(token);
 
-        const userResponse = await axios.get<User>(`${config.apiUrl}/user/me`, {
-          headers: { Authorization: `Bearer ${loginResponse.data.token}` },
-        });
-
-        setUser(userResponse.data);
-
+        setSessionToken(token);
+        setToken(token);
+        setUser(user);
         setLoginStatus({ isLoginPending: false, isLoggedIn: true });
-
-        console.debug(`Login successfully! Token: ${loginResponse.data.token}`);
+        console.debug(`Login successfully! Token: ${token}`);
       } catch (error) {
         const errorMsg =
           error instanceof AxiosError
@@ -95,9 +100,22 @@ export const UserContextProvider: FC<{ children?: ReactNode }> = ({
       );
   }, [setLoginStatus]);
 
+  useEffect(() => {
+    const token = getSessionToken();
+    if (token) {
+      const payload = decodeJwt(token);
+      if (payload.exp && Date.now() / 1000 < payload.exp) {
+        fetchLogin("", "", token);
+      } else {
+        removeSessionToken();
+      }
+    }
+  });
+
   return (
     <UserContext.Provider
       value={{
+        token,
         user,
         loginStatus,
         fetchLogin,
