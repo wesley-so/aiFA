@@ -1,14 +1,16 @@
 import axios, { AxiosError } from "axios";
-import { FC, ReactNode, useCallback } from "react";
+import { FC, ReactNode, useCallback, useState } from "react";
 import { redirect } from "react-router-dom";
 import { useSetState } from "react-use";
 import config from "../../config";
 import UserContext from "../../context/UserContext";
 import LoginStatus from "../../models/LoginStatus";
+import User from "../../models/User";
 
 export const UserContextProvider: FC<{ children?: ReactNode }> = ({
   children,
 }) => {
+  const [user, setUser] = useState<User>();
   const [loginStatus, setLoginStatus] = useSetState<LoginStatus>({
     isLoginPending: false,
     isLoggedIn: false,
@@ -16,41 +18,44 @@ export const UserContextProvider: FC<{ children?: ReactNode }> = ({
   });
 
   const fetchLogin = useCallback(
-    (username: string, password: string): void => {
+    async (username: string, password: string): Promise<void> => {
       setLoginStatus({
         isLoginPending: true,
         isLoggedIn: false,
-        loginError: undefined,
+        loginError: null,
       });
 
-      axios
-        .post<{ token: string }>(
+      try {
+        const loginResponse = await axios.post<{ token: string }>(
           `${config.apiUrl}/user/login`,
           { username, password },
           { headers: { "Content-Type": "application/json" } }
-        )
-        .then(
-          (response) => {
-            const { token } = response.data;
-            console.debug(`Login successfully! Token: ${token}`);
-            setLoginStatus({
-              isLoginPending: false,
-              isLoggedIn: true,
-              loginError: undefined,
-            });
-          },
-          (error: AxiosError) => {
-            const errorMsg =
-              error.response?.status === 400
-                ? "Username or password incorrect! Please try again."
-                : "Currently unable to login due to unknown error.";
-            setLoginStatus({
-              isLoginPending: false,
-              isLoggedIn: false,
-              loginError: new Error(errorMsg),
-            });
-          }
         );
+
+        const userResponse = await axios.get<User>(`${config.apiUrl}/user/me`, {
+          headers: { Authorization: `Bearer ${loginResponse.data.token}` },
+        });
+
+        setUser(userResponse.data);
+
+        setLoginStatus({ isLoginPending: false, isLoggedIn: true });
+
+        console.debug(`Login successfully! Token: ${loginResponse.data.token}`);
+      } catch (error) {
+        const errorMsg =
+          error instanceof AxiosError
+            ? error.response?.status === 400
+              ? "Username or password incorrect! Please try again."
+              : "Currently unable to login due to unknown error."
+            : "Unknown error occurred. ";
+        const loginError = new Error(errorMsg, { cause: error });
+        setLoginStatus({
+          isLoginPending: false,
+          isLoggedIn: false,
+          loginError,
+        });
+        console.error(loginError);
+      }
     },
     [setLoginStatus]
   );
@@ -59,7 +64,7 @@ export const UserContextProvider: FC<{ children?: ReactNode }> = ({
     setLoginStatus({
       isLoginPending: false,
       isLoggedIn: true,
-      loginError: undefined,
+      loginError: null,
     });
     axios
       .post(
@@ -73,7 +78,7 @@ export const UserContextProvider: FC<{ children?: ReactNode }> = ({
           setLoginStatus({
             isLoginPending: false,
             isLoggedIn: false,
-            loginError: undefined,
+            loginError: null,
           });
         },
         (error: AxiosError) => {
@@ -93,6 +98,7 @@ export const UserContextProvider: FC<{ children?: ReactNode }> = ({
   return (
     <UserContext.Provider
       value={{
+        user,
         loginStatus,
         fetchLogin,
         fetchLogout,
