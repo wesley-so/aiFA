@@ -23,9 +23,19 @@ export const logout = async (token: string) => {
   );
 };
 
-// export const register = () => {
-//   // do register
-// };
+export const register = async (
+  username: string,
+  email: string,
+  password: string,
+  password_confirm: string
+) => {
+  const response = await axios.post(
+    `${config.apiUrl}/user/register`,
+    { username, email, password, password_confirm },
+    { headers: { "Content-Type": "application/json" } }
+  );
+  return response.data.user_id;
+};
 
 export const getUser = async (token: string): Promise<User> => {
   const { data } = await axios.get<User>(`${config.apiUrl}/user/me`, {
