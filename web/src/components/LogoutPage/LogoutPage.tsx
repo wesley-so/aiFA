@@ -7,7 +7,7 @@ import DashboardNavigationBar from "../DashboardNavigationBar/DashboardNavigatio
 
 const LogoutPage: FC = () => {
   const {
-    loginStatus: { isLoggedIn }, fetchLogout
+    fetchLogout
   } = useUser();
   const navigate = useNavigate();
   useEffect(() => {

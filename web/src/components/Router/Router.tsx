@@ -47,11 +47,7 @@ const Router: FC = () => {
             </RequireLoginRoute>
           }
         />
-        <Route
-          path="logout"
-          loader={logout}
-          element={<LogoutPage />}
-        ></Route>
+        <Route path="logout" loader={logout} element={<LogoutPage />}></Route>
         <Route
           path="profile"
           element={
