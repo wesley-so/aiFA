@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Container,
   Grid,
   Link,
@@ -12,6 +11,8 @@ import { ChangeEventHandler, FC, useState } from "react";
 import { useHref, useNavigate } from "react-router-dom";
 import { register } from "../../services/aifaAPI/user";
 import UserNavigationBar from "../UserNavigationBar/UserNavigationBar";
+import FormSubmitButton from "../FormSubmitButton/FormSubmitButton";
+import { isEmail } from "../../utils/email";
 
 const RegisterPage: FC = () => {
   const loginUri = useHref("/login");
@@ -85,11 +86,18 @@ const RegisterPage: FC = () => {
             />
             <TextField
               autoComplete="email"
+              error={email.length !== 0 && !isEmail(email)}
               fullWidth
+              helperText={
+                email.length !== 0 && !isEmail(email)
+                  ? "Invalid Email!"
+                  : undefined
+              }
               label="Email Address"
               margin="normal"
               onChange={onTextFieldChange(setEmail)}
               required
+              type="email"
             />
             <TextField
               autoComplete="current-password"
@@ -118,7 +126,7 @@ const RegisterPage: FC = () => {
             {registerError && (
               <Typography variant="h5">{registerError?.message}</Typography>
             )}
-            <Button
+            <FormSubmitButton
               disabled={
                 !username.trim() ||
                 !email.trim() ||
@@ -127,14 +135,10 @@ const RegisterPage: FC = () => {
                 password !== passwordConfirm ||
                 isRegistering === true
               }
-              fullWidth
-              type="submit"
+              loading={isRegistering}
               onClick={clickRegisterHandler}
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Register
-            </Button>
+              text="Register"
+            />
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link href={loginUri} variant="body2">
