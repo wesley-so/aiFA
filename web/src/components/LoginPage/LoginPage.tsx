@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Checkbox,
   Container,
   FormControlLabel,
@@ -9,61 +8,103 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { FC } from "react";
-import { useHref } from "react-router-dom";
+import {
+  ChangeEventHandler,
+  FC,
+  FormEventHandler,
+  useEffect,
+  useState,
+} from "react";
+import { useHref, useNavigate } from "react-router-dom";
+import useUser from "../../hooks/useUser";
 import UserNavigationBar from "../UserNavigationBar/UserNavigationBar";
+import FormSubmitButton from "../FormSubmitButton/FormSubmitButton";
 
 const LoginPage: FC = () => {
+  const { fetchLogin, loginStatus } = useUser();
   const registerUri = useHref("/register");
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (loginStatus.isLoggedIn) {
+      navigate("/dashboard");
+    }
+  }, [navigate, loginStatus.isLoggedIn]);
+
+  const onFormSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+    event.preventDefault();
+  };
+
+  const onTextFieldChange = (
+    setValue: (value: string) => void
+  ): ChangeEventHandler<HTMLInputElement> => {
+    return (event) => {
+      setValue(event.currentTarget.value);
+    };
+  };
+
+  const clickLoginHandler = () => {
+    console.log(
+      `Clicked login with user ${username} with password ${password}`
+    );
+    fetchLogin(username, password);
+  };
   return (
     <>
       <UserNavigationBar />
       <Container component="main" maxWidth="xs">
         <Box
-          sx={{
-            marginTop: 20,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
+          alignItems="center"
+          display="flex"
+          flexDirection="column"
+          marginTop={20}
         >
           <Typography variant="h5" component="h1">
             Login
           </Typography>
-          {/* <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}> */}
-          <Box component="form" noValidate sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={onFormSubmit} sx={{ mt: 1 }}>
             <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="username"
-              label="Username"
-              name="username"
               autoComplete="username"
               autoFocus
+              error={loginStatus.loginError !== null}
+              fullWidth
+              label="Username"
+              margin="normal"
+              onChange={onTextFieldChange(setUsername)}
+              required
+              value={username}
             />
             <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
               autoComplete="current-password"
+              error={loginStatus.loginError !== null}
+              fullWidth
+              helperText={loginStatus.loginError?.message}
+              label="Password"
+              margin="normal"
+              onChange={onTextFieldChange(setPassword)}
+              required
+              type="password"
+              value={password}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign In
-            </Button>
+            <FormSubmitButton
+              disabled={
+                !username.trim() ||
+                !password ||
+                loginStatus.isLoginPending ||
+                loginStatus.isLoggedIn
+              }
+              loading={loginStatus.isLoginPending}
+              onClick={clickLoginHandler}
+              text="Sign In"
+            />
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link href={registerUri} variant="body2">

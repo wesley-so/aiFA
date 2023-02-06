@@ -3,7 +3,7 @@ import { FC } from "react";
 import { Link, useHref } from "react-router-dom";
 
 const DashboardNavigationBar: FC = () => {
-  const dashboardUri = useHref("/dashboard");
+  const dashboardUri = useHref("/");
   const logoutUri = useHref("/logout");
   return (
     <>
