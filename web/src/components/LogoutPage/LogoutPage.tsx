@@ -6,9 +6,7 @@ import { removeSessionToken } from "../../services/session";
 import DashboardNavigationBar from "../DashboardNavigationBar/DashboardNavigationBar";
 
 const LogoutPage: FC = () => {
-  const {
-    fetchLogout
-  } = useUser();
+  const { fetchLogout } = useUser();
   const navigate = useNavigate();
   useEffect(() => {
     const logout = async () => {
