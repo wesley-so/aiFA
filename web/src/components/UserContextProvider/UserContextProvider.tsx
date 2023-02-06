@@ -1,13 +1,11 @@
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { decodeJwt } from "jose";
 import { FC, ReactNode, useCallback, useEffect, useState } from "react";
-import { redirect } from "react-router-dom";
 import { useSetState } from "react-use";
-import config from "../../config";
 import UserContext from "../../context/UserContext";
 import LoginStatus from "../../models/LoginStatus";
 import User from "../../models/User";
-import { getUser, login } from "../../services/aifaAPI/user";
+import { getUser, login, logout } from "../../services/aifaAPI/user";
 import {
   getSessionToken,
   removeSessionToken,
@@ -65,39 +63,28 @@ export const UserContextProvider: FC<{ children?: ReactNode }> = ({
     [setLoginStatus]
   );
 
-  const fetchLogout = useCallback((): void => {
+  const fetchLogout = useCallback(async (): Promise<void> => {
     setLoginStatus({
       isLoginPending: false,
       isLoggedIn: true,
       loginError: null,
     });
-    axios
-      .post(
-        `${config.apiUrl}/user/logout`,
-        {},
-        { headers: { "Content-Type": "application/json" } }
-      )
-      .then(
-        () => {
-          redirect("/");
-          setLoginStatus({
-            isLoginPending: false,
-            isLoggedIn: false,
-            loginError: null,
-          });
-        },
-        (error: AxiosError) => {
-          const errorMsg =
-            error.response?.status === 400
-              ? "Logout unsuccessful. Please try again!"
-              : "Currently unable to logout due to unknown error.";
-          setLoginStatus({
-            isLoginPending: false,
-            isLoggedIn: false,
-            loginError: new Error(errorMsg),
-          });
-        }
-      );
+    try {
+      const token = getSessionToken();
+      if (token) {
+        await logout(token);
+      }
+    } catch (error) {
+      console.error("Logout error", error);
+    }
+    removeSessionToken();
+    setToken(undefined);
+    setUser(undefined);
+    setLoginStatus({
+      isLoginPending: false,
+      isLoggedIn: false,
+      loginError: null,
+    });
   }, [setLoginStatus]);
 
   useEffect(() => {
@@ -110,7 +97,7 @@ export const UserContextProvider: FC<{ children?: ReactNode }> = ({
         removeSessionToken();
       }
     }
-  });
+  }, [fetchLogin]);
 
   return (
     <UserContext.Provider

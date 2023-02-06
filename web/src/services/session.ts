@@ -9,5 +9,5 @@ export const setSessionToken = (token: string) => {
 };
 
 export const removeSessionToken = () => {
-  return Cookies.remove("session", { path: "/" });
+  return Cookies.set("session", "", { path: "/" });
 };

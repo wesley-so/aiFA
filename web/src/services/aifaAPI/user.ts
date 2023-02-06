@@ -15,8 +15,12 @@ export const login = async (
   return response.data.token;
 };
 
-export const logout = async () => {
-  //do logout
+export const logout = async (token: string) => {
+  await axios.post(
+    `${config.apiUrl}/user/logout`,
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
 };
 
 // export const register = () => {
