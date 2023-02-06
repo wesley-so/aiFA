@@ -1,9 +1,23 @@
 import { Grid, Typography } from "@mui/material";
-import { FC } from "react";
-// import { redirect } from "react-router-dom";
+import { FC, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import useUser from "../../hooks/useUser";
+import { removeSessionToken } from "../../services/session";
 import DashboardNavigationBar from "../DashboardNavigationBar/DashboardNavigationBar";
 
 const LogoutPage: FC = () => {
+  const {
+    loginStatus: { isLoggedIn }, fetchLogout
+  } = useUser();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const logout = async () => {
+      await fetchLogout();
+      removeSessionToken();
+      navigate("/login");
+    };
+    logout();
+  }, [fetchLogout, navigate]);
   return (
     <>
       <DashboardNavigationBar />
