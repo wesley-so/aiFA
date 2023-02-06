@@ -1,15 +1,17 @@
 import { FC, useCallback } from "react";
 import { BrowserRouter, redirect, Route, Routes } from "react-router-dom";
 import useUser from "../../hooks/useUser";
-import App from "../App/App";
 import Dashboard from "../Dashboard/Dashboard";
 import HomePage from "../HomePage/HomePage";
 import LoginPage from "../LoginPage/LoginPage";
+import LogoutPage from "../LogoutPage/LogoutPage";
 import RegisterPage from "../RegisterPage/RegisterPage";
 import UserProfilePage from "../UserProfilePage/UserProfilePage";
+import RequireLoginRoute from "./RequireLoginRoute";
 
 const Router: FC = () => {
   const {
+    fetchLogout,
     loginStatus: { isLoggedIn },
   } = useUser();
 
@@ -19,33 +21,54 @@ const Router: FC = () => {
     }
   }, [isLoggedIn]);
 
-  const requireLogin = useCallback(() => {
-    if (!isLoggedIn) {
-      redirect("/login");
-    }
-  }, [isLoggedIn]);
+  const logout = useCallback(async () => {
+    await fetchLogout();
+    throw redirect("/");
+  }, [fetchLogout]);
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />}></Route>
-        <Route path="app" element={<App />}></Route>
+        <Route path="/" element={<HomePage />} />
         <Route
           path="dashboard"
-          loader={requireLogin}
-          element={<Dashboard />}
-        ></Route>
+          element={
+            <RequireLoginRoute require="loggedIn">
+              <Dashboard />
+            </RequireLoginRoute>
+          }
+        />
         <Route
           path="login"
           loader={redirectLoggeedInUser}
-          element={<LoginPage />}
+          element={
+            <RequireLoginRoute require="loggedOut">
+              <LoginPage />
+            </RequireLoginRoute>
+          }
+        />
+        <Route
+          path="logout"
+          loader={logout}
+          element={<LogoutPage />}
         ></Route>
-        <Route path="register" element={<RegisterPage />}></Route>
         <Route
           path="profile"
-          loader={requireLogin}
-          element={<UserProfilePage />}
-        ></Route>
+          element={
+            <RequireLoginRoute require="loggedIn">
+              <UserProfilePage />
+            </RequireLoginRoute>
+          }
+        />
+        <Route
+          path="register"
+          loader={redirectLoggeedInUser}
+          element={
+            <RequireLoginRoute require="loggedOut">
+              <RegisterPage />
+            </RequireLoginRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
