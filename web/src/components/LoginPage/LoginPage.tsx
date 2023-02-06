@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Checkbox,
   Container,
   FormControlLabel,
@@ -19,6 +18,7 @@ import {
 import { useHref, useNavigate } from "react-router-dom";
 import useUser from "../../hooks/useUser";
 import UserNavigationBar from "../UserNavigationBar/UserNavigationBar";
+import FormSubmitButton from "../FormSubmitButton/FormSubmitButton";
 
 const LoginPage: FC = () => {
   const { fetchLogin, loginStatus } = useUser();
@@ -94,21 +94,17 @@ const LoginPage: FC = () => {
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
+            <FormSubmitButton
               disabled={
                 !username.trim() ||
                 !password ||
                 loginStatus.isLoginPending ||
                 loginStatus.isLoggedIn
               }
+              loading={loginStatus.isLoginPending}
               onClick={clickLoginHandler}
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign In
-            </Button>
+              text="Sign In"
+            />
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link href={registerUri} variant="body2">
