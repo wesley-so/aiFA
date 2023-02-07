@@ -1,16 +1,15 @@
 import {
+  Alert,
   Box,
   Container,
-  Grid,
   Link,
   TextField,
   Typography,
 } from "@mui/material";
 import { AxiosError } from "axios";
 import { ChangeEventHandler, FC, useState } from "react";
-import { useHref, useNavigate } from "react-router-dom";
+import { useHref } from "react-router-dom";
 import { register } from "../../services/aifaAPI/user";
-import UserNavigationBar from "../UserNavigationBar/UserNavigationBar";
 import FormSubmitButton from "../FormSubmitButton/FormSubmitButton";
 import { isEmail } from "../../utils/email";
 
@@ -22,9 +21,8 @@ const RegisterPage: FC = () => {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isRegisterDone, setIsRegisterDone] = useState(false);
   const [registerError, setRegisterError] = useState<Error>();
-
-  const navigate = useNavigate();
 
   const onTextFieldChange = (
     setValue: (value: string) => void
@@ -38,10 +36,13 @@ const RegisterPage: FC = () => {
     console.log(
       `Registerd with username: ${username}, email: ${email} and password: ${password}.`
     );
+    setIsRegistering(true);
+    setIsRegisterDone(false);
+    setPassword("");
+    setPasswordConfirm("");
     try {
-      setIsRegistering(true);
       await register(username, email, password, passwordConfirm);
-      navigate("/login");
+      setIsRegisterDone(true);
     } catch (error) {
       const errorMsg =
         error instanceof AxiosError &&
@@ -49,107 +50,110 @@ const RegisterPage: FC = () => {
         error.response?.data?.error
           ? error.response.data.error
           : "Unknown error occurred.";
-      setIsRegistering(false);
       setRegisterError(new Error(errorMsg, { cause: error }));
       console.error(error);
     }
+    setIsRegistering(false);
   };
 
   return (
-    <>
-      <UserNavigationBar />
-      <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="xs">
+      <Box
+        alignItems="center"
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        minHeight="100vh"
+      >
+        <Typography component="h1" variant="h5">
+          Register
+        </Typography>
         <Box
-          sx={{
-            marginTop: 20,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
+          component="form"
+          noValidate
+          onSubmit={(e) => e.preventDefault()}
+          sx={{ mt: 1 }}
         >
-          <Typography component="h1" variant="h5">
-            Register
+          <TextField
+            autoFocus
+            disabled={isRegistering}
+            fullWidth
+            label="Username"
+            margin="normal"
+            onChange={onTextFieldChange(setUsername)}
+            required
+          />
+          <TextField
+            autoComplete="email"
+            disabled={isRegistering}
+            error={email.length !== 0 && !isEmail(email)}
+            fullWidth
+            helperText={
+              email.length !== 0 && !isEmail(email)
+                ? "Invalid Email!"
+                : undefined
+            }
+            label="Email Address"
+            margin="normal"
+            onChange={onTextFieldChange(setEmail)}
+            required
+            type="email"
+          />
+          <TextField
+            autoComplete="current-password"
+            disabled={isRegistering}
+            fullWidth
+            label="Password"
+            margin="normal"
+            onChange={onTextFieldChange(setPassword)}
+            required
+            type="password"
+          />
+          <TextField
+            disabled={isRegistering}
+            error={passwordConfirm.length !== 0 && password !== passwordConfirm}
+            fullWidth
+            helperText={
+              passwordConfirm.length !== 0 && password !== passwordConfirm
+                ? "Password do not match!"
+                : undefined
+            }
+            label="Confirm password"
+            margin="normal"
+            onChange={onTextFieldChange(setPasswordConfirm)}
+            required
+            type="password"
+          />
+          {registerError && (
+            <Alert severity="error">
+              {registerError.message ?? "Unknown error occurs."}
+            </Alert>
+          )}
+          {isRegisterDone && (
+            <Alert severity="success">
+              Congratulations! Registration complete! <br />
+              <Link href={loginUri}>Proceed to login</Link>
+            </Alert>
+          )}
+          <FormSubmitButton
+            disabled={
+              !username.trim() ||
+              !email.trim() ||
+              !password ||
+              !passwordConfirm ||
+              password !== passwordConfirm ||
+              isRegistering === true
+            }
+            loading={isRegistering}
+            onClick={clickRegisterHandler}
+            text="Register"
+          />
+          <Typography variant="body2" textAlign="end">
+            Already have an account? <Link href={loginUri}>Login</Link>
           </Typography>
-          <Box
-            component="form"
-            onSubmit={(e) => e.preventDefault()}
-            noValidate
-            sx={{ mt: 1 }}
-          >
-            <TextField
-              autoFocus
-              fullWidth
-              label="Username"
-              margin="normal"
-              onChange={onTextFieldChange(setUsername)}
-              required
-            />
-            <TextField
-              autoComplete="email"
-              error={email.length !== 0 && !isEmail(email)}
-              fullWidth
-              helperText={
-                email.length !== 0 && !isEmail(email)
-                  ? "Invalid Email!"
-                  : undefined
-              }
-              label="Email Address"
-              margin="normal"
-              onChange={onTextFieldChange(setEmail)}
-              required
-              type="email"
-            />
-            <TextField
-              autoComplete="current-password"
-              error={password !== passwordConfirm}
-              fullWidth
-              label="Password"
-              margin="normal"
-              onChange={onTextFieldChange(setPassword)}
-              required
-              type="password"
-            />
-            <TextField
-              error={password !== passwordConfirm}
-              fullWidth
-              helperText={
-                password !== passwordConfirm
-                  ? "Password do not match!"
-                  : undefined
-              }
-              label="Password Confirm"
-              margin="normal"
-              onChange={onTextFieldChange(setPasswordConfirm)}
-              required
-              type="password"
-            />
-            {registerError && (
-              <Typography variant="h5">{registerError?.message}</Typography>
-            )}
-            <FormSubmitButton
-              disabled={
-                !username.trim() ||
-                !email.trim() ||
-                !password ||
-                !passwordConfirm ||
-                password !== passwordConfirm ||
-                isRegistering === true
-              }
-              loading={isRegistering}
-              onClick={clickRegisterHandler}
-              text="Register"
-            />
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href={loginUri} variant="body2">
-                  {"Already have account? Login"}
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
         </Box>
-      </Container>
-    </>
+      </Box>
+    </Container>
   );
 };
 
