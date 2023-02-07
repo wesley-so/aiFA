@@ -1,23 +1,41 @@
-import { Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { FC } from "react";
-import UserNavigationBar from "../UserNavigationBar/UserNavigationBar";
+import HomeNavigationBar from "./HomeNavigationBar";
+import "./HomePage.css";
+import backgroundImage from "./background.webp";
+import { grey } from "@mui/material/colors";
 
 const HomePage: FC = () => {
   return (
-    <>
-      <UserNavigationBar />
+    <Box
+      color={grey[300]}
+      height="100vh"
+      sx={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+      }}
+    >
+      <HomeNavigationBar />
       <Grid
-        container
-        spacing={0}
-        direction="column"
         alignItems="center"
+        color={grey[400]}
+        container
+        direction="column"
+        height="100vh"
         justifyContent="center"
-        minHeight="100vh"
+        spacing={0}
+        sx={{
+          backdropFilter: "blur(2px)",
+        }}
       >
         <Typography variant="h1">aiFA</Typography>
-        <Typography variant="body1">This is the description</Typography>
+        <Typography variant="body1">
+          Your intelligent financial advisor
+        </Typography>
       </Grid>
-    </>
+    </Box>
   );
 };
 

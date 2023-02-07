@@ -1,43 +1,14 @@
-import {
-  Box,
-  Checkbox,
-  Container,
-  FormControlLabel,
-  Grid,
-  Link,
-  TextField,
-  Typography,
-} from "@mui/material";
-import {
-  ChangeEventHandler,
-  FC,
-  FormEventHandler,
-  useEffect,
-  useState,
-} from "react";
-import { useHref, useNavigate } from "react-router-dom";
+import { Box, Container, Link, TextField, Typography } from "@mui/material";
+import { ChangeEventHandler, FC, useState } from "react";
+import { useHref } from "react-router-dom";
 import useUser from "../../hooks/useUser";
-import UserNavigationBar from "../UserNavigationBar/UserNavigationBar";
 import FormSubmitButton from "../FormSubmitButton/FormSubmitButton";
 
 const LoginPage: FC = () => {
   const { fetchLogin, loginStatus } = useUser();
   const registerUri = useHref("/register");
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (loginStatus.isLoggedIn) {
-      navigate("/dashboard");
-    }
-  }, [navigate, loginStatus.isLoggedIn]);
-
-  const onFormSubmit: FormEventHandler<HTMLFormElement> = (event) => {
-    event.preventDefault();
-  };
 
   const onTextFieldChange = (
     setValue: (value: string) => void
@@ -53,69 +24,64 @@ const LoginPage: FC = () => {
     );
     fetchLogin(username, password);
   };
+
   return (
-    <>
-      <UserNavigationBar />
-      <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="xs">
+      <Box
+        alignItems="center"
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        minHeight="100vh"
+      >
+        <Typography variant="h5" component="h1">
+          Login
+        </Typography>
         <Box
-          alignItems="center"
-          display="flex"
-          flexDirection="column"
-          marginTop={20}
+          component="form"
+          onSubmit={(e) => e.preventDefault()}
+          sx={{ mt: 1 }}
         >
-          <Typography variant="h5" component="h1">
-            Login
+          <TextField
+            autoComplete="username"
+            autoFocus
+            error={loginStatus.loginError !== null}
+            fullWidth
+            label="Username"
+            margin="normal"
+            onChange={onTextFieldChange(setUsername)}
+            required
+            value={username}
+          />
+          <TextField
+            autoComplete="current-password"
+            error={loginStatus.loginError !== null}
+            fullWidth
+            helperText={loginStatus.loginError?.message}
+            label="Password"
+            margin="normal"
+            onChange={onTextFieldChange(setPassword)}
+            required
+            type="password"
+            value={password}
+          />
+          <FormSubmitButton
+            disabled={
+              !username.trim() ||
+              !password ||
+              loginStatus.isLoginPending ||
+              loginStatus.isLoggedIn
+            }
+            loading={loginStatus.isLoginPending}
+            onClick={clickLoginHandler}
+            text="Sign In"
+          />
+          <Typography variant="body2" textAlign="end">
+            Don&#39;t have an account? <Link href={registerUri}>Register</Link>
           </Typography>
-          <Box component="form" onSubmit={onFormSubmit} sx={{ mt: 1 }}>
-            <TextField
-              autoComplete="username"
-              autoFocus
-              error={loginStatus.loginError !== null}
-              fullWidth
-              label="Username"
-              margin="normal"
-              onChange={onTextFieldChange(setUsername)}
-              required
-              value={username}
-            />
-            <TextField
-              autoComplete="current-password"
-              error={loginStatus.loginError !== null}
-              fullWidth
-              helperText={loginStatus.loginError?.message}
-              label="Password"
-              margin="normal"
-              onChange={onTextFieldChange(setPassword)}
-              required
-              type="password"
-              value={password}
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
-            <FormSubmitButton
-              disabled={
-                !username.trim() ||
-                !password ||
-                loginStatus.isLoginPending ||
-                loginStatus.isLoggedIn
-              }
-              loading={loginStatus.isLoginPending}
-              onClick={clickLoginHandler}
-              text="Sign In"
-            />
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href={registerUri} variant="body2">
-                  {"Don't have an account? Register "}
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
         </Box>
-      </Container>
-    </>
+      </Box>
+    </Container>
   );
 };
 
