@@ -32,7 +32,7 @@ const HomePage: FC = () => {
       >
         <Typography variant="h1">aiFA</Typography>
         <Typography variant="body1">
-          Your intelligent finicial advisor
+          Your intelligent financial advisor
         </Typography>
       </Grid>
     </Box>
