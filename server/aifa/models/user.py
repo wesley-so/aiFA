@@ -5,7 +5,10 @@ class UserModel(BaseModel):
     user_id: str = Field(title="User ID", max_length=32)
     username: str = Field(title="Username", max_length=50)
     email: str = Field(title="Email", max_length=254)
-    # password_hash: str
+
+
+class UserWithPasswordModel(UserModel):
+    password_hash: str
 
 
 class UserLoginSchema(BaseModel):

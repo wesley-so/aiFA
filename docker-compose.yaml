@@ -6,6 +6,11 @@ services:
       - "27017:27017"
     volumes:
       - "mongo_data:/data"
+    command: ["--replSet", "dbrs", "--bind_ip_all"]
+    healthcheck:
+      test: test $$(echo "rs.initiate().ok || rs.status().ok" | mongo --quiet) -eq 1
+      interval: 5s
+      retries: 6
   server:
     build: ./server
     command: make dev
@@ -14,10 +19,10 @@ services:
     env_file:
       - server/.env
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     volumes:
       - ./server:/aifa
 volumes:
   mongo_data:
     driver: local
-  

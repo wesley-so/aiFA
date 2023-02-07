@@ -3,8 +3,8 @@ from fastapi.responses import JSONResponse
 
 from ..dependencies.session import get_session_token, get_session_user
 from ..models.user import UserLoginSchema, UserModel, UserRegisterSchema
-from ..services.database import user_collection
 from ..services.session import create_session, destroy_session
+from ..services.user import UserRegisterError, create_user, get_password_hash
 from ..utils.password import hash_password, validate_password
 
 router = APIRouter(prefix="/user", tags=["user"])
@@ -23,24 +23,11 @@ async def login(login: UserLoginSchema):
             },
         )
 
-    query = {"username": username}
-    projection = {"_id": 1, "username": 1, "password_hash": 1}
-    userQuery = await user_collection.find_one(query, projection)
-    print(type(userQuery), "->", userQuery)
-    if userQuery is None:
-        # Username incorrect
-        return JSONResponse(
-            status_code=400,
-            content={
-                "error": "Username or password incorrect! Please try again.",
-            },
-        )
-
-    password_hash = userQuery["password_hash"]
-    user_id = str(userQuery["_id"])
-
+    password_hash = await get_password_hash(username)
     # Check password match or not
-    if not await validate_password(password, password_hash):
+    if password_hash is None or not await validate_password(
+        password, password_hash["hash"]
+    ):
         return JSONResponse(
             status_code=400,
             content={
@@ -48,7 +35,7 @@ async def login(login: UserLoginSchema):
             },
         )
 
-    token = await create_session(user_id)
+    token = await create_session(password_hash["user_id"])
     return JSONResponse(status_code=200, content={"token": token})
 
 
@@ -82,20 +69,12 @@ async def register(register: UserRegisterSchema):
             content={"error": "Password do not match!"},
         )
 
-    repeated_user = await user_collection.find_one(
-        {"$or": [{"username": username}, {"email": email}]}
-    )
-    if repeated_user is not None:
-        if username == repeated_user["username"]:
-            error_msg = "Username repeated! Please create another username."
-        else:
-            error_msg = "Email repeated! Please type another email."
-        return JSONResponse(status_code=400, content={"error": error_msg})
-
     hashed = await hash_password(password)
-    new_user = {"username": username, "email": email, "password_hash": hashed}
-    insert_result = await user_collection.insert_one(new_user)
-    user_id = str(insert_result.inserted_id)
+
+    try:
+        user_id = await create_user(username, email, hashed)
+    except UserRegisterError as error:
+        return JSONResponse(status_code=400, content={"error": str(error)})
 
     return JSONResponse(
         status_code=201,
