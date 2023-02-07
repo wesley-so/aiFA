@@ -27,7 +27,9 @@ services:
     #       devices:
     #         - driver: nvidia
     #           count: 1
-    #           capabilities: [gpu]
+    #           capabilities:
+    #             - compute
+    #             - utility
     command: make dev
     ports:
       - "8000:8000"
