@@ -3,7 +3,7 @@
 ## General
 
 - [Project setup](../README.md)
-- [System architecture](arthitecture.md)
+- [System architecture](architecture.md)
 
 ## Backend server
 

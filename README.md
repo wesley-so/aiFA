@@ -8,7 +8,7 @@ artificial intelligence (AI) system to predict 20 NASDAQ stock price.
 - [Docker](https://docs.docker.com/get-docker/) (Docker Engine 19.03.0 or higher)
 - [Docker Compose v2](https://docs.docker.com/compose/install/)
 
-### Extra requirement for Nvidia GPU support in Docker contianer
+### Extra requirement for Nvidia GPU support in Docker container
 
 - (Optional) [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [NVIDIA GPU driver](https://www.nvidia.com/download/index.aspx)
@@ -17,7 +17,7 @@ artificial intelligence (AI) system to predict 20 NASDAQ stock price.
 
 ### Backend server
 
-1. Copy necessary files and fill up the environment variables:
+1. Copy neccessary files and fill up the environment variables:
 
    ```bash
    # Copy sample backend environment
