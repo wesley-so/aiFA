@@ -13,7 +13,6 @@ artificial intelligence (AI) system to predict 20 NASDAQ stock price.
 - (Optional) [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [NVIDIA GPU driver](https://www.nvidia.com/download/index.aspx)
 
-
 ## Quick start
 
 ### Backend server
