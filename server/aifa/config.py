@@ -11,6 +11,7 @@ config = MappingProxyType[str, str](
         "mongo_db": "aifa",
         "mongo_collection_user": "user",
         "mongo_collection_session": "session",
+        "mongo_collection_financial_report": "financial_report",
         "jwt_secret": getenv("JWT_SECRET"),
         "cors_origins": (getenv("CORS_ORIGINS") or "").strip().split(","),
     }
