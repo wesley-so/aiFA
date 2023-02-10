@@ -52,6 +52,26 @@ the list below as guidance.
 * End-to-end test change
 -->
 
+### Implementation plan
+
+<!--
+Steps and the parts of the code that will need to get updated.
+The plan can also call-out responsibilities for other team members or teams and
+can be split into smaller MRs to simplify the code review process.
+
+e.g.:
+
+- MR 1: Part 1
+- [ ] ~frontend Step 1
+- [ ] ~frontend Step 2
+- MR 2: Part 2
+- [ ] ~backend Step 1
+- [ ] ~backend Step 2
+- MR 3: Part 3
+- [ ] ~documentation Step 1
+- [ ] ~documentation Step 2
+-->
+
 ### Links / references
 
 <!--
