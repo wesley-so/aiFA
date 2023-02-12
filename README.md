@@ -64,6 +64,3 @@ Please refer to [frontend guide](web/README.md).
 ## Documentation
 
 Please refer to [Documentation](docs/README.md).
-
-# An Intelligent Financial Advisor
-Financial advisor with artificial intelligence (AI) system to predict 20 NASDAQ stock price
