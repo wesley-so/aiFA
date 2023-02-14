@@ -1,16 +1,10 @@
-# aiFA mongo database
+# `user` Collection Schema
 
-## User collection schema
+## Field Definitions
 
-### `Indexes`
-| `_id`     |
-| --------- |
-| Object ID |
-
-### `Columns`
-| `Label`         | `Name`        | `Type`   | `Nullable` |
-| --------------- | ------------- | -------- | ---------- |
-| User ID         | _id           | ObjectId | `No`       |
-| Username        | username      | string   | `No`       |
-| User Email      | email         | string   | `No`       |
-| Hashed Password | password_hash | string   | `No`       |
+|      Field      | Data Type  | Required | Description                       |
+| :-------------: | :--------: | :------: | :-------------------------------- |
+|      `_id`      | `objectid` |    ✅    | MongoDB document ID.              |
+|   `username`    |  `string`  |    ✅    | Username.                         |
+|     `email`     |  `string`  |    ✅    | User email address.               |
+| `password_hash` |  `string`  |    ✅    | User password with bcrypt hashed. |

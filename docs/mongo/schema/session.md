@@ -1,15 +1,25 @@
-# aiFA mongo database
+# `session` Collection Schema
 
-## Session collection schema
+## Field Definitions
 
-### `Indexes`
-| `_id`     | `exp`           |
-| --------- | --------------- |
-| MongoDB ID | Expiration time |
+|    Field     | Data Type  | Required | Description                                        |
+| :----------: | :--------: | :------: | :------------------------------------------------- |
+|    `_id`     | `objectid` |    ✅    | MongoDB document ID.                               |
+| `session_id` |  `string`  |    ✅    | Randomly generated Session ID.                     |
+|    `exp`     |   `int`    |    ✅    | Expire timestamp in milliseconds since Unix Epoch. |
 
-### `Columns`
-| `Label`         | `Name`     | `Type`   | `Nullable` |
-| --------------- | ---------- | -------- | ---------- |
-| MongoDB ID      | _id        | ObjectId | `No`       |
-| Session ID      | session_id | string   | `No`       |
-| Expiration Time | exp        | Date     | `No`       |
+## Indexes
+
+### `session_expire`
+
+Auto-expire documents when it reaches the token expiration time.
+
+Fields:
+
+- `exp`
+
+Configurations:
+
+|      Attribute       | Value |
+| :------------------: | :---: |
+| `expireAfterSeconds` |  `0`  |
