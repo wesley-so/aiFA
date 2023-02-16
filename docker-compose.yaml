@@ -40,15 +40,15 @@ services:
         condition: service_healthy
     volumes:
       - ./server:/aifa
-  grab_stock:
-    build: ./grab_stock
+  cron:
+    build: ./cron
     env_file:
-      - grab_stock/.env
+      - cron/.env
     depends_on:
       mongo: 
         condition: service_healthy
     volumes:
-      - ./grab_stock:/grab_stock
+      - ./cron:/cron
 volumes:
   mongo_data:
     driver: local
