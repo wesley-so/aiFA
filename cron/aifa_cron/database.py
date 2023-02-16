@@ -16,3 +16,7 @@ def init_database():
         stock_collection.create_index(
             [("date", ASCENDING), ("symbol", ASCENDING)], name=STOCK_UNIQUE_INDEX_NAME
         )
+
+
+def insert_stock(data):
+    stock_collection.insert_many(data)

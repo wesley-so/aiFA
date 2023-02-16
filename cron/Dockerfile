@@ -9,4 +9,4 @@ WORKDIR /cron
 COPY poetry.lock pyproject.toml ./
 RUN poetry install
 COPY . .
-CMD ["poetry", "run", "python3", "aifa_cron/jobs/grab_daily_stock"]
+CMD ["poetry", "run", "python3", "-m", "aifa_cron.jobs.grab_daily_stock"]
