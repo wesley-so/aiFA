@@ -1,0 +1,3 @@
+# START CRON JOB
+0 1 * * * python3 -m aifa_cron.jobs.grab_daily_stock > /proc/1/fd/1 2>/proc/1/fd/2
+# STOP CRON JOB
