@@ -20,4 +20,4 @@ RUN /usr/bin/crontab /etc/cron.d/crontab
 
 # entry bash script
 COPY entrypoint.sh /entrypoint.sh
-CMD ["bash","cron/entrypoint.sh"]
+CMD ["bash","/entrypoint.sh"]
