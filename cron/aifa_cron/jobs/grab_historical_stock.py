@@ -43,7 +43,7 @@ def grab_historical_stock(
     api_key = getenv("FMP_API_KEY")
     for k in grabList:
         r = requests.get(
-            f"https://financialmodelingprep.com/api/v3/historical-chart/1min/{k}?apikey={api_key}&from={start_date}&to={end_date}"
+            f"https://financialmodelingprep.com/api/v3/historical-chart/1min/{k}?apikey={api_key}&from={start_date}&to={end_date}"  # noqa: E501
         )
         price_list = r.json()
         for i in price_list:
