@@ -14,7 +14,9 @@ def init_database():
 
     if STOCK_UNIQUE_INDEX_NAME not in indexes:
         stock_collection.create_index(
-            [("date", ASCENDING), ("symbol", ASCENDING)], name=STOCK_UNIQUE_INDEX_NAME
+            [("date", ASCENDING), ("symbol", ASCENDING)],
+            unique=True,
+            name=STOCK_UNIQUE_INDEX_NAME,
         )
 
 
