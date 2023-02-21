@@ -3,7 +3,9 @@ from os import getenv
 
 import requests
 
-from ..database import insert_stock
+from ..database import init_database, insert_stock
+
+init_database()
 
 
 def grab_historical_stock(
@@ -36,8 +38,8 @@ def grab_historical_stock(
         # "QCOM",
         # "AMD",
     ]
-    start_date = datetime(start_year, start_month, start_day).strftime('%Y-%m-%d')
-    end_date = datetime(end_year, end_month, end_day).strftime('%Y-%m-%d')
+    start_date = datetime(start_year, start_month, start_day).strftime("%Y-%m-%d")
+    end_date = datetime(end_year, end_month, end_day).strftime("%Y-%m-%d")
     api_key = getenv("FMP_API_KEY")
     for k in grabList:
         r = requests.get(
