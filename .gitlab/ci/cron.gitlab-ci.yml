@@ -1,16 +1,16 @@
-server:lint:
+cron:lint:
   stage: check
   extends:
     - .mr-backend-job-rules
     - .python-lint-template
   variables:
-    AIFA_SUBDIRECTORY: server
+    AIFA_SUBDIRECTORY: cron
   cache:
     key:
       files:
-        - server/poetry.lock
+        - cron/poetry.lock
     paths:
-      - server/.cache/
+      - cron/.cache/
   script:
     - cd "$CI_PROJECT_DIR/$AIFA_SUBDIRECTORY"
     - make setup
@@ -19,8 +19,8 @@ server:lint:
   artifacts:
     when: always
     reports:
-      codequality: server/gl-codequality.json
-# server:build:
+      codequality: cron/gl-codequality.json
+# cron:build:
 #   stage: build
 #   extends:
 #     - .kaniko-image-build-template
@@ -28,8 +28,8 @@ server:lint:
 #   needs:
 #     - server:lint
 #   script:
-#     - export AIFA_SERVER_DIR="${CI_PROJECT_DIR}/server"
-#     - export AIFA_IMAGE_NAME="${CI_REGISTRY_IMAGE}/server"
+#     - export AIFA_SERVER_DIR="${CI_PROJECT_DIR}/cron"
+#     - export AIFA_IMAGE_NAME="${CI_REGISTRY_IMAGE}/cron"
 #     - export AIFA_KANIKO_ARGS="--destination ${AIFA_IMAGE_NAME}:${CI_COMMIT_SHA}"
 #     - |
 #       if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
