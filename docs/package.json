@@ -1,0 +1,23 @@
+{
+  "license": "UNLICENSED",
+  "dependencies": {
+    "prettier": "2.8.4"
+  },
+  "eslintConfig": {
+    "extends": [
+      "plugin:prettier/recommended"
+    ],
+    "rules": {
+      "prettier/prettier": "warn"
+    }
+  },
+  "scripts": {
+    "format": "prettier --write --list-different '**/*.md'",
+    "format:cron": "prettier --write --list-different '../cron/*.md'",
+    "format:server": "prettier --write --list-different '../server/*.md'",
+    "format:web": "prettier --write --list-different '../web/*.md'",
+    "format:subproject": "yarn format:cron && yarn format:server && yarn format:web",
+    "format-check": "prettier --list-different '**/*.md'",
+    "format-check:all": "prettier --list-different '**/*.md' '../{cron,server,web}/*.md'"
+  }
+}
