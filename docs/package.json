@@ -18,6 +18,6 @@
     "format:web": "prettier --write --list-different '../web/*.md'",
     "format:subproject": "yarn format:cron && yarn format:server && yarn format:web",
     "format-check": "prettier --list-different '**/*.md'",
-    "format-check:all": "prettier --list-different '**/*.md' '../{cron,server,web}/*.md'"
+    "format-check:all": "prettier --list-different '**/*.md' '../{cron,server,web}/*.md' '../*.md'"
   }
 }
