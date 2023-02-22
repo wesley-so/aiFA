@@ -16,7 +16,7 @@ reviewers and future readers. If you need help visually verifying the change,
 please leave a comment and ping a GitLab reviewer, maintainer, or MR coach.
 -->
 
-## How to set up and validate locally
+### How to set up and validate locally
 
 <!--
 Numbered steps to set up and validate the change are strongly suggested.
