@@ -20,5 +20,5 @@ docs:check:
     - cd "$CI_PROJECT_DIR/$AIFA_SUBDIRECTORY"
     - yarn install --frozen-lockfile
     - yarn format-check
-    - yarn format-check:subproject
+    - yarn format-check:all
   allow_failure: true
