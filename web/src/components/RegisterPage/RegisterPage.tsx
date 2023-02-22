@@ -34,12 +34,11 @@ const RegisterPage: FC = () => {
 
   const clickRegisterHandler = async (): Promise<void> => {
     console.log(
-      `Registerd with username: ${username}, email: ${email} and password: ${password}.`
+      `Registering with username: ${username}, email: ${email} and password: ${password}.`
     );
     setIsRegistering(true);
     setIsRegisterDone(false);
-    setPassword("");
-    setPasswordConfirm("");
+    setRegisterError(undefined);
     try {
       await register(username, email, password, passwordConfirm);
       setIsRegisterDone(true);
@@ -53,6 +52,8 @@ const RegisterPage: FC = () => {
       setRegisterError(new Error(errorMsg, { cause: error }));
       console.error(error);
     }
+    setPassword("");
+    setPasswordConfirm("");
     setIsRegistering(false);
   };
 
