@@ -1,15 +1,16 @@
 # Template job for NodeJS project build
 .web-node-template:
   image: node:16-slim
+  extends:
+    - .node-template
+  variables:
+    AIFA_SUBDIRECTORY: web
   cache:
     key:
       files:
         - web/yarn.lock
     paths:
       - web/.yarn-cache/
-  before_script:
-    - yarn config set yarn-offline-mirror "$CI_PROJECT_DIR/web/.yarn-cache/" --global
-    - yarn config set yarn-offline-mirror-pruning true --global
 
 web:lint:
   stage: check
@@ -17,8 +18,8 @@ web:lint:
     - .mr-frontend-job-rules
     - .web-node-template
   script:
-    - export ESLINT_CODE_QUALITY_REPORT="$CI_PROJECT_DIR/server/gl-codequality.json"
-    - cd web/
+    - export ESLINT_CODE_QUALITY_REPORT="$CI_PROJECT_DIR/$AIFA_SUBDIRECTORY/gl-codequality.json"
+    - cd "$CI_PROJECT_DIR/$AIFA_SUBDIRECTORY"
     - yarn install --frozen-lockfile
     - yarn ci:lint
     - yarn format-check
@@ -35,7 +36,7 @@ web:test:
     - .mr-frontend-job-rules
     - .web-node-template
   script:
-    - cd web/
+    - cd "$CI_PROJECT_DIR/$AIFA_SUBDIRECTORY"
     - yarn install --frozen-lockfile
     - yarn ci:test
   coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
@@ -57,9 +58,9 @@ web:build:
     - .mr-job-skip
     - .web-node-template
   script:
-    - cd web/
+    - cd "$CI_PROJECT_DIR/$AIFA_SUBDIRECTORY"
     - yarn install --frozen-lockfile
     - yarn build
   artifacts:
     paths:
-      - "$CI_PROJECT_DIR/web/build/"
+      - web/build/

@@ -33,3 +33,9 @@
     - cd "$CI_PROJECT_DIR/$AIFA_SUBDIRECTORY"
     - python3 "$CI_PROJECT_DIR/scripts/codequality_abs_path.py" $AIFA_SUBDIRECTORY gl-codequality.json
     - poetry env remove --all
+
+.node-template:
+  image: node:16-slim
+  before_script:
+    - yarn config set yarn-offline-mirror "$CI_PROJECT_DIR/$AIFA_SUBDIRECTORY/.yarn-cache/" --global
+    - yarn config set yarn-offline-mirror-pruning true --global

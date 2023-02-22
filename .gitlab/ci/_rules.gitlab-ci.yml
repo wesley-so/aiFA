@@ -28,3 +28,18 @@
         compare_to: main
       when: on_success
     - when: never
+
+.mr-docs-job-rules:
+  rules:
+    - if: $CI_MERGE_REQUEST_IID == null || $CI_MERGE_REQUEST_IID == ""
+      when: on_success
+    - if: $CI_MERGE_REQUEST_IID && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+      changes:
+        paths:
+          - docs/**/*
+          - cron/*.md
+          - server/*.md
+          - web/*.md
+        compare_to: main
+      when: on_success
+    - when: never

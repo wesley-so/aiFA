@@ -1,0 +1,24 @@
+.docs-node-template:
+  image: node:16-slim
+  extends:
+    - .node-template
+  variables:
+    AIFA_SUBDIRECTORY: docs
+  cache:
+    key:
+      files:
+        - docs/yarn.lock
+    paths:
+      - docs/.yarn-cache/
+
+docs:check:
+  stage: check
+  extends:
+    - .docs-node-template
+    - .mr-docs-job-rules
+  script:
+    - cd "$CI_PROJECT_DIR/$AIFA_SUBDIRECTORY"
+    - yarn install --frozen-lockfile
+    - yarn format-check
+    - yarn format-check:subproject
+  allow_failure: true
