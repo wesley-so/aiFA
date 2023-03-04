@@ -8,7 +8,6 @@ init_database()
 
 
 def grab_daily_stock(symbol: str):
-
     api_key = getenv("FMP_API_KEY")
     r = requests.get(
         f"https://financialmodelingprep.com/api/v3/historical-chart/1min/{symbol}?apikey={api_key}"

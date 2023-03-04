@@ -1,7 +1,8 @@
-from datetime import datetime
-
+import numpy as np
 import pandas as pd
 import tensorflow_decision_forests as tfdf
+from pymongo import ASCENDING
+from sklearn.model_selection import TimeSeriesSplit
 
 from ...database import stock_collection
 
@@ -10,33 +11,61 @@ projection = {
     "_id": 0,
 }
 
-train_data_query = {"date": {"$lte": datetime(2023, 1, 1)}}
-train_data = stock_collection.find(train_data_query, projection)
-train_df = pd.DataFrame(list(train_data))
-print(train_df)
 
-test_data_query = {"date": {"$gt": datetime(2023, 1, 1)}}
-test_data = stock_collection.find(test_data_query, projection)
-test_df = pd.DataFrame(list(test_data))
-print(test_df)
+def decision_forest(label: str, feature: str):
+    query = {"symbol": label}
+    projection = {
+        "_id": 0,
+        "date": 1,
+        "symbol": 1,
+        "open": 1,
+        "high": 1,
+        "low": 1,
+        "close": 1,
+        "volume": 1,
+    }
+    data = stock_collection.find(query, projection).sort("date", ASCENDING)
+    stock_data = pd.DataFrame(list(data))
+    stock_data["date"] = pd.to_datetime(stock_data["date"])
 
-# Convert the dataset into a TensorFlow dataset
-train_ds = tfdf.keras.pd_dataframe_to_tf_dataset(train_df)
-test_ds = tfdf.keras.pd_dataframe_to_tf_dataset(test_df)
+    # Use Sklearn Time Series Split to split time series stock data
+    tss = TimeSeriesSplit(n_splits=2)
+    stock_data.set_index("date", inplace=True)
+    stock_data.sort_index(inplace=True)
+    X = stock_data.drop(labels=[feature], axis=1)
+    y = stock_data[feature]
+    print(y.shape)
 
-# Train a Random Forest model
-decision_forest_model = tfdf.keras.RandomForestModel(num_trees=2000, winner_take_all_inference= False)
-decision_forest_model.fit(train_ds)
+    # Split train and test data
+    for train_index, test_index in tss.split(X):
+        X_train, X_test = X.iloc[train_index, :], X.iloc[test_index, :]
+        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
 
-# Summary of the model structure
-decision_forest_model.summary()
+    # Convert the dataset into a TensorFlow dataset
+    X_train_ds = tfdf.keras.pd_dataframe_to_tf_dataset(X_train)
+    y_train_ds = tfdf.keras.pd_dataframe_to_tf_dataset(y_train)
+    X_test_ds = tfdf.keras.pd_dataframe_to_tf_dataset(X_test)
+    y_test_ds = tfdf.keras.pd_dataframe_to_tf_dataset(y_test)
 
-# Evaluate the model.
-decision_forest_model.compile(metrics=["accuracy"])
-evaluation = decision_forest_model.evaluate(test_data, return_dict=True)
-for name, value in evaluation.items():
-  print(f"{name}: {value:.4f}")
+    # Train a Random Forest model
+    decision_forest_model = tfdf.keras.RandomForestModel(
+        num_trees=2000, winner_take_all_inference=False
+    )
+    decision_forest_model.fit(X_train_ds, y_train_ds)
+
+    # Summary of the model structure
+    decision_forest_model.summary()
+
+    # Evaluate the model.
+    decision_forest_model.compile(metrics=["accuracy"])
+    evaluation = decision_forest_model.evaluate(X_test_ds, y_test_ds, return_dict=True)
+    for name, value in evaluation.items():
+        print(f"{name}: {value:.4f}")
+
+    # Export the model to a SavedModel.
+    decision_forest_model.save(f"../result/decision_forest_result/{label}_{feature}")
 
 
-# Export the model to a SavedModel.
-decision_forest_model.save("../result/decision_forest_result")
+if __name__ == "__main__":
+    decision_forest("MSFT", "open")
+    decision_forest("MSFT", "close")
