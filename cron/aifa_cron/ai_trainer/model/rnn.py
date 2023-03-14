@@ -4,17 +4,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+from keras.layers import LSTM, Dense, Dropout
+from keras.models import Sequential
 from plotly.subplots import make_subplots
 from pymongo import ASCENDING
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.preprocessing import MinMaxScaler
-# import tensorflow as tf
-from tensorflow import keras
 
 from ...database import stock_collection
 
 folder = "/cron/aifa_cron/ai_trainer/result/rnn"
-ohlc = ["open", "high", "low", "close"]
+ohlcv = ["open", "low", "high", "close", "volume"]
 grab_list = [
     # "AAPL",
     "MSFT",
@@ -54,10 +54,8 @@ def find_stock(symbol: str):
     }
     data = stock_collection.find(query, projection).sort("date", ASCENDING)
     stock_data = pd.DataFrame(list(data))
-    print(stock_data.shape)
+    print(f"Stock data shape: {stock_data.shape}")
     stock_data["date"] = pd.to_datetime(stock_data["date"])
-    stock_data.set_index("date", inplace=True)
-    stock_data.sort_index(inplace=True)
     return stock_data
 
 
@@ -78,7 +76,7 @@ def plot_stock_graph(symbol: str):
     # Plot Candlestick graph
     stock_fig.add_trace(
         go.Candlestick(
-            x=stock_data.index,
+            x=stock_data["date"],
             open=stock_data["open"],
             high=stock_data["high"],
             low=stock_data["low"],
@@ -128,50 +126,93 @@ def plot_stock_graph(symbol: str):
         ],
     )
 
-    # Hide range slider of candlestick graph
+    # Add configurations to graph
     stock_fig.update_layout(xaxis_rangeslider_visible=False)
     stock_fig.update_layout(title_text=f"{symbol} Stock Data", xaxis_title="Date")
     stock_fig.update_xaxes(title_text="Date", row=3, col=1)
     stock_fig.update_yaxes(title_text="Price (USD$)", row=1, col=1)
     stock_fig.update_yaxes(title_text="Price (USD$)", row=2, col=1)
     stock_fig.update_yaxes(title_text="Volume (USD$)", row=3, col=1)
-    stock_fig.write_html(f"{folder}/{symbol}_stock_graph.html")
-    stock_fig.write_image(f"{folder}/{symbol}_stock_graph.png", height=800, width=1500)
+    stock_fig.write_html(f"{folder}/images/html/{symbol}_stock_graph.html")
+    stock_fig.write_image(
+        f"{folder}/images/png/{symbol}_stock_graph.png", height=800, width=1500
+    )
 
 
 def ai_model(symbol: str, feature: str):
-    tss = TimeSeriesSplit(n_splits=3)
+    tss = TimeSeriesSplit(n_splits=10)
     stock_data = find_stock(symbol)
+    dataset = stock_data.loc[:, [feature]]
     scaler = MinMaxScaler(feature_range=(0, 1))
-    scaled_data = scaler.fit_transform(stock_data.iloc[:, 1:5])
-    print(scaled_data)
-    # Prepare X and y dataset
-    X = np.delete(scaled_data, 0, 1)
-    print(X)
-    y = scaled_data[:, [feature]]
-    print(y)
+    scaled_data = scaler.fit_transform(stock_data.loc[:, [feature]])
+    scaled_data = pd.DataFrame(data=scaled_data, columns=[feature])
+    print(scaled_data, scaled_data.shape)
+
     # Prepare X_train, y_train, X_test and y_test
-    for train_index, test_index in tss.split(X):
-        X_train, X_test = X.iloc[train_index, 1:5], X.iloc[test_index, 1:5]
-        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+    for train_index, test_index in tss.split(scaled_data):
+        X_train = scaled_data[: len(train_index)]
+        X_test = scaled_data[len(train_index) : (len(train_index) + len(test_index))]
+        y_train = dataset[: len(train_index)].values.ravel()
+        y_test = (
+            dataset[
+                len(train_index) : (len(train_index) + len(test_index))
+            ].values.ravel(),
+        )
+
+    # Process the data for LSTM
+    trainX = np.array(X_train)
+    testX = np.array(X_test)
+    X_train = trainX.reshape(X_train.shape[0], X_train.shape[1], 1)
+    X_test = testX.reshape(X_test.shape[0], X_test.shape[1], 1)
 
     # Build Gated RNN - LSTM (Long short term ) network
-    rnn_model = keras.models.Sequential()
-    rnn_model.add(
-        keras.layers.LSTM(
-            units=64, return_sequences=True, input_shape=(X_train.shape[1], 1)
+    lstm_model = Sequential()
+    # Adding the first LSTM layer and some Dropout regularisation
+    lstm_model.add(
+        LSTM(
+            units=64,
+            return_sequences=True,
+            input_shape=(trainX.shape[1], 1),
         )
     )
-    rnn_model.add(keras.layers.LSTM(units=64))
-    rnn_model.add(keras.layers.Dense(32))
-    rnn_model.add(keras.layers.Dropout(0.5))
-    rnn_model.add(keras.layers.Dense(1))
-    rnn_model.summary
-    return
+    lstm_model.add(Dropout(0.2))
+    # Adding a second LSTM layer and some Dropout regularisation
+    lstm_model.add(LSTM(units=64, return_sequences=True))
+    lstm_model.add(Dropout(0.5))
+    # Adding a third LSTM layer and some Dropout regularisation
+    lstm_model.add(LSTM(units=64, return_sequences=True))
+    lstm_model.add(Dropout(0.5))
+    # Adding a fourth LSTM layer and some Dropout regularisation
+    lstm_model.add(LSTM(units=64, return_sequences=False))
+    lstm_model.add(Dense(units=1))
+    lstm_model.summary()
+    # Model compilation
+    lstm_model.compile(optimizer="adam", loss="mean_squared_error")
+    history = lstm_model.fit(
+        X_train,
+        y_train,
+        epochs=50,
+        batch_size=16,
+        shuffle=False,
+        verbose=1,
+        validation_data=(X_test, y_test),
+    )
+
+    # Prediction the testing data
+    predictions = scaler.inverse_transform(lstm_model.predict(X_test))
+
+    # Evaluation metrics
+    mse = np.mean((predictions - y_test) ** 2)
+    print("MSE:", mse)
+    print("RMSE:", np.sqrt(mse))
+
+    # Save tensorflow model
+    lstm_model.save(f"{folder}/model/{symbol}_{feature}_model")
+    print("Model finish training!!!")
 
 
 if __name__ == "__main__":
     for i in grab_list:
         plot_stock_graph(i)
-        # for r in ohlc:
-        # ai_model(i, r)
+        for r in ohlcv:
+            ai_model(i, r)
