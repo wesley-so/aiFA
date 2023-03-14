@@ -135,7 +135,7 @@ def plot_stock_graph(symbol: str):
     stock_fig.update_yaxes(title_text="Volume (USD$)", row=3, col=1)
     stock_fig.write_html(f"{folder}/images/html/{symbol}_stock_graph.html")
     stock_fig.write_image(
-        f"{folder}/images/png/{symbol}_stock_graph.png", height=800, width=1500
+        f"{folder}/images/png/plotly/{symbol}_stock_graph.png", height=800, width=1500
     )
 
 
@@ -146,18 +146,13 @@ def ai_model(symbol: str, feature: str):
     scaler = MinMaxScaler(feature_range=(0, 1))
     scaled_data = scaler.fit_transform(stock_data.loc[:, [feature]])
     scaled_data = pd.DataFrame(data=scaled_data, columns=[feature])
-    print(scaled_data, scaled_data.shape)
 
     # Prepare X_train, y_train, X_test and y_test
     for train_index, test_index in tss.split(scaled_data):
         X_train = scaled_data[: len(train_index)]
         X_test = scaled_data[len(train_index) : (len(train_index) + len(test_index))]
         y_train = dataset[: len(train_index)].values.ravel()
-        y_test = (
-            dataset[
-                len(train_index) : (len(train_index) + len(test_index))
-            ].values.ravel(),
-        )
+        y_test = dataset[len(train_index) : (len(train_index) + len(test_index))].values.ravel()
 
     # Process the data for LSTM
     trainX = np.array(X_train)
@@ -195,16 +190,33 @@ def ai_model(symbol: str, feature: str):
         batch_size=16,
         shuffle=False,
         verbose=1,
-        validation_data=(X_test, y_test),
     )
 
     # Prediction the testing data
     predictions = scaler.inverse_transform(lstm_model.predict(X_test))
+    print(predictions, predictions.shape)
 
     # Evaluation metrics
     mse = np.mean((predictions - y_test) ** 2)
     print("MSE:", mse)
     print("RMSE:", np.sqrt(mse))
+
+    # Visualize predicted result
+    for train_index, test_index in tss.split(dataset):
+        training = dataset[: len(train_index)]
+        test = dataset[len(train_index) : (len(train_index) + len(test_index))].reset_index()
+    temp = pd.DataFrame(data=predictions, columns=["prediction"])
+    testing = pd.concat([test, temp], axis=1, join="inner")
+    print(testing)
+
+    plt.figure(figsize=(15,8))
+    plt.plot(training[feature])
+    plt.plot(testing.loc[:, [feature, "prediction"]])
+    plt.title(f"{symbol} Stock {feature.title()} Price")
+    plt.xlabel("Date")
+    plt.ylabel(feature.title())
+    plt.legend(["Train", "Test", "Prediction"])
+    plt.savefig(f"{folder}/images/png/plt/{symbol}_{feature}_price.png", dpi=300, format="png", pad_inches=0.25)
 
     # Save tensorflow model
     lstm_model.save(f"{folder}/model/{symbol}_{feature}_model")
