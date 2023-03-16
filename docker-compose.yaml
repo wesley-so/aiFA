@@ -20,7 +20,7 @@ services:
     #   dockerfile: Dockerfile.gpu
     # environment:
     #   NVIDIA_VISIBLE_DEVICES: all
-    #   NVIDIA_DRIVER_CAPABILITIES: compute, utility
+    #   NVIDIA_DRIVER_CAPABILITIES: compute,utility
     # deploy:
     #   resources:
     #     reservations:
@@ -46,19 +46,17 @@ services:
     ###########################################################
     # Uncomment below lines to use Tensorflow with Nvidia GPU #
     ###########################################################
-    #   dockerfile: Dockerfile.gpu
-    # environment:
-    #   NVIDIA_VISIBLE_DEVICES: all
-    #   NVIDIA_DRIVER_CAPABILITIES: compute, utility
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities:
-    #             - compute
-    #             - utility
+      dockerfile: Dockerfile.gpu
+    environment:
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu,compute,utility]
     env_file:
       - cron/.env
     depends_on:

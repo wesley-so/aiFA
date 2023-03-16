@@ -1,13 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from keras.layers import Dense, Dropout, SimpleRNN
+from keras.layers import LSTM, Dense, Dropout
 from keras.models import Sequential
 from sklearn.preprocessing import MinMaxScaler
 
 from ..find_stock import find_stock
 
-folder = "/cron/aifa_cron/ai_trainer/result/rnn"
+folder = "/cron/aifa_cron/ai_trainer/result/lstm"
 ohlcv = ["open", "low", "high", "close", "volume"]
 grab_list = [
     # "AAPL",
@@ -33,8 +33,7 @@ grab_list = [
 ]
 
 
-# Design AI Training Model (RNN with LSTM machine learning model)
-def rnn_model(symbol: str, feature: str):
+def lstm_model(symbol: str, feature: str):
     stock_data = find_stock(symbol)
     for i in ohlcv:
         stock_data[i] = stock_data[i].apply(pd.to_numeric)
@@ -57,7 +56,7 @@ def rnn_model(symbol: str, feature: str):
     # Data normalization
     scaler = MinMaxScaler(feature_range=(0, 1))
     scaled_data = scaler.fit_transform(train_dataset)
-    print(scaled_data.shape)
+    print("Shape of scaled_data:", scaled_data.shape)
 
     # Prepare X_train and y_train
     X_train = []
@@ -74,47 +73,22 @@ def rnn_model(symbol: str, feature: str):
     print("Shape of X_train after reshape:", X_train.shape)
     print("Shape of y_train after reshape:", y_train.shape)
 
-    # Create SimpleRNN AI model (Regression Model) and some Dropout regularisation
-    rnn_regressor = Sequential()
-    rnn_regressor.add(
-        SimpleRNN(
-            units=50,
-            activation="tanh",
-            return_sequences=True,
-            input_shape=(X_train.shape[1], 1),
-        )
+    # Create LSTM (Long Short Term Memory) AI model and some Dropout regularisation
+    lstm_model = Sequential()
+    lstm_model.add(
+        LSTM(units=64, return_sequences=True, input_shape=(X_train.shape[1], 1))
     )
-    rnn_regressor.add(Dropout(0.2))
-    # Adding the second RNN layer and some Dropout regularisation
-    rnn_regressor.add(
-        SimpleRNN(
-            units=50,
-            activation="tanh",
-            return_sequences=True,
-        )
-    )
-    rnn_regressor.add(Dropout(0.2))
-    # Adding the third RNN layer and some Dropout regularisation
-    rnn_regressor.add(
-        SimpleRNN(
-            units=50,
-            activation="tanh",
-            return_sequences=True,
-        )
-    )
-    rnn_regressor.add(Dropout(0.2))
-    # Adding the forth RNN layer and some Dropout regularisation
-    rnn_regressor.add(SimpleRNN(units=50))
-    rnn_regressor.add(Dropout(0.2))
+    lstm_model.add(Dropout(0.2))
+    # Adding the second LSTM layer
+    lstm_model.add(LSTM(units=64, return_sequences=False))
+    lstm_model.add(Dense(units=32))
     # Adding the output layer
-    rnn_regressor.add(Dense(units=1))
-
-    # SimpleRNN model compilation
-    rnn_regressor.compile(optimizer="adam", loss="mean_squared_error")
-    history = rnn_regressor.fit(X_train, y_train, epochs=50, batch_size=32)
+    lstm_model.add(Dense(units=1))
+    lstm_model.compile(optimizer="adam", loss="mean_squared_error")
+    history_2 = lstm_model.fit(X_train, y_train, epochs=50, batch_size=16)
 
     # Model prediction for train data
-    y_predict = scaler.inverse_transform(rnn_regressor.predict(X_train))
+    y_predict = scaler.inverse_transform(lstm_model.predict(X_train))
     print("y_predict shape: ", y_predict.shape)
     y_train = scaler.inverse_transform(y_train)
     print("y_train shape: ", y_train.shape)
@@ -139,7 +113,7 @@ def rnn_model(symbol: str, feature: str):
     print("Shape of y_test after reshape:", y_test.shape)
 
     # Evaluation with validation data
-    y_test_predict = scaler.inverse_transform(rnn_regressor.predict(X_test))
+    y_test_predict = scaler.inverse_transform(lstm_model.predict(X_test))
 
     # Visulization on RNN train and test data after prediction
     plt.figure(figsize=(30, 15))
@@ -164,18 +138,18 @@ def rnn_model(symbol: str, feature: str):
     plt.title(f"Simple RNN model, {symbol} Stock Data")
     plt.legend()
     plt.savefig(
-        f"{folder}/rnn/images/png/{symbol}_{feature}_graph.png",
+        f"{folder}/images/png/{symbol}_{feature}_graph.png",
         dpi=300,
         format="png",
         pad_inches=0.25,
     )
 
     # Save tensorflow model
-    rnn_regressor.save(f"{folder}/model/{symbol}_{feature}_model")
-    print("Model finish training!!!")
+    lstm_model.save(f"{folder}/model/{symbol}_{feature}_model")
+    print("LSTM model finish training!!!")
 
 
 if __name__ == "__main__":
     for i in grab_list:
         for r in ohlcv:
-            rnn_model(i, r)
+            lstm_model(i, r)

@@ -1,3 +1,6 @@
 # START CRON JOB
-0 1 * * * cd /cron && /usr/local/bin/poetry run python3 -m aifa_cron.jobs.grab_daily_stock > /proc/1/fd/1 2>/proc/1/fd/2
+0 13 * * * cd /cron && /usr/local/bin/poetry run python3 -m aifa_cron.ai_trainer.plot_graph > /proc/1/fd/1 2>/proc/1/fd/2
+10 13 * * * cd /cron && /usr/local/bin/poetry run python3 -m aifa_cron.ai_trainer.model.rnn > /proc/1/fd/1 2>/proc/1/fd/2
+10 14 * * * cd /cron && /usr/local/bin/poetry run python3 -m aifa_cron.ai_trainer.model.lstm > /proc/1/fd/1 2>/proc/1/fd/2
+0 17 * * * cd /cron && /usr/local/bin/poetry run python3 -m aifa_cron.jobs.grab_daily_stock > /proc/1/fd/1 2>/proc/1/fd/2
 # STOP CRON JOB
