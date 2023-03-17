@@ -56,7 +56,7 @@ services:
           devices:
             - driver: nvidia
               count: 1
-              capabilities: [gpu,compute,utility]
+              capabilities: [compute,utility]
     env_file:
       - cron/.env
     depends_on:

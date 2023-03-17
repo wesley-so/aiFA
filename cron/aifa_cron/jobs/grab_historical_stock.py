@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from os import getenv
 
 import requests
@@ -18,14 +18,14 @@ def grab_historical_stock(
 ):
     grabList = [
         # "AAPL",
-        "MSFT",
+        # "MSFT",
         # "GOOG",
         # "AMZN",
         # "TSLA",
         # "META",
         # "BABA",
         # "ORCL",
-        # "CSCO",
+        "CSCO",
         # "NVDA",
         # "JNJ",
         # "TSM",
@@ -52,4 +52,17 @@ def grab_historical_stock(
 
 
 if __name__ == "__main__":
-    grab_historical_stock(2023, 2, 17, 2023, 2, 18)
+    start_date = date(2022, 9, 1)
+    end_date = date(2023, 3, 16)
+    delta = timedelta(days=4)
+    while start_date <= end_date:
+        temp_date = start_date + delta
+        grab_historical_stock(
+            start_date.year,
+            start_date.month,
+            start_date.day,
+            temp_date.year,
+            temp_date.month,
+            temp_date.day,
+        )
+        start_date = start_date + delta

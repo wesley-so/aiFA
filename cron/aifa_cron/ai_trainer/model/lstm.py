@@ -10,14 +10,14 @@ from ..find_stock import find_stock
 folder = "/cron/aifa_cron/ai_trainer/result/lstm"
 ohlcv = ["open", "low", "high", "close", "volume"]
 grab_list = [
-    # "AAPL",
+    "AAPL",
     "MSFT",
-    # "GOOG",
-    # "AMZN",
-    # "TSLA",
-    # "META",
-    # "BABA",
-    # "ORCL",
+    "GOOG",
+    "AMZN",
+    "TSLA",
+    "META",
+    "BABA",
+    "ORCL",
     # "CSCO",
     # "NVDA",
     # "JNJ",
@@ -85,7 +85,7 @@ def lstm_model(symbol: str, feature: str):
     # Adding the output layer
     lstm_model.add(Dense(units=1))
     lstm_model.compile(optimizer="adam", loss="mean_squared_error")
-    history_2 = lstm_model.fit(X_train, y_train, epochs=50, batch_size=16)
+    history_2 = lstm_model.fit(X_train, y_train, epochs=30, batch_size=128)
 
     # Model prediction for train data
     y_predict = scaler.inverse_transform(lstm_model.predict(X_train))
@@ -102,7 +102,7 @@ def lstm_model(symbol: str, feature: str):
     X_test = []
     y_test = []
     for i in range(time_step, validation_length):
-        X_test.append(scaled_validation_data[i - time_step, 0])
+        X_test.append(scaled_validation_data[i - time_step : i, 0])
         y_test.append(scaled_validation_data[i, 0])
     # Reshape X_test and y_test
     X_test = np.array(X_test)
@@ -112,30 +112,17 @@ def lstm_model(symbol: str, feature: str):
     print("Shape of X_test after reshape:", X_test.shape)
     print("Shape of y_test after reshape:", y_test.shape)
 
-    # Evaluation with validation data
-    y_test_predict = scaler.inverse_transform(lstm_model.predict(X_test))
-
     # Visulization on RNN train and test data after prediction
     plt.figure(figsize=(30, 15))
-    plt.plot(train_data["date"], train_data[feature], label="train_data", color="b")
     plt.plot(
-        validation_data["date"],
-        validation_data["open"],
-        label="validation_data",
-        color="g",
-    )
-    plt.plot(
-        train_data["date"].iloc[time_step:], y_predict, label="y_predict", color="r"
-    )
-    plt.plot(
-        validation_data["date"].iloc[time_step:],
-        y_test_predict,
+        scaler.inverse_transform(lstm_model.predict(X_test)),
         label="y_test_predict",
-        color="orange",
+        color="b",
     )
-    plt.xlabel("Date")
+    plt.plot(scaler.inverse_transform(y_test), label="y_test", color="r")
+    plt.xlabel("Days")
     plt.ylabel(f"{feature.title()}")
-    plt.title(f"Simple RNN model, {symbol} Stock Data")
+    plt.title(f"LSTM model, {symbol} Stock Data")
     plt.legend()
     plt.savefig(
         f"{folder}/images/png/{symbol}_{feature}_graph.png",
@@ -143,6 +130,14 @@ def lstm_model(symbol: str, feature: str):
         format="png",
         pad_inches=0.25,
     )
+
+    # Print predicted result data
+    X_input = stock_data.loc[stock_data.shape[0] - time_step :, feature].values
+    print(X_input)
+    X_input = scaler.fit_transform(X_input.reshape(-1, 1))
+    X_input = X_input.reshape(1, 1950, 1)
+    LSTM_prediction = scaler.inverse_transform(lstm_model.predict(X_input))
+    print(f"LSTM prediction, {feature} prediction: {LSTM_prediction[0,0]}")
 
     # Save tensorflow model
     lstm_model.save(f"{folder}/model/{symbol}_{feature}_model")

@@ -10,8 +10,8 @@ from ..find_stock import find_stock
 folder = "/cron/aifa_cron/ai_trainer/result/rnn"
 ohlcv = ["open", "low", "high", "close", "volume"]
 grab_list = [
-    # "AAPL",
-    "MSFT",
+    "AAPL",
+    # "MSFT",
     # "GOOG",
     # "AMZN",
     # "TSLA",
@@ -111,7 +111,7 @@ def rnn_model(symbol: str, feature: str):
 
     # SimpleRNN model compilation
     rnn_regressor.compile(optimizer="adam", loss="mean_squared_error")
-    history = rnn_regressor.fit(X_train, y_train, epochs=50, batch_size=32)
+    history = rnn_regressor.fit(X_train, y_train, epochs=30, batch_size=512)
 
     # Model prediction for train data
     y_predict = scaler.inverse_transform(rnn_regressor.predict(X_train))
@@ -121,14 +121,14 @@ def rnn_model(symbol: str, feature: str):
 
     # Prepare X_test and y_test
     validation_dataset = validation_data[feature].values
-    validation_dataset = np.reshape(validation_dataset, (-1, 1))
+    validation_dataset = validation_dataset.reshape(-1, 1)
     scaled_validation_data = scaler.fit_transform(validation_dataset)
     print("Shape of scaled validation dataset:", scaled_validation_data.shape)
 
     X_test = []
     y_test = []
     for i in range(time_step, validation_length):
-        X_test.append(scaled_validation_data[i - time_step, 0])
+        X_test.append(scaled_validation_data[i - 1950 : i, 0])
         y_test.append(scaled_validation_data[i, 0])
     # Reshape X_test and y_test
     X_test = np.array(X_test)
@@ -169,6 +169,13 @@ def rnn_model(symbol: str, feature: str):
         format="png",
         pad_inches=0.25,
     )
+
+    # Print predicted result data
+    X_input = stock_data.loc[stock_data.shape[0] - time_step :, feature].values
+    X_input = scaler.fit_transform(X_input.reshape(-1, 1))
+    X_input = X_input.reshape(1, 1950, 1)
+    RNN_prediction = scaler.inverse_transform(rnn_regressor.predict(X_input))
+    print(f"Simepl RNN prediction, {feature} prediction: {RNN_prediction[0,0]}")
 
     # Save tensorflow model
     rnn_regressor.save(f"{folder}/model/{symbol}_{feature}_model")

@@ -3,6 +3,8 @@ from pymongo import ASCENDING
 
 from ..database import stock_collection
 
+ohlcv = ["open", "low", "high", "close", "volume"]
+
 
 def find_stock(symbol: str):
     # Preprocess of stock information
@@ -19,6 +21,8 @@ def find_stock(symbol: str):
     }
     data = stock_collection.find(query, projection).sort("date", ASCENDING)
     stock_data = pd.DataFrame(list(data))
-    print(f"Stock data shape: {stock_data.shape}")
+    for i in ohlcv:
+        stock_data[i] = pd.to_numeric(stock_data[i])
     stock_data["date"] = pd.to_datetime(stock_data["date"])
+    print(f"{symbol} stock data shape: {stock_data.shape}")
     return stock_data

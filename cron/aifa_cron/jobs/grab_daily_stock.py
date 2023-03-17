@@ -6,6 +6,29 @@ from ..database import init_database, insert_stock
 
 init_database()
 
+grab_list = [
+    "AAPL",
+    "MSFT",
+    "GOOG",
+    "AMZN",
+    "TSLA",
+    "META",
+    "BABA",
+    "ORCL",
+    "CSCO",
+    "NVDA",
+    "JNJ",
+    "TSM",
+    "WMT",
+    "PFE",
+    "COST",
+    "KO",
+    "UNH",
+    "HSBC",
+    "QCOM",
+    "AMD",
+]
+
 
 def grab_daily_stock(symbol: str):
     api_key = getenv("FMP_API_KEY")
@@ -19,23 +42,8 @@ def grab_daily_stock(symbol: str):
 
 
 if __name__ == "__main__":
-    # grab_daily_stock("AAPL")
-    grab_daily_stock("MSFT")
-    # grab_daily_stock("GOOG")
-    # grab_daily_stock("AMZN")
-    # grab_daily_stock("TSLA")
-    # grab_daily_stock("META")
-    # grab_daily_stock("BABA")
-    # grab_daily_stock("ORCL")
-    # grab_daily_stock("CSCO")
-    # grab_daily_stock("NVDA")
-    # grab_daily_stock("JNJ")
-    # grab_daily_stock("TSM")
-    # grab_daily_stock("WMT")
-    # grab_daily_stock("PFE")
-    # grab_daily_stock("COST")
-    # grab_daily_stock("KO")
-    # grab_daily_stock("UNH")
-    # grab_daily_stock("HSBC")
-    # grab_daily_stock("QCOM")
-    # grab_daily_stock("AMD")
+    for i in grab_list:
+        try:
+            grab_daily_stock(i)
+        except:
+            pass
