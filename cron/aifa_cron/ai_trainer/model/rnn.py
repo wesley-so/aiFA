@@ -111,7 +111,7 @@ def rnn_model(symbol: str, feature: str):
 
     # SimpleRNN model compilation
     rnn_regressor.compile(optimizer="adam", loss="mean_squared_error")
-    history = rnn_regressor.fit(X_train, y_train, epochs=30, batch_size=512)
+    history = rnn_regressor.fit(X_train, y_train, epochs=20, batch_size=512)
 
     # Model prediction for train data
     y_predict = scaler.inverse_transform(rnn_regressor.predict(X_train))
@@ -175,7 +175,8 @@ def rnn_model(symbol: str, feature: str):
     X_input = scaler.fit_transform(X_input.reshape(-1, 1))
     X_input = X_input.reshape(1, 1950, 1)
     RNN_prediction = scaler.inverse_transform(rnn_regressor.predict(X_input))
-    print(f"Simepl RNN prediction, {feature} prediction: {RNN_prediction[0,0]}")
+    print(f"{symbol} Simple RNN prediction shape: {RNN_prediction.shape}")
+    print(f"{symbol} Simple RNN prediction, {feature} prediction: {RNN_prediction[0,0]}")
 
     # Save tensorflow model
     rnn_regressor.save(f"{folder}/model/{symbol}_{feature}_model")

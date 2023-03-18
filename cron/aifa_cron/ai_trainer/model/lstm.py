@@ -85,7 +85,7 @@ def lstm_model(symbol: str, feature: str):
     # Adding the output layer
     lstm_model.add(Dense(units=1))
     lstm_model.compile(optimizer="adam", loss="mean_squared_error")
-    history_2 = lstm_model.fit(X_train, y_train, epochs=30, batch_size=128)
+    history_2 = lstm_model.fit(X_train, y_train, epochs=20, batch_size=128)
 
     # Model prediction for train data
     y_predict = scaler.inverse_transform(lstm_model.predict(X_train))
@@ -137,7 +137,8 @@ def lstm_model(symbol: str, feature: str):
     X_input = scaler.fit_transform(X_input.reshape(-1, 1))
     X_input = X_input.reshape(1, 1950, 1)
     LSTM_prediction = scaler.inverse_transform(lstm_model.predict(X_input))
-    print(f"LSTM prediction, {feature} prediction: {LSTM_prediction[0,0]}")
+    print(f"{symbol} LSTM prediction shape: {LSTM_prediction.shape}")
+    print(f"{symbol} LSTM prediction, {feature} prediction: {LSTM_prediction[0,0]}")
 
     # Save tensorflow model
     lstm_model.save(f"{folder}/model/{symbol}_{feature}_model")

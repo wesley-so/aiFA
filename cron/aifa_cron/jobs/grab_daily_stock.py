@@ -38,6 +38,7 @@ def grab_daily_stock(symbol: str):
     price_list = r.json()
     for i in price_list:
         i["symbol"] = symbol
+    print(f"{symbol} stock data grabbed!!!")
     insert_stock(price_list)
 
 
