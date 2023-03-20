@@ -12,3 +12,14 @@
 | `close`  |  `double`  |    ✅    | Closing price.       |
 | `volume` |   `int`    |    ✅    | Stock price volume.  |
 | `symbol` |  `string`  |    ✅    | Stock symbol.        |
+
+## Indexes
+
+### `stock_unique`
+
+Validate the uniqueness of every stock data stored in MongoDB
+
+Fields:
+
+- `date`
+- `symbol`
