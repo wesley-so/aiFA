@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from keras.layers import Dense, Dropout, SimpleRNN
+from keras.layers import Dense, Dropout, Embedding, SimpleRNN
 from keras.models import Sequential
 from sklearn.preprocessing import MinMaxScaler
 
@@ -10,26 +10,16 @@ from ..find_stock import find_stock
 folder = "/cron/aifa_cron/ai_trainer/result/rnn"
 ohlcv = ["open", "low", "high", "close", "volume"]
 grab_list = [
-    "AAPL",
-    # "MSFT",
-    # "GOOG",
-    # "AMZN",
-    # "TSLA",
-    # "META",
-    # "BABA",
-    # "ORCL",
-    # "CSCO",
-    # "NVDA",
-    # "JNJ",
-    # "TSM",
-    # "WMT",
-    # "PFE",
-    # "COST",
-    # "KO",
-    # "UNH",
-    # "HSBC",
-    # "QCOM",
-    # "AMD",
+    # "AAPL",
+    "AMZN",
+    "BABA",
+    "CSCO",
+    "GOOG",
+    "META",
+    "MSFT",
+    "NVDA",
+    "ORCL",
+    "TSLA",
 ]
 
 
@@ -47,7 +37,7 @@ def rnn_model(symbol: str, feature: str):
     print("Test data length:", validation_length)
 
     # Spliting train and validation data
-    train_data = stock_data.loc[:train_length, ["date", feature]]
+    train_data = stock_data.loc[: train_length - 1, ["date", feature]]
     validation_data = stock_data.loc[train_length:, ["date", feature]]
 
     # Create training dataset
@@ -57,12 +47,11 @@ def rnn_model(symbol: str, feature: str):
     # Data normalization
     scaler = MinMaxScaler(feature_range=(0, 1))
     scaled_data = scaler.fit_transform(train_dataset)
-    print(scaled_data.shape)
 
     # Prepare X_train and y_train
     X_train = []
     y_train = []
-    time_step = 1950  # 5-days minutely data
+    time_step = 1954  # 5-days minutely data
     for i in range(time_step, train_length):
         X_train.append(scaled_data[i - time_step : i, 0])
         y_train.append(scaled_data[i, 0])
@@ -95,22 +84,15 @@ def rnn_model(symbol: str, feature: str):
     )
     rnn_regressor.add(Dropout(0.2))
     # Adding the third RNN layer and some Dropout regularisation
-    rnn_regressor.add(
-        SimpleRNN(
-            units=50,
-            activation="tanh",
-            return_sequences=True,
-        )
-    )
-    rnn_regressor.add(Dropout(0.2))
-    # Adding the forth RNN layer and some Dropout regularisation
     rnn_regressor.add(SimpleRNN(units=50))
     rnn_regressor.add(Dropout(0.2))
     # Adding the output layer
     rnn_regressor.add(Dense(units=1))
 
     # SimpleRNN model compilation
-    rnn_regressor.compile(optimizer="adam", loss="mean_squared_error")
+    rnn_regressor.compile(
+        optimizer="adam", loss="mean_squared_error", metrics=["accuracy"]
+    )
     history = rnn_regressor.fit(X_train, y_train, epochs=20, batch_size=512)
 
     # Model prediction for train data
@@ -128,7 +110,7 @@ def rnn_model(symbol: str, feature: str):
     X_test = []
     y_test = []
     for i in range(time_step, validation_length):
-        X_test.append(scaled_validation_data[i - 1950 : i, 0])
+        X_test.append(scaled_validation_data[i - time_step : i, 0])
         y_test.append(scaled_validation_data[i, 0])
     # Reshape X_test and y_test
     X_test = np.array(X_test)
@@ -146,7 +128,7 @@ def rnn_model(symbol: str, feature: str):
     plt.plot(train_data["date"], train_data[feature], label="train_data", color="b")
     plt.plot(
         validation_data["date"],
-        validation_data["open"],
+        validation_data[feature],
         label="validation_data",
         color="g",
     )
@@ -164,7 +146,7 @@ def rnn_model(symbol: str, feature: str):
     plt.title(f"Simple RNN model, {symbol} Stock Data")
     plt.legend()
     plt.savefig(
-        f"{folder}/rnn/images/png/{symbol}_{feature}_graph.png",
+        f"{folder}/images/png/{symbol}_{feature}_graph.png",
         dpi=300,
         format="png",
         pad_inches=0.25,
@@ -173,10 +155,12 @@ def rnn_model(symbol: str, feature: str):
     # Print predicted result data
     X_input = stock_data.loc[stock_data.shape[0] - time_step :, feature].values
     X_input = scaler.fit_transform(X_input.reshape(-1, 1))
-    X_input = X_input.reshape(1, 1950, 1)
+    X_input = X_input.reshape(1, time_step, 1)
     RNN_prediction = scaler.inverse_transform(rnn_regressor.predict(X_input))
     print(f"{symbol} Simple RNN prediction shape: {RNN_prediction.shape}")
-    print(f"{symbol} Simple RNN prediction, {feature} prediction: {RNN_prediction[0,0]}")
+    print(
+        f"{symbol} Simple RNN prediction, {feature} prediction: {RNN_prediction[0,0]}"
+    )
 
     # Save tensorflow model
     rnn_regressor.save(f"{folder}/model/{symbol}_{feature}_model")

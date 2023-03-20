@@ -16,32 +16,22 @@ def grab_historical_stock(
     end_month,
     end_day,
 ):
-    grabList = [
+    grab_list = [
         # "AAPL",
-        # "MSFT",
-        # "GOOG",
         # "AMZN",
-        # "TSLA",
-        # "META",
         # "BABA",
+        # "CSCO",
+        # "GOOG",
+        # "META",
+        # "MSFT",
+        # "NVDA"
         # "ORCL",
-        "CSCO",
-        # "NVDA",
-        # "JNJ",
-        # "TSM",
-        # "WMT",
-        # "PFE",
-        # "COST",
-        # "KO",
-        # "UNH",
-        # "HSBC",
-        # "QCOM",
-        # "AMD",
+        # "TSLA"
     ]
     start_date = datetime(start_year, start_month, start_day).strftime("%Y-%m-%d")
     end_date = datetime(end_year, end_month, end_day).strftime("%Y-%m-%d")
     api_key = getenv("FMP_API_KEY")
-    for k in grabList:
+    for k in grab_list:
         r = requests.get(
             f"https://financialmodelingprep.com/api/v3/historical-chart/1min/{k}?apikey={api_key}&from={start_date}&to={end_date}"  # noqa: E501
         )

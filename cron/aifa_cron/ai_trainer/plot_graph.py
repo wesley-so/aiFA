@@ -6,25 +6,15 @@ from .find_stock import find_stock
 folder = "/cron/aifa_cron/ai_trainer/result/stock_graph"
 grab_list = [
     "AAPL",
-    "MSFT",
-    "GOOG",
     "AMZN",
-    "TSLA",
-    "META",
     "BABA",
+    "CSCO",
+    "GOOG",
+    "META",
+    "MSFT",
+    "NVDA",
     "ORCL",
-    # "CSCO",
-    # "NVDA",
-    # "JNJ",
-    # "TSM",
-    # "WMT",
-    # "PFE",
-    # "COST",
-    # "KO",
-    # "UNH",
-    # "HSBC",
-    # "QCOM",
-    # "AMD",
+    "TSLA",
 ]
 
 

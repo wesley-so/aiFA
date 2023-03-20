@@ -8,25 +8,15 @@ init_database()
 
 grab_list = [
     "AAPL",
-    "MSFT",
-    "GOOG",
     "AMZN",
-    "TSLA",
-    "META",
     "BABA",
-    "ORCL",
     "CSCO",
+    "GOOG",
+    "META",
+    "MSFT",
     "NVDA",
-    "JNJ",
-    "TSM",
-    "WMT",
-    "PFE",
-    "COST",
-    "KO",
-    "UNH",
-    "HSBC",
-    "QCOM",
-    "AMD",
+    "ORCL",
+    "TSLA",
 ]
 
 

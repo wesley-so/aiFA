@@ -11,25 +11,15 @@ folder = "/cron/aifa_cron/ai_trainer/result/lstm"
 ohlcv = ["open", "low", "high", "close", "volume"]
 grab_list = [
     "AAPL",
-    "MSFT",
-    "GOOG",
     "AMZN",
-    "TSLA",
-    "META",
     "BABA",
+    "CSCO",
+    "GOOG",
+    "META",
+    "MSFT",
+    "NVDA",
     "ORCL",
-    # "CSCO",
-    # "NVDA",
-    # "JNJ",
-    # "TSM",
-    # "WMT",
-    # "PFE",
-    # "COST",
-    # "KO",
-    # "UNH",
-    # "HSBC",
-    # "QCOM",
-    # "AMD",
+    "TSLA",
 ]
 
 
@@ -52,6 +42,7 @@ def lstm_model(symbol: str, feature: str):
     # Create training dataset
     train_dataset = train_data[feature].values
     train_dataset = train_dataset.reshape(-1, 1)
+    print(f"{symbol} train data shape: {train_data.shape}")
 
     # Data normalization
     scaler = MinMaxScaler(feature_range=(0, 1))
@@ -61,7 +52,7 @@ def lstm_model(symbol: str, feature: str):
     # Prepare X_train and y_train
     X_train = []
     y_train = []
-    time_step = 1950  # 5-days minutely data
+    time_step = 1954  # 5-days minutely data
     for i in range(time_step, train_length):
         X_train.append(scaled_data[i - time_step : i, 0])
         y_train.append(scaled_data[i, 0])
@@ -84,8 +75,10 @@ def lstm_model(symbol: str, feature: str):
     lstm_model.add(Dense(units=32))
     # Adding the output layer
     lstm_model.add(Dense(units=1))
-    lstm_model.compile(optimizer="adam", loss="mean_squared_error")
-    history_2 = lstm_model.fit(X_train, y_train, epochs=20, batch_size=128)
+    lstm_model.compile(
+        optimizer="adam", loss="mean_squared_error", metrics=["accuracy"]
+    )
+    history = lstm_model.fit(X_train, y_train, epochs=20, batch_size=128)
 
     # Model prediction for train data
     y_predict = scaler.inverse_transform(lstm_model.predict(X_train))
@@ -95,7 +88,7 @@ def lstm_model(symbol: str, feature: str):
 
     # Prepare X_test and y_test
     validation_dataset = validation_data[feature].values
-    validation_dataset = np.reshape(validation_dataset, (-1, 1))
+    validation_dataset = validation_dataset.reshape(-1, 1)
     scaled_validation_data = scaler.fit_transform(validation_dataset)
     print("Shape of scaled validation dataset:", scaled_validation_data.shape)
 
@@ -135,7 +128,7 @@ def lstm_model(symbol: str, feature: str):
     X_input = stock_data.loc[stock_data.shape[0] - time_step :, feature].values
     print(X_input)
     X_input = scaler.fit_transform(X_input.reshape(-1, 1))
-    X_input = X_input.reshape(1, 1950, 1)
+    X_input = X_input.reshape(1, time_step, 1)
     LSTM_prediction = scaler.inverse_transform(lstm_model.predict(X_input))
     print(f"{symbol} LSTM prediction shape: {LSTM_prediction.shape}")
     print(f"{symbol} LSTM prediction, {feature} prediction: {LSTM_prediction[0,0]}")
