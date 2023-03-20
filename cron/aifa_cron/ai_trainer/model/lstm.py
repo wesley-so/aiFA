@@ -80,6 +80,33 @@ def lstm_model(symbol: str, feature: str):
     )
     history = lstm_model.fit(X_train, y_train, epochs=20, batch_size=128)
 
+    # Plot LSTM model accuracy and model loss
+    plt.plot(history.history["accuracy"])
+    plt.plot(history.history["val_accuracy"])
+    plt.title(f"{symbol} {feature} LSTM model accuracy")
+    plt.xlabel("Epochs")
+    plt.ylabel("Accuracy")
+    plt.legend(["train", "test"], loc="upper left")
+    plt.save(
+        f"{folder}/images/history/accuracy/{symbol}_{feature}_accuracy.png",
+        dpi=300,
+        format="png",
+        pad_inches=0.25,
+    )
+
+    plt.plot(history.history["loss"])
+    plt.plot(history.history["val_loss"])
+    plt.title(f"{symbol} {feature} LSTM model loss")
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.legend(["train", "test"], loc="upper right")
+    plt.save(
+        f"{folder}/images/history/loss/{symbol}_{feature}_loss.png",
+        dpi=300,
+        format="png",
+        pad_inches=0.25,
+    )
+
     # Model prediction for train data
     y_predict = scaler.inverse_transform(lstm_model.predict(X_train))
     print("y_predict shape: ", y_predict.shape)

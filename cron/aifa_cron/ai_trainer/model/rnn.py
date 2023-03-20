@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from keras.layers import Dense, Dropout, Embedding, SimpleRNN
+from keras.layers import Dense, Dropout, SimpleRNN
 from keras.models import Sequential
 from sklearn.preprocessing import MinMaxScaler
 
@@ -10,7 +10,7 @@ from ..find_stock import find_stock
 folder = "/cron/aifa_cron/ai_trainer/result/rnn"
 ohlcv = ["open", "low", "high", "close", "volume"]
 grab_list = [
-    # "AAPL",
+    "AAPL",
     "AMZN",
     "BABA",
     "CSCO",
@@ -94,6 +94,33 @@ def rnn_model(symbol: str, feature: str):
         optimizer="adam", loss="mean_squared_error", metrics=["accuracy"]
     )
     history = rnn_regressor.fit(X_train, y_train, epochs=20, batch_size=512)
+
+    # Plot RNN model accuracy and model loss
+    plt.plot(history.history["accuracy"])
+    plt.plot(history.history["val_accuracy"])
+    plt.title(f"{symbol} {feature} RNN model accuracy")
+    plt.xlabel("Epochs")
+    plt.ylabel("Accuracy")
+    plt.legend(["train", "test"], loc="upper left")
+    plt.save(
+        f"{folder}/images/history/accuracy/{symbol}_{feature}_accuracy.png",
+        dpi=300,
+        format="png",
+        pad_inches=0.25,
+    )
+
+    plt.plot(history.history["loss"])
+    plt.plot(history.history["val_loss"])
+    plt.title(f"{symbol} {feature} RNN model loss")
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.legend(["train", "test"], loc="upper right")
+    plt.save(
+        f"{folder}/images/history/loss/{symbol}_{feature}_loss.png",
+        dpi=300,
+        format="png",
+        pad_inches=0.25,
+    )
 
     # Model prediction for train data
     y_predict = scaler.inverse_transform(rnn_regressor.predict(X_train))

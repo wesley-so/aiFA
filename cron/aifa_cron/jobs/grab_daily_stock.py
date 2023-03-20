@@ -23,7 +23,8 @@ grab_list = [
 def grab_daily_stock(symbol: str):
     api_key = getenv("FMP_API_KEY")
     r = requests.get(
-        f"https://financialmodelingprep.com/api/v3/historical-chart/1min/{symbol}?apikey={api_key}"
+        "https://financialmodelingprep.com/api/v3"
+        + f"/historical-chart/1min/{symbol}?apikey={api_key}"
     )
     price_list = r.json()
     for i in price_list:
@@ -36,5 +37,5 @@ if __name__ == "__main__":
     for i in grab_list:
         try:
             grab_daily_stock(i)
-        except:
+        except Exception:
             pass
