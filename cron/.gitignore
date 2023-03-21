@@ -174,3 +174,5 @@ gl-codequality.json
 
 *.html
 *.png
+aifa_cron/ai_trainer/result/lstm/model/*
+aifa_cron/ai_trainer/result/rnn/model/*
