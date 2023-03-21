@@ -80,14 +80,15 @@ def lstm_model(symbol: str, feature: str):
     )
     history = lstm_model.fit(X_train, y_train, epochs=20, batch_size=128)
 
+    print(f"history params: {history.params}")
+    print(f"history keys: {history.history.keys()}")
+
     # Plot LSTM model accuracy and model loss
     plt.plot(history.history["accuracy"])
-    plt.plot(history.history["val_accuracy"])
     plt.title(f"{symbol} {feature} LSTM model accuracy")
     plt.xlabel("Epochs")
     plt.ylabel("Accuracy")
-    plt.legend(["train", "test"], loc="upper left")
-    plt.save(
+    plt.savefig(
         f"{folder}/images/history/accuracy/{symbol}_{feature}_accuracy.png",
         dpi=300,
         format="png",
@@ -95,12 +96,10 @@ def lstm_model(symbol: str, feature: str):
     )
 
     plt.plot(history.history["loss"])
-    plt.plot(history.history["val_loss"])
     plt.title(f"{symbol} {feature} LSTM model loss")
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
-    plt.legend(["train", "test"], loc="upper right")
-    plt.save(
+    plt.savefig(
         f"{folder}/images/history/loss/{symbol}_{feature}_loss.png",
         dpi=300,
         format="png",

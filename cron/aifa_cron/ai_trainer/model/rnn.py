@@ -95,14 +95,15 @@ def rnn_model(symbol: str, feature: str):
     )
     history = rnn_regressor.fit(X_train, y_train, epochs=20, batch_size=512)
 
+    print(f"history params: {history.params}")
+    print(f"history keys: {history.history.keys()}")
+
     # Plot RNN model accuracy and model loss
     plt.plot(history.history["accuracy"])
-    plt.plot(history.history["val_accuracy"])
     plt.title(f"{symbol} {feature} RNN model accuracy")
     plt.xlabel("Epochs")
     plt.ylabel("Accuracy")
-    plt.legend(["train", "test"], loc="upper left")
-    plt.save(
+    plt.savefig(
         f"{folder}/images/history/accuracy/{symbol}_{feature}_accuracy.png",
         dpi=300,
         format="png",
@@ -110,12 +111,10 @@ def rnn_model(symbol: str, feature: str):
     )
 
     plt.plot(history.history["loss"])
-    plt.plot(history.history["val_loss"])
     plt.title(f"{symbol} {feature} RNN model loss")
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
-    plt.legend(["train", "test"], loc="upper right")
-    plt.save(
+    plt.savefig(
         f"{folder}/images/history/loss/{symbol}_{feature}_loss.png",
         dpi=300,
         format="png",
