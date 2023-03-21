@@ -96,7 +96,7 @@ def plot_stock_graph(symbol: str):
     stock_fig.update_yaxes(title_text="Volume (USD$)", row=3, col=1)
     stock_fig.write_html(f"{folder}/html/{symbol}.html")
     stock_fig.write_image(f"{folder}/png/{symbol}.png", height=1000, width=1500)
-    print("Plotly visulisation finished!!!")
+    print("Plotly visualisation finished!!!")
 
 
 if __name__ == "__main__":
