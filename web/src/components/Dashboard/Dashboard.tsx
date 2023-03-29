@@ -13,7 +13,6 @@ const Dashboard: FC = () => {
         alignItems="left"
         justifyContent="left"
         marginLeft="15px"
-        paddingTop="5vh"
       >
         <Typography variant="h3" component="h1">
           Dashboard
