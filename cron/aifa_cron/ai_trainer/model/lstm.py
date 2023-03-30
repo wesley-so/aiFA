@@ -115,7 +115,7 @@ def lstm_model(symbol: str, feature: str):
     # Prepare X_test and y_test
     validation_dataset = validation_data[feature].values
     validation_dataset = validation_dataset.reshape(-1, 1)
-    scaled_validation_data = scaler.fit_transform(validation_dataset)
+    scaled_validation_data = scaler.transform(validation_dataset)
     print("Shape of scaled validation dataset:", scaled_validation_data.shape)
 
     X_test = []
@@ -160,7 +160,7 @@ def lstm_model(symbol: str, feature: str):
     print(f"{symbol} LSTM prediction, {feature} prediction: {LSTM_prediction[0,0]}")
 
     # Save tensorflow model
-    lstm_model.save(f"{folder}/model/{symbol}_{feature}_model")
+    lstm_model.save(f"{folder}/model/{symbol}_{feature}_model.h5")
     print("LSTM model finish training!!!")
 
 
