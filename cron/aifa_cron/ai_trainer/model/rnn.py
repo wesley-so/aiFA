@@ -130,7 +130,7 @@ def rnn_model(symbol: str, feature: str):
     # Prepare X_test and y_test
     validation_dataset = validation_data[feature].values
     validation_dataset = validation_dataset.reshape(-1, 1)
-    scaled_validation_data = scaler.fit_transform(validation_dataset)
+    scaled_validation_data = scaler.transform(validation_dataset)
     print("Shape of scaled validation dataset:", scaled_validation_data.shape)
 
     X_test = []
@@ -189,7 +189,7 @@ def rnn_model(symbol: str, feature: str):
     )
 
     # Save tensorflow model
-    rnn_regressor.save(f"{folder}/model/{symbol}_{feature}_model")
+    rnn_regressor.save(f"{folder}/model/{symbol}_{feature}_model.h5")
     print("Model finish training!!!")
 
 
