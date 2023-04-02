@@ -32,9 +32,9 @@ def rnn_model(symbol: str, feature: str):
     split_ratio = 0.9
     train_length = round(data_length * split_ratio)
     validation_length = data_length - train_length
-    print("Data length:", data_length)
-    print("Train data length:", train_length)
-    print("Test data length:", validation_length)
+    print(f"{symbol} {feature} Data length:", data_length)
+    print(f"{symbol} {feature} Train data length:", train_length)
+    print(f"{symbol} {feature} Test data length:", validation_length)
 
     # Spliting train and validation data
     train_data = stock_data.loc[: train_length - 1, ["date", feature]]
@@ -63,75 +63,10 @@ def rnn_model(symbol: str, feature: str):
     print("Shape of X_train after reshape:", X_train.shape)
     print("Shape of y_train after reshape:", y_train.shape)
 
-    # Create SimpleRNN AI model (Regression Model) and some Dropout regularisation
-    rnn_regressor = Sequential()
-    rnn_regressor.add(
-        SimpleRNN(
-            units=50,
-            activation="tanh",
-            return_sequences=True,
-            input_shape=(X_train.shape[1], 1),
-        )
-    )
-    rnn_regressor.add(Dropout(0.2))
-    # Adding the second RNN layer and some Dropout regularisation
-    rnn_regressor.add(
-        SimpleRNN(
-            units=50,
-            activation="tanh",
-            return_sequences=True,
-        )
-    )
-    rnn_regressor.add(Dropout(0.2))
-    # Adding the third RNN layer and some Dropout regularisation
-    rnn_regressor.add(SimpleRNN(units=50))
-    rnn_regressor.add(Dropout(0.2))
-    # Adding the output layer
-    rnn_regressor.add(Dense(units=1))
-
-    # SimpleRNN model compilation
-    rnn_regressor.compile(
-        optimizer="adam", loss="mean_squared_error", metrics=["accuracy"]
-    )
-    history = rnn_regressor.fit(X_train, y_train, epochs=20, batch_size=512)
-
-    print(f"history params: {history.params}")
-    print(f"history keys: {history.history.keys()}")
-
-    # Plot RNN model accuracy and model loss
-    plt.plot(history.history["accuracy"])
-    plt.title(f"{symbol} {feature} RNN model accuracy")
-    plt.xlabel("Epochs")
-    plt.ylabel("Accuracy")
-    plt.savefig(
-        f"{folder}/images/history/accuracy/{symbol}_{feature}_accuracy.png",
-        dpi=300,
-        format="png",
-        pad_inches=0.25,
-    )
-
-    plt.plot(history.history["loss"])
-    plt.title(f"{symbol} {feature} RNN model loss")
-    plt.xlabel("Epochs")
-    plt.ylabel("Loss")
-    plt.savefig(
-        f"{folder}/images/history/loss/{symbol}_{feature}_loss.png",
-        dpi=300,
-        format="png",
-        pad_inches=0.25,
-    )
-
-    # Model prediction for train data
-    y_predict = scaler.inverse_transform(rnn_regressor.predict(X_train))
-    print("y_predict shape: ", y_predict.shape)
-    y_train = scaler.inverse_transform(y_train)
-    print("y_train shape: ", y_train.shape)
-
     # Prepare X_test and y_test
     validation_dataset = validation_data[feature].values
     validation_dataset = validation_dataset.reshape(-1, 1)
     scaled_validation_data = scaler.transform(validation_dataset)
-    print("Shape of scaled validation dataset:", scaled_validation_data.shape)
 
     X_test = []
     y_test = []
@@ -145,6 +80,61 @@ def rnn_model(symbol: str, feature: str):
     y_test = y_test.reshape(-1, 1)
     print("Shape of X_test after reshape:", X_test.shape)
     print("Shape of y_test after reshape:", y_test.shape)
+
+    # Create SimpleRNN AI model (Regression Model) and some Dropout regularisation 
+    rnn_regressor = Sequential()
+    rnn_regressor.add(
+        SimpleRNN(
+            units=50,
+            activation="tanh",
+            return_sequences=True,
+            input_shape=(X_train.shape[1], 1),
+        )
+    )
+    rnn_regressor.add(Dropout(0.2))
+    # Adding the output layer
+    rnn_regressor.add(Dense(units=1))
+
+    # SimpleRNN model compilation
+    rnn_regressor.compile(
+        optimizer="adam",
+        loss="mean_squared_error",
+        metrics=["accuracy"],
+    )
+    history = rnn_regressor.fit(X_train, y_train, epochs=20, validation_data=(X_test, y_test), batch_size=512)
+
+    # Plot RNN model accuracy and model loss
+    plt.plot(history.history["accuracy"], label="accuracy")
+    plt.plot(history.history["val_accuracy"], label="val_accuracy")
+    plt.title(f"{symbol} {feature} RNN model accuracy")
+    plt.xlabel("Epochs")
+    plt.ylabel("Accuracy")
+    plt.legend()
+    plt.savefig(
+        f"{folder}/images/history/accuracy/{symbol}_{feature}_accuracy.png",
+        dpi=300,
+        format="png",
+        pad_inches=0.25,
+    )
+
+    plt.plot(history.history["loss"], label="loss")
+    plt.plot(history.history["val_loss"], label="val_loss")
+    plt.title(f"{symbol} {feature} RNN model loss")
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.legend()
+    plt.savefig(
+        f"{folder}/images/history/loss/{symbol}_{feature}_loss.png",
+        dpi=300,
+        format="png",
+        pad_inches=0.25,
+    )
+
+    # Model prediction for train data
+    y_predict = scaler.inverse_transform(rnn_regressor.predict(X_train))
+    print("y_predict shape: ", y_predict.shape)
+    y_train = scaler.inverse_transform(y_train)
+    print("y_train shape: ", y_train.shape)
 
     # Evaluation with validation data
     y_test_predict = scaler.inverse_transform(rnn_regressor.predict(X_test))
