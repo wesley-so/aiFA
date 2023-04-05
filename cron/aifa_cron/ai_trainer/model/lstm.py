@@ -31,9 +31,9 @@ def lstm_model(symbol: str, feature: str):
     split_ratio = 0.9
     train_length = round(data_length * split_ratio)
     validation_length = data_length - train_length
-    print("Data length:", data_length)
-    print("Train data length:", train_length)
-    print("Test data length:", validation_length)
+    print(f"{symbol} {feature} Data length:", data_length)
+    print(f"{symbol} {feature} Train data length:", train_length)
+    print(f"{symbol} {feature} Test data length:", validation_length)
 
     # Spliting train and validation data
     train_data = stock_data.loc[:train_length, ["date", feature]]
@@ -42,12 +42,10 @@ def lstm_model(symbol: str, feature: str):
     # Create training dataset
     train_dataset = train_data[feature].values
     train_dataset = train_dataset.reshape(-1, 1)
-    print(f"{symbol} train data shape: {train_data.shape}")
 
     # Data normalization
     scaler = MinMaxScaler(feature_range=(0, 1))
     scaled_data = scaler.fit_transform(train_dataset)
-    print("Shape of scaled_data:", scaled_data.shape)
 
     # Prepare X_train and y_train
     X_train = []
@@ -64,59 +62,10 @@ def lstm_model(symbol: str, feature: str):
     print("Shape of X_train after reshape:", X_train.shape)
     print("Shape of y_train after reshape:", y_train.shape)
 
-    # Create LSTM (Long Short Term Memory) AI model and some Dropout regularisation
-    lstm_model = Sequential()
-    lstm_model.add(
-        LSTM(units=64, return_sequences=True, input_shape=(X_train.shape[1], 1))
-    )
-    lstm_model.add(Dropout(0.2))
-    # Adding the second LSTM layer
-    lstm_model.add(LSTM(units=64, return_sequences=False))
-    lstm_model.add(Dense(units=32))
-    # Adding the output layer
-    lstm_model.add(Dense(units=1))
-    lstm_model.compile(
-        optimizer="adam", loss="mean_squared_error", metrics=["accuracy"]
-    )
-    history = lstm_model.fit(X_train, y_train, epochs=20, batch_size=128)
-
-    print(f"history params: {history.params}")
-    print(f"history keys: {history.history.keys()}")
-
-    # Plot LSTM model accuracy and model loss
-    plt.plot(history.history["accuracy"])
-    plt.title(f"{symbol} {feature} LSTM model accuracy")
-    plt.xlabel("Epochs")
-    plt.ylabel("Accuracy")
-    plt.savefig(
-        f"{folder}/images/history/accuracy/{symbol}_{feature}_accuracy.png",
-        dpi=300,
-        format="png",
-        pad_inches=0.25,
-    )
-
-    plt.plot(history.history["loss"])
-    plt.title(f"{symbol} {feature} LSTM model loss")
-    plt.xlabel("Epochs")
-    plt.ylabel("Loss")
-    plt.savefig(
-        f"{folder}/images/history/loss/{symbol}_{feature}_loss.png",
-        dpi=300,
-        format="png",
-        pad_inches=0.25,
-    )
-
-    # Model prediction for train data
-    y_predict = scaler.inverse_transform(lstm_model.predict(X_train))
-    print("y_predict shape: ", y_predict.shape)
-    y_train = scaler.inverse_transform(y_train)
-    print("y_train shape: ", y_train.shape)
-
     # Prepare X_test and y_test
     validation_dataset = validation_data[feature].values
     validation_dataset = validation_dataset.reshape(-1, 1)
     scaled_validation_data = scaler.transform(validation_dataset)
-    print("Shape of scaled validation dataset:", scaled_validation_data.shape)
 
     X_test = []
     y_test = []
@@ -131,19 +80,75 @@ def lstm_model(symbol: str, feature: str):
     print("Shape of X_test after reshape:", X_test.shape)
     print("Shape of y_test after reshape:", y_test.shape)
 
+    # Create LSTM (Long Short Term Memory) AI model and some Dropout regularisation
+    lstm_model = Sequential()
+    # Adding the first LSTM layer
+    lstm_model.add(
+        LSTM(units=64, return_sequences=True, input_shape=(X_train.shape[1], 1))
+    )
+    lstm_model.add(Dropout(0.2))
+    # Adding the second LSTM layer
+    lstm_model.add(LSTM(units=64, return_sequences=False))
+    lstm_model.add(Dense(units=32))
+    # Adding the output layer
+    lstm_model.add(Dense(units=1))
+    lstm_model.compile(
+        optimizer="adam",
+        loss="mean_squared_error",
+        metrics=["accuracy"],
+    )
+    history = lstm_model.fit(
+        X_train, y_train, epochs=20, validation_data=(X_test, y_test), batch_size=128
+    )
+
+    # Plot LSTM model accuracy and model loss
+    fig1, ax1 = plt.subplots(figsize=(15, 8))
+    ax1.plot(history.history["accuracy"], label="accuracy")
+    ax1.plot(history.history["val_accuracy"], label="val_accuracy")
+    ax1.set_xlabel("Epochs")
+    ax1.set_ylabel("Accuracy")
+    fig1.suptitle(f"{symbol} {feature} LSTM model accuracy", fontsize=25)
+    ax1.legend()
+    fig1.savefig(
+        f"{folder}/images/history/accuracy/{symbol}_{feature}_accuracy.png",
+        dpi=300,
+        format="png",
+        pad_inches=0.25,
+    )
+
+    fig2, ax2 = plt.subplots(figsize=(15, 8))
+    ax2.plot(history.history["loss"], label="loss")
+    ax2.plot(history.history["val_loss"], label="val_loss")
+    ax2.set_xlabel("Epochs")
+    ax2.set_ylabel("Loss")
+    fig2.suptitle(f"{symbol} {feature} LSTM model loss", fontsize=25)
+    ax2.legend()
+    fig2.savefig(
+        f"{folder}/images/history/loss/{symbol}_{feature}_loss.png",
+        dpi=300,
+        format="png",
+        pad_inches=0.25,
+    )
+
+    # Model prediction for train data
+    y_predict = scaler.inverse_transform(lstm_model.predict(X_train))
+    print("y_predict shape: ", y_predict.shape)
+    y_train = scaler.inverse_transform(y_train)
+    print("y_train shape: ", y_train.shape)
+
     # Visulization on RNN train and test data after prediction
-    plt.figure(figsize=(30, 15))
-    plt.plot(
+    fig3, ax3 = plt.subplots(figsize=(30, 15))
+    ax3.plot(
         scaler.inverse_transform(lstm_model.predict(X_test)),
         label="y_test_predict",
         color="b",
     )
-    plt.plot(scaler.inverse_transform(y_test), label="y_test", color="r")
-    plt.xlabel("Days")
-    plt.ylabel(f"{feature.title()}")
-    plt.title(f"LSTM model, {symbol} Stock Data")
-    plt.legend()
-    plt.savefig(
+    ax3.plot(scaler.inverse_transform(y_test), label="y_test", color="r")
+    ax3.set_xlabel("Days")
+    ax3.set_ylabel(f"{feature.title()}")
+    fig3.suptitle(f"LSTM model, {symbol} Stock Data", fontsize=25)
+    ax3.legend()
+    fig3.savefig(
         f"{folder}/images/png/{symbol}_{feature}_graph.png",
         dpi=300,
         format="png",
