@@ -64,3 +64,16 @@ async def get_password_hash(username: str):
     if user_data is None:
         return None
     return {"user_id": user_data["user_id"], "hash": user_data["password_hash"]}
+
+
+async def update_password(username: str, new_password: str):
+    async with await client.start_session() as s:
+        async with s.start_transaction():
+            user = await get_user_by_name(username)
+            if user is None:
+                return None
+            await user_collection.update_one(
+                {"username": user.username},
+                {"$set": {"password_hash": new_password}},
+                session=s,
+            )

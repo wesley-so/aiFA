@@ -2,9 +2,11 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
 from ..dependencies.session import get_session_token, get_session_user
-from ..models.user import UserLoginSchema, UserModel, UserRegisterSchema
+from ..models.user import (UserLoginSchema, UserModel, UserRegisterSchema,
+                           UserUpdatePasswordSchema)
 from ..services.session import create_session, destroy_session
-from ..services.user import UserRegisterError, create_user, get_password_hash
+from ..services.user import (UserRegisterError, create_user, get_password_hash,
+                             update_password)
 from ..utils.password import hash_password, validate_password
 
 router = APIRouter(prefix="/user", tags=["user"])
@@ -85,3 +87,44 @@ async def register(register: UserRegisterSchema):
 @router.get("/me", response_class=JSONResponse)
 async def self_info(self_info: UserModel = Depends(get_session_user)):
     return JSONResponse(status_code=200, content=self_info.dict())
+
+
+@router.put("/me", response_class=JSONResponse)
+async def edit_info(
+    edit: UserUpdatePasswordSchema, self_info: UserModel = Depends(get_session_user)
+):
+    username = self_info.dict()["username"]
+    password = await get_password_hash(username)
+    hashed = password["hash"]
+    new_password = edit.new_password
+    new_password_confirm = edit.confirm_new_password
+    if not (new_password and new_password_confirm):
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Some fields are missing or invalid!"},
+        )
+
+    # Can be done in UI part
+    if new_password != new_password_confirm:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Password do not match!"},
+        )
+
+    new_hashed = await hash_password(new_password)
+    if await validate_password(new_password, hashed):
+        return JSONResponse(
+            status_code=400, content={"error": "User password duplicated!"}
+        )
+
+    try:
+        await update_password(username, new_hashed)
+    except Exception as error:
+        return JSONResponse(status_code=400, content={"error": str(error)})
+
+    return JSONResponse(
+        status_code=200,
+        content={
+            "message": "User password updated successfully.",
+        },
+    )
