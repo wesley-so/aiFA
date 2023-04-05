@@ -2,9 +2,6 @@ import {
   AppBar,
   Box,
   Button,
-  ListItemIcon,
-  Menu,
-  MenuItem,
   Tab,
   Tabs,
   Toolbar,
@@ -13,20 +10,23 @@ import {
   useTheme,
 } from "@mui/material";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import LogoutIcon from "@mui/icons-material/Logout";
-import PersonIcon from "@mui/icons-material/Person";
-import SettingsIcon from "@mui/icons-material/Settings";
+import MenuIcon from "@mui/icons-material/Menu";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import React, { FC, useState } from "react";
 import { Link, useHref } from "react-router-dom";
 import DrawerMenu from "../DrawerMenu/DrawerMenu";
-
-const PAGES = ["Stock Quote", "Investment", "My Portfolio", "About Us"];
+import NavBarMenu from "./NavBarMenu/NavBarMenu";
 
 const DashboardNavigationBar: FC = () => {
   const dashboardUri = useHref("/dashboard");
-  const logoutUri = useHref("/logout");
+  const pages: Record<string, string> = {
+    [useHref("/quote")]: "Stock Quote",
+    [useHref("/investment")]: "Investment",
+    [useHref("/portfolio")]: "My Portfolio",
+    [useHref("/profile")]: "My Profile",
+    [useHref("/setting")]: "Settings",
+    [useHref("/logout")]: "Logout",
+  };
   const [value, setValue] = useState();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -40,21 +40,21 @@ const DashboardNavigationBar: FC = () => {
   };
   return (
     <>
-      <Box sx={{ flexGrow: 1 }}>
+      <Box>
         <AppBar position="sticky">
-          <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Toolbar sx={{ justifyContent: "space-between" }}>
+            <Typography variant="h6" component="div">
               <Link
                 to={dashboardUri}
                 style={{ textDecoration: "none", color: "#FFF" }}
               >
                 aiFA
               </Link>
-              <TimelineIcon />
+              <TimelineIcon sx={{ width: "1.5em" }} />
             </Typography>
             {isMatch ? (
               <>
-                <DrawerMenu />
+                <DrawerMenu pages={pages} />
               </>
             ) : (
               <>
@@ -64,51 +64,29 @@ const DashboardNavigationBar: FC = () => {
                   onChange={(e, value) => setValue(value)}
                   indicatorColor="secondary"
                 >
-                  {PAGES.map((page, index) => (
-                    <Tab key={index} label={page} />
-                  ))}
-                  <Button
-                    color="inherit"
-                    id="user-menu"
-                    onClick={handleClick}
-                    aria-controls={open ? "user-menu" : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={open ? "true" : undefined}
-                    endIcon={open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-                  >
-                    <AccountCircleIcon />
-                  </Button>
+                  {Object.keys(pages)
+                    .slice(0, Object.keys(pages).length - 3)
+                    .map((path, index) => (
+                      <Tab
+                        key={index}
+                        label={pages[path]}
+                        href={path}
+                        sx={{ padding: "12px 30px" }}
+                      />
+                    ))}
                 </Tabs>
-                <Menu
+                <Button
+                  color="inherit"
                   id="user-menu"
-                  anchorEl={anchorEl}
-                  open={open}
-                  MenuListProps={{ "aria-labelledby": "user-menu" }}
-                  onClose={handleClose}
-                  transformOrigin={{ horizontal: "right", vertical: "top" }}
-                  anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                  onClick={handleClick}
+                  aria-controls={open ? "user-menu" : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={open ? "true" : undefined}
+                  endIcon={open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                 >
-                  <MenuItem onClick={handleClose}>
-                    <ListItemIcon>
-                      <PersonIcon />
-                    </ListItemIcon>
-                    My Profile
-                  </MenuItem>
-                  <MenuItem onClick={handleClose}>
-                    <ListItemIcon>
-                      <SettingsIcon />
-                    </ListItemIcon>
-                    Settings
-                  </MenuItem>
-                  <MenuItem onClick={handleClose}>
-                    <ListItemIcon>
-                      <LogoutIcon />
-                    </ListItemIcon>
-                    <Link to={logoutUri} style={{ textDecoration: "none" }}>
-                      Logout
-                    </Link>
-                  </MenuItem>
-                </Menu>
+                  <MenuIcon />
+                </Button>
+                <NavBarMenu open={open} onClose={handleClose} />
               </>
             )}
           </Toolbar>

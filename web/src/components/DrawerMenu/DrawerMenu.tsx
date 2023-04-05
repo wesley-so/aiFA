@@ -8,27 +8,28 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import React, { FC, useState } from "react";
+import { Link } from "react-router-dom";
 
-const PAGES = [
-  "Stock Quote",
-  "Investment",
-  "My Portfolio",
-  "About Us",
-  "My Profile",
-  "Settings",
-  "Logout",
-];
-const DrawerMenu: FC = () => {
+interface DrawerMenuProps {
+  pages: Record<string, string>;
+}
+
+const DrawerMenu: FC<DrawerMenuProps> = ({ pages }) => {
   const [openDrawer, setOpenDrawer] = useState(false);
+  const handleClose = () => {
+    setOpenDrawer(false);
+  };
   return (
     <React.Fragment>
-      <Drawer open={openDrawer} onClose={() => setOpenDrawer(false)}>
+      <Drawer open={openDrawer} onClose={handleClose}>
         <List>
-          {PAGES.map((page, index) => (
-            <ListItemButton onClick={() => setOpenDrawer(false)} key={index}>
-              <ListItemIcon>
-                <ListItemText>{page}</ListItemText>
-              </ListItemIcon>
+          {Object.keys(pages).map((path, index) => (
+            <ListItemButton onClick={handleClose} key={index}>
+              <Link to={path}>
+                <ListItemIcon>
+                  <ListItemText>{pages[path]}</ListItemText>
+                </ListItemIcon>
+              </Link>
             </ListItemButton>
           ))}
         </List>
