@@ -43,3 +43,15 @@ export const getUser = async (token: string): Promise<User> => {
   });
   return data;
 };
+
+export const changePassword = async (
+  new_password: string,
+  new_password_confirm: string
+) => {
+  const response = await axios.put(
+    `${config.apiUrl}/user/me`,
+    { new_password, new_password_confirm },
+    { headers: { "Content-Type": "application/json" } }
+  );
+  return response;
+};
