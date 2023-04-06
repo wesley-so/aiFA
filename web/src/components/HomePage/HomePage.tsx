@@ -1,9 +1,18 @@
-import { Box, Grid, Typography } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Button,
+  Grid,
+  Stack,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import { FC } from "react";
-import HomeNavigationBar from "./HomeNavigationBar";
 import "./HomePage.css";
 import backgroundImage from "./background.webp";
 import { grey } from "@mui/material/colors";
+import { Person } from "@mui/icons-material";
+import { useHref } from "react-router-dom";
 
 const HomePage: FC = () => {
   return (
@@ -17,7 +26,7 @@ const HomePage: FC = () => {
         backgroundSize: "cover",
       }}
     >
-      <HomeNavigationBar />
+      <NavBar />
       <Grid
         alignItems="center"
         color={grey[400]}
@@ -35,6 +44,29 @@ const HomePage: FC = () => {
           Your intelligent financial advisor
         </Typography>
       </Grid>
+    </Box>
+  );
+};
+
+const NavBar: FC = () => {
+  const loginUri = useHref("/login");
+  return (
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar color="transparent" position="absolute">
+        <Toolbar>
+          <Box component="div" flexGrow={1} />
+          <Stack direction="row" spacing={2}>
+            <Button
+              color="inherit"
+              href={loginUri}
+              startIcon={<Person />}
+              variant="outlined"
+            >
+              Account
+            </Button>
+          </Stack>
+        </Toolbar>
+      </AppBar>
     </Box>
   );
 };
