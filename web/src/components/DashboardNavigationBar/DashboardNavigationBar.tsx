@@ -2,8 +2,12 @@ import {
   AppBar,
   Box,
   Button,
-  Tab,
-  Tabs,
+  Drawer,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
   Toolbar,
   Typography,
   useMediaQuery,
@@ -14,8 +18,8 @@ import MenuIcon from "@mui/icons-material/Menu";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import React, { FC, useState } from "react";
 import { Link, useHref } from "react-router-dom";
-import DrawerMenu from "../DrawerMenu/DrawerMenu";
-import NavBarMenu from "./NavBarMenu/NavBarMenu";
+import ClippedDrawerMenu from "./ClippedDrawerMenu/ClippedDrawerMenu";
+import NavBarPopover from "./NavBarPopover/NavBarPopover";
 
 const DashboardNavigationBar: FC = () => {
   const dashboardUri = useHref("/dashboard");
@@ -27,9 +31,10 @@ const DashboardNavigationBar: FC = () => {
     [useHref("/setting")]: "Settings",
     [useHref("/logout")]: "Logout",
   };
-  const [value, setValue] = useState();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [openDrawer, setOpenDrawer] = useState(false);
   const open = Boolean(anchorEl);
+  const smallDrawerWidth = 130;
   const theme = useTheme();
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -38,61 +43,88 @@ const DashboardNavigationBar: FC = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const handleDrawerClose = () => {
+    setOpenDrawer(false);
+  };
   return (
-    <>
-      <Box>
-        <AppBar position="sticky">
-          <Toolbar sx={{ justifyContent: "space-between" }}>
-            <Typography variant="h6" component="div">
-              <Link
-                to={dashboardUri}
-                style={{ textDecoration: "none", color: "#FFF" }}
+    <Box sx={{ display: "flex" }}>
+      <AppBar
+        position="sticky"
+        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      >
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Typography variant="h6" noWrap component="div">
+            <Link
+              to={dashboardUri}
+              style={{ textDecoration: "none", color: "#FFF" }}
+            >
+              aiFA
+            </Link>
+            <TimelineIcon sx={{ width: "1.5em" }} />
+          </Typography>
+          {isMatch ? (
+            <>
+              <IconButton
+                sx={{ color: "white", marginLeft: "auto" }}
+                onClick={() => setOpenDrawer(!openDrawer)}
               >
-                aiFA
-              </Link>
-              <TimelineIcon sx={{ width: "1.5em" }} />
-            </Typography>
-            {isMatch ? (
-              <>
-                <DrawerMenu pages={pages} />
-              </>
-            ) : (
-              <>
-                <Tabs
-                  textColor="inherit"
-                  value={value}
-                  onChange={(e, value) => setValue(value)}
-                  indicatorColor="secondary"
-                >
-                  {Object.keys(pages)
-                    .slice(0, Object.keys(pages).length - 3)
-                    .map((path, index) => (
-                      <Tab
-                        key={index}
-                        label={pages[path]}
-                        href={path}
-                        sx={{ padding: "12px 30px" }}
-                      />
-                    ))}
-                </Tabs>
-                <Button
-                  color="inherit"
-                  id="user-menu"
-                  onClick={handleClick}
-                  aria-controls={open ? "user-menu" : undefined}
-                  aria-haspopup="true"
-                  aria-expanded={open ? "true" : undefined}
-                  endIcon={open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-                >
-                  <MenuIcon />
-                </Button>
-                <NavBarMenu open={open} onClose={handleClose} />
-              </>
-            )}
-          </Toolbar>
-        </AppBar>
-      </Box>
-    </>
+                <MenuIcon />
+              </IconButton>
+            </>
+          ) : (
+            <>
+              <Button
+                color="inherit"
+                id="user-menu"
+                onClick={handleClick}
+                aria-controls={open ? "user-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? "true" : undefined}
+                endIcon={open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+              >
+                <MenuIcon />
+              </Button>
+              <NavBarPopover open={open} onClose={handleClose} />
+            </>
+          )}
+        </Toolbar>
+      </AppBar>
+      {isMatch ? (
+        <>
+          <Drawer
+            sx={{
+              width: smallDrawerWidth,
+              flexShrink: 0,
+              [`& .MuiDrawer-paper`]: {
+                width: smallDrawerWidth,
+                boxSizing: "border-box",
+              },
+            }}
+            open={openDrawer}
+            onClose={handleDrawerClose}
+          >
+            <Toolbar />
+            <Box sx={{ overflow: "auto" }}>
+              <List>
+                {Object.keys(pages).map((path, index) => (
+                  <ListItemButton onClick={handleClose} key={index}>
+                    <Link to={path}>
+                      <ListItemIcon>
+                        <ListItemText>{pages[path]}</ListItemText>
+                      </ListItemIcon>
+                    </Link>
+                  </ListItemButton>
+                ))}
+              </List>
+            </Box>
+          </Drawer>
+        </>
+      ) : (
+        <>
+          <ClippedDrawerMenu pages={pages} />
+        </>
+      )}
+    </Box>
   );
 };
 
