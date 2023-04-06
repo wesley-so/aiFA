@@ -154,6 +154,7 @@ def lstm_model(symbol: str, feature: str):
         format="png",
         pad_inches=0.25,
     )
+    plt.close()
 
     # Print predicted result data
     X_input = stock_data.loc[stock_data.shape[0] - time_step :, feature].values

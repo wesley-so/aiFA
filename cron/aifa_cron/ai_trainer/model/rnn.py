@@ -123,6 +123,7 @@ def rnn_model(symbol: str, feature: str):
         pad_inches=0.25,
     )
 
+
     fig2, ax2 = plt.subplots(figsize=(15, 8))
     ax2.plot(history.history["loss"], label="loss")
     ax2.plot(history.history["val_loss"], label="val_loss")
@@ -174,6 +175,7 @@ def rnn_model(symbol: str, feature: str):
         format="png",
         pad_inches=0.25,
     )
+    plt.close()
 
     # Print predicted result data
     X_input = stock_data.loc[stock_data.shape[0] - time_step :, feature].values
