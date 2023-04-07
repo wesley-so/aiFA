@@ -1,13 +1,14 @@
 import { FC, useCallback } from "react";
 import { BrowserRouter, redirect, Route, Routes } from "react-router-dom";
 import useUser from "../../hooks/useUser";
-import Dashboard from "../Dashboard/Dashboard";
+import DashboardLayout from "../DashboardLayout/DashboardLayout";
 import HomePage from "../HomePage/HomePage";
 import LoginPage from "../LoginPage/LoginPage";
 import LogoutPage from "../LogoutPage/LogoutPage";
 import RegisterPage from "../RegisterPage/RegisterPage";
 import UserProfilePage from "../UserProfilePage/UserProfilePage";
 import RequireLoginRoute from "./RequireLoginRoute";
+import DashboardPage from "../DashboardPage/DashboardPage";
 
 const Router: FC = () => {
   const {
@@ -31,15 +32,17 @@ const Router: FC = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route
-          path="dashboard"
+          path="/dashboard"
           element={
             <RequireLoginRoute require="loggedIn">
-              <Dashboard />
+              <DashboardLayout />
             </RequireLoginRoute>
           }
-        />
+        >
+          <Route path="/dashboard" element={<DashboardPage />} />
+        </Route>
         <Route
-          path="login"
+          path="/login"
           loader={redirectLoggeedInUser}
           element={
             <RequireLoginRoute require="loggedOut">
@@ -47,17 +50,9 @@ const Router: FC = () => {
             </RequireLoginRoute>
           }
         />
-        <Route path="logout" loader={logout} element={<LogoutPage />}></Route>
+        <Route path="/logout" loader={logout} element={<LogoutPage />}></Route>
         <Route
-          path="profile"
-          element={
-            <RequireLoginRoute require="loggedIn">
-              <UserProfilePage />
-            </RequireLoginRoute>
-          }
-        />
-        <Route
-          path="register"
+          path="/register"
           loader={redirectLoggeedInUser}
           element={
             <RequireLoginRoute require="loggedOut">
@@ -65,6 +60,16 @@ const Router: FC = () => {
             </RequireLoginRoute>
           }
         />
+        <Route
+          path="/user"
+          element={
+            <RequireLoginRoute require="loggedIn">
+              <DashboardLayout />
+            </RequireLoginRoute>
+          }
+        >
+          <Route path="/user/profile" element={<UserProfilePage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

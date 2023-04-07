@@ -3,7 +3,6 @@ import { FC, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useUser from "../../hooks/useUser";
 import { removeSessionToken } from "../../services/session";
-import DashboardNavigationBar from "../DashboardNavigationBar/DashboardNavigationBar";
 
 const LogoutPage: FC = () => {
   const { fetchLogout } = useUser();
@@ -17,22 +16,19 @@ const LogoutPage: FC = () => {
     logout();
   }, [fetchLogout, navigate]);
   return (
-    <>
-      <DashboardNavigationBar />
-      <Grid
-        container
-        spacing={0}
-        direction="column"
-        alignItems="center"
-        justifyContent="center"
-        minHeight="15vh"
-      >
-        <Typography variant="h5">Logout</Typography>
-        <Typography variant="body1">
-          You will be redirected to Home Page in 3 seconds.
-        </Typography>
-      </Grid>
-    </>
+    <Grid
+      container
+      spacing={0}
+      direction="column"
+      alignItems="center"
+      justifyContent="center"
+      minHeight="15vh"
+    >
+      <Typography variant="h5">Logout</Typography>
+      <Typography variant="body1">
+        You will be redirected to Home Page in 3 seconds.
+      </Typography>
+    </Grid>
   );
 };
 
