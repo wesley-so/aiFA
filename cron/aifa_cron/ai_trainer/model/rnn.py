@@ -193,5 +193,4 @@ def rnn_model(symbol: str, feature: str):
 
 if __name__ == "__main__":
     for i in grab_list:
-        for r in ohlcv:
-            rnn_model(i, r)
+        rnn_model(i, "close")
