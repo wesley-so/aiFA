@@ -1,16 +1,21 @@
 import {
   Alert,
   Box,
+  CircularProgress,
   Container,
+  FormControl,
   Grid,
+  InputLabel,
+  OutlinedInput,
   TextField,
   Typography,
 } from "@mui/material";
-import { ChangeEventHandler, FC, useState } from "react";
+import { ChangeEventHandler, FC, useEffect, useState } from "react";
 import { changePassword } from "../../services/aifaAPI/user";
 import FormSubmitButton from "../FormSubmitButton/FormSubmitButton";
 import { AxiosError } from "axios";
 import { getSessionToken } from "../../services/session";
+import useUserProfile from "../../hooks/useUserProfile";
 
 const ProfilePage: FC = () => {
   const [newPassword, setNewPassword] = useState("");
@@ -54,10 +59,17 @@ const ProfilePage: FC = () => {
     setIsChanging(false);
   };
 
+  const token = getSessionToken();
+  const { user, isLoading, fetch, error, success } = useUserProfile(
+    token ?? ""
+  );
+
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
+
   return (
     <Container component="main" maxWidth="md">
-      <br />
-      <br />
       <Grid
         alignItems="flex-start"
         columnSpacing={{ xs: 1, sm: 2, md: 3 }}
@@ -66,70 +78,110 @@ const ProfilePage: FC = () => {
         rowSpacing={10}
         direction="row"
         justifyContent="center"
+        padding="26px"
       >
-        <Grid item xs={4}>
-          <br />
-          <Typography variant="h5">Password</Typography>
-          <br />
-          <Typography variant="subtitle1">
-            After changing password, there will be no redirection to any other
-            pages.
-          </Typography>
-        </Grid>
-        <Grid item xs={8}>
-          <Box
-            component="form"
-            noValidate
-            onSubmit={(e) => e.preventDefault()}
-            sx={{ mt: 1 }}
-          >
-            <Typography variant="body1">Change password</Typography>
-            <TextField
-              autoComplete="current-password"
-              autoFocus
-              disabled={isChanging}
-              fullWidth
-              label="New Password"
-              margin="normal"
-              onChange={onTextFieldChange(setNewPassword)}
-              required
-              type="password"
-              value={newPassword}
-            />
-            <TextField
-              autoComplete="current-password"
-              disabled={isChanging}
-              fullWidth
-              label="Confirm New Password"
-              margin="normal"
-              onChange={onTextFieldChange(setNewPasswordConfirm)}
-              required
-              type="password"
-              value={newPasswordConfirm}
-            />
-            {changeError && (
-              <Alert severity="error">
-                {changeError.message ?? "Unknow error occurs."}
-              </Alert>
-            )}
-            {isChangingDone && (
-              <Alert severity="success">
-                Congratulations! Password changed!
-              </Alert>
-            )}
-            <FormSubmitButton
-              disabled={
-                !newPassword ||
-                !newPasswordConfirm ||
-                newPassword !== newPasswordConfirm ||
-                isChanging === true
-              }
-              loading={isChanging}
-              onClick={clickPasswordChangeHandler}
-              text="Change Password"
-            />
-          </Box>
-        </Grid>
+        {isLoading && (
+          <Grid item>
+            <CircularProgress />
+          </Grid>
+        )}
+        {!isLoading && !success && (
+          <Grid item>
+            <Typography variant="h5">{error}</Typography>
+          </Grid>
+        )}
+        {success && (
+          <>
+            <Grid item xs={4}>
+              <Typography variant="h5">User Information</Typography>
+              <br />
+              <Typography variant="body1">
+                User cannot change their username or email.
+              </Typography>
+            </Grid>
+            <Grid item xs={8}>
+              <FormControl disabled fullWidth>
+                <InputLabel htmlFor="component-outlined">Username</InputLabel>
+                <OutlinedInput
+                  id="component-outlined"
+                  value={user?.username}
+                  label="Username"
+                />
+              </FormControl>
+              <br />
+              <br />
+              <FormControl disabled fullWidth>
+                <InputLabel htmlFor="component-outlined">Email</InputLabel>
+                <OutlinedInput
+                  id="component-outlined"
+                  value={user?.email}
+                  label="Email"
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <Typography variant="h5">Change password</Typography>
+              <br />
+              <Typography variant="subtitle1">
+                After changing password, there will be no redirection to any
+                other pages.
+              </Typography>
+            </Grid>
+            <Grid item xs={8}>
+              <Box
+                component="form"
+                noValidate
+                onSubmit={(e) => e.preventDefault()}
+                sx={{ mt: 1 }}
+              >
+                <TextField
+                  autoComplete="current-password"
+                  autoFocus
+                  disabled={isChanging}
+                  fullWidth
+                  label="New Password"
+                  margin="normal"
+                  onChange={onTextFieldChange(setNewPassword)}
+                  required
+                  type="password"
+                  value={newPassword}
+                />
+                <TextField
+                  autoComplete="current-password"
+                  disabled={isChanging}
+                  fullWidth
+                  label="Confirm New Password"
+                  margin="normal"
+                  onChange={onTextFieldChange(setNewPasswordConfirm)}
+                  required
+                  type="password"
+                  value={newPasswordConfirm}
+                />
+                {changeError && (
+                  <Alert severity="error">
+                    {changeError.message ?? "Unknow error occurs."}
+                  </Alert>
+                )}
+                {isChangingDone && (
+                  <Alert severity="success">
+                    Congratulations! Password changed!
+                  </Alert>
+                )}
+                <FormSubmitButton
+                  disabled={
+                    !newPassword ||
+                    !newPasswordConfirm ||
+                    newPassword !== newPasswordConfirm ||
+                    isChanging === true
+                  }
+                  loading={isChanging}
+                  onClick={clickPasswordChangeHandler}
+                  text="Change Password"
+                />
+              </Box>
+            </Grid>
+          </>
+        )}
       </Grid>
     </Container>
   );
