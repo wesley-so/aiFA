@@ -116,6 +116,10 @@ def lstm_new_model(symbol: str):
     ax2.legend()
     fig2.savefig(f"{folder}/images/png/{symbol}_close_graph.jpg")
 
+    # Save LSTM trained model
+    lstm_new_model.save(f"{folder}/model/{symbol}_close_model.h5")
+    print(f"{symbol} LSTM new model finish training!!!")
+
 
 if __name__ == "__main__":
     for i in grab_list:
