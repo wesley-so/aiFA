@@ -97,19 +97,6 @@ async def edit_info(
     password = await get_password_hash(username)
     hashed = password["hash"]
     new_password = edit.new_password
-    new_password_confirm = edit.confirm_new_password
-    if not (new_password and new_password_confirm):
-        return JSONResponse(
-            status_code=400,
-            content={"error": "Some fields are missing or invalid!"},
-        )
-
-    # Can be done in UI part
-    if new_password != new_password_confirm:
-        return JSONResponse(
-            status_code=400,
-            content={"error": "Password do not match!"},
-        )
 
     new_hashed = await hash_password(new_password)
     if await validate_password(new_password, hashed):

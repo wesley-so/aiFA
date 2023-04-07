@@ -50,17 +50,9 @@ const Router: FC = () => {
             </RequireLoginRoute>
           }
         />
-        <Route path="logout" loader={logout} element={<LogoutPage />} />
+        <Route path="/logout" loader={logout} element={<LogoutPage />} />
         <Route
-          path="profile"
-          element={
-            <RequireLoginRoute require="loggedIn">
-              <ProfilePage />
-            </RequireLoginRoute>
-          }
-        />
-        <Route
-          path="register"
+          path="/register"
           loader={redirectLoggeedInUser}
           element={
             <RequireLoginRoute require="loggedOut">
@@ -76,7 +68,7 @@ const Router: FC = () => {
             </RequireLoginRoute>
           }
         >
-          <Route path="/user/profile" element={<UserProfilePage />} />
+          <Route path="/user/profile" element={<ProfilePage />} />
         </Route>
       </Routes>
     </BrowserRouter>

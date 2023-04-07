@@ -23,4 +23,3 @@ class UserRegisterSchema(UserLoginSchema):
 
 class UserUpdatePasswordSchema(BaseModel):
     new_password: str = Field(title="User new password", max_length=20)
-    confirm_new_password: str = Field(title="Confirm new password", max_length=20)
