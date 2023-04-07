@@ -188,7 +188,7 @@ def rnn_model(symbol: str, feature: str):
 
     # Save tensorflow model
     rnn_regressor.save(f"{folder}/model/{symbol}_{feature}_model.h5")
-    print("Model finish training!!!")
+    print(f"{symbol} RNN Model finish training!!!")
 
 
 if __name__ == "__main__":

@@ -167,7 +167,7 @@ def lstm_model(symbol: str, feature: str):
 
     # Save tensorflow model
     lstm_model.save(f"{folder}/model/{symbol}_{feature}_model.h5")
-    print("LSTM model finish training!!!")
+    print(f"{symbol} LSTM model finish training!!!")
 
 
 if __name__ == "__main__":
