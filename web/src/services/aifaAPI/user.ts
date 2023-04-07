@@ -44,10 +44,10 @@ export const getUser = async (token: string): Promise<User> => {
   return data;
 };
 
-export const changePassword = async (token: string, new_password: string) => {
+export const changePassword = async (token: string, newPassword: string) => {
   const response = await axios.put(
     `${config.apiUrl}/user/me`,
-    { new_password },
+    { newPassword },
     { headers: { Authorization: `Bearer ${token}` } }
   );
   return response;
