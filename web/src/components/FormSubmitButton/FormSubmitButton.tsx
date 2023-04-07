@@ -23,7 +23,8 @@ const FormSubmitButton: FC<FormSubmitButtonProps> = ({
       onClick={onClick}
       sx={{ mt: 3, mb: 2 }}
     >
-      {loading ? <CircularProgress size={24} color="inherit" /> : text}
+      {loading && <CircularProgress size={24} color="inherit" />}
+      {loading || text}
     </Button>
   );
 };

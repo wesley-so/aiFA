@@ -6,7 +6,7 @@ import HomePage from "../HomePage/HomePage";
 import LoginPage from "../LoginPage/LoginPage";
 import LogoutPage from "../LogoutPage/LogoutPage";
 import RegisterPage from "../RegisterPage/RegisterPage";
-import UserProfilePage from "../UserProfilePage/UserProfilePage";
+import ProfilePage from "../ProfilePage/ProfilePage";
 import RequireLoginRoute from "./RequireLoginRoute";
 import DashboardPage from "../DashboardPage/DashboardPage";
 
@@ -50,7 +50,7 @@ const Router: FC = () => {
             </RequireLoginRoute>
           }
         />
-        <Route path="/logout" loader={logout} element={<LogoutPage />}></Route>
+        <Route path="/logout" loader={logout} element={<LogoutPage />} />
         <Route
           path="/register"
           loader={redirectLoggeedInUser}
@@ -68,7 +68,7 @@ const Router: FC = () => {
             </RequireLoginRoute>
           }
         >
-          <Route path="/user/profile" element={<UserProfilePage />} />
+          <Route path="/user/profile" element={<ProfilePage />} />
         </Route>
       </Routes>
     </BrowserRouter>

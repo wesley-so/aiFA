@@ -22,6 +22,4 @@ class UserRegisterSchema(UserLoginSchema):
 
 
 class UserUpdatePasswordSchema(BaseModel):
-    username: str = Field(title="Username", max_length=50)
-    email: str | None = Field(title="User email", max_length=254)
-    password: str = Field(title="User password", max_length=20)
+    new_password: str = Field(title="User new password", max_length=20)
