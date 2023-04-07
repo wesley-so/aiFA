@@ -38,7 +38,7 @@ def lstm_new_model(symbol: str):
     scaled_dataset = scaler.fit_transform(dataset)
 
     # Genereate the input and output sequences
-    n_lookback = 1955  # 5-days lookback
+    n_lookback = 3910  # 5-days lookback
     n_forecast = 1955  # 5-days forecast
 
     X = []
@@ -60,9 +60,9 @@ def lstm_new_model(symbol: str):
     lstm_model.add(Dense(n_forecast))
 
     lstm_model.compile(
-        optimizer="adam", loss="mean_squared_error", metrics=["accuracy"]
+        optimizer="adam", loss="mean_squared_error"
     )
-    history = lstm_model.fit(X, Y, epochs=50, batch_size=391)
+    history = lstm_model.fit(X, Y, epochs=50, batch_size=256)
 
     # Plot loss graph
     fig1, ax1 = plt.subplots(figsize=(15, 8))
