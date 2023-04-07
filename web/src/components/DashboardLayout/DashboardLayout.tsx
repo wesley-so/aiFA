@@ -3,7 +3,7 @@ import { FC, useState } from "react";
 import NavigationBar from "./NavigationBar";
 import DrawerMenu from "./DrawerMenu";
 import { drawerWidth } from "./utils";
-import { DrawerMenuItemProps } from "./DrawerMenuItem";
+import { DrawerMenuItemModel } from "./DrawerMenuItem";
 import { Outlet, useHref } from "react-router-dom";
 import { AccountCircle } from "@mui/icons-material";
 
@@ -11,12 +11,12 @@ const DashboardLayout: FC = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
 
-  const menuItems: Array<DrawerMenuItemProps> = [
+  const menuItems: Array<DrawerMenuItemModel> = [
     { url: useHref("/dashboard/quote"), text: "Stock Quote" },
     { url: useHref("/dashboard/investment"), text: "Investment" },
     { url: useHref("/dashboard/portfolio"), text: "My Portfolio" },
   ];
-  const userMenuItems: Array<DrawerMenuItemProps> = [
+  const userMenuItems: Array<DrawerMenuItemModel> = [
     { url: useHref("/user/profile"), text: "My Profile" },
     { url: useHref("/user/setting"), text: "Settings" },
     { url: useHref("/logout"), text: "Logout" },

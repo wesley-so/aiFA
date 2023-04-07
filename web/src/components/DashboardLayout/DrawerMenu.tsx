@@ -1,13 +1,13 @@
 import { Box, Divider, Drawer, Toolbar } from "@mui/material";
 import { FC } from "react";
 import { drawerWidth } from "./utils";
-import DrawerMenuItem, { DrawerMenuItemProps } from "./DrawerMenuItem";
+import DrawerMenuItem, { DrawerMenuItemModel } from "./DrawerMenuItem";
 
 interface DrawerMenuProps {
   isDrawerOpen: boolean;
   toggleDrawer: () => void;
-  menuItems?: Array<DrawerMenuItemProps>;
-  mobileMenuItems?: Array<DrawerMenuItemProps>;
+  menuItems?: Array<DrawerMenuItemModel>;
+  mobileMenuItems?: Array<DrawerMenuItemModel>;
 }
 
 const DrawerMenu: FC<DrawerMenuProps> = ({
@@ -38,11 +38,19 @@ const DrawerMenu: FC<DrawerMenuProps> = ({
       >
         <Toolbar />
         {menuItems?.map((item) => (
-          <DrawerMenuItem key={JSON.stringify(item)} {...item} />
+          <DrawerMenuItem
+            key={JSON.stringify(item)}
+            item={item}
+            toggleDrawer={toggleDrawer}
+          />
         ))}
         {menuItems && mobileMenuItems && <Divider />}
         {mobileMenuItems?.map((item) => (
-          <DrawerMenuItem key={JSON.stringify(item)} {...item} />
+          <DrawerMenuItem
+            key={JSON.stringify(item)}
+            item={item}
+            toggleDrawer={toggleDrawer}
+          />
         ))}
       </Drawer>
       <Drawer
@@ -58,7 +66,11 @@ const DrawerMenu: FC<DrawerMenuProps> = ({
       >
         <Toolbar />
         {menuItems?.map((item) => (
-          <DrawerMenuItem key={JSON.stringify(item)} {...item} />
+          <DrawerMenuItem
+            key={JSON.stringify(item)}
+            item={item}
+            toggleDrawer={toggleDrawer}
+          />
         ))}{" "}
       </Drawer>
     </Box>

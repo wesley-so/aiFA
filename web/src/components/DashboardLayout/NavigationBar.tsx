@@ -13,12 +13,12 @@ import {
 import { FC, MouseEventHandler, ReactNode, useState } from "react";
 import { Link, useHref } from "react-router-dom";
 import { drawerWidth } from "./utils";
-import { DrawerMenuItemProps } from "./DrawerMenuItem";
+import { DrawerMenuItemModel } from "./DrawerMenuItem";
 
 interface NavigationBarProps {
   toggleDrawer: () => void;
   menuIcon?: ReactNode;
-  menu?: Array<DrawerMenuItemProps>;
+  menu?: Array<DrawerMenuItemModel>;
 }
 
 const NavigationBar: FC<NavigationBarProps> = ({

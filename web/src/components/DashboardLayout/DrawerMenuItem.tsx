@@ -1,15 +1,24 @@
 import { ListItem, ListItemButton, ListItemText } from "@mui/material";
 import { FC } from "react";
+import { Link } from "react-router-dom";
 
-export interface DrawerMenuItemProps {
+export interface DrawerMenuItemModel {
   url: string;
   text: string;
 }
 
-const DrawerMenuItem: FC<DrawerMenuItemProps> = ({ url, text }) => {
+interface DrawerMenuItemProps {
+  item: DrawerMenuItemModel;
+  toggleDrawer: () => void;
+}
+
+const DrawerMenuItem: FC<DrawerMenuItemProps> = ({
+  item: { url, text },
+  toggleDrawer,
+}) => {
   return (
     <ListItem disablePadding>
-      <ListItemButton href={url}>
+      <ListItemButton component={Link} to={url} onClick={toggleDrawer}>
         <ListItemText color="black">{text}</ListItemText>
       </ListItemButton>
     </ListItem>
