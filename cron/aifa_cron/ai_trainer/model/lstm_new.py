@@ -62,13 +62,13 @@ def lstm_new_model(symbol: str):
     lstm_model.compile(
         optimizer="adam", loss="mean_squared_error"
     )
-    history = lstm_model.fit(X, Y, epochs=50, batch_size=256)
+    history = lstm_model.fit(X, Y, epochs=30, batch_size=256)
 
     # Plot loss graph
     fig1, ax1 = plt.subplots(figsize=(15, 8))
     ax1.plot(history.history["loss"], label="loss")
-    ax1.set_xlabel("Epochs", font_size=18)
-    ax1.set_ylabel("Loss", font_size=18)
+    ax1.set_xlabel("Epochs", fontsize=18)
+    ax1.set_ylabel("Loss", fontsize=18)
     fig1.suptitle(f"{symbol} close LSTM model loss", fontsize=25)
     ax1.legend()
     fig1.savefig(
@@ -111,7 +111,7 @@ def lstm_new_model(symbol: str):
     fig2, ax2 = plt.subplots(figsize=(30, 15))
     ax2.plot(result)
     ax2.set_xlabel("Date", fontsize=18)
-    ax2.set_ylabel("Price (USD)", fontsize=18)
+    ax2.set_ylabel("Price (USD)", fontsize="medium")
     fig2.suptitle(f"LSTM model, {symbol} Stock Data", fontsize=25)
     ax2.legend()
     fig2.savefig(f"{folder}/images/png/{symbol}_close_graph.jpg")
