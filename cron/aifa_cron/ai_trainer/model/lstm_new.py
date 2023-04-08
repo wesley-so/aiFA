@@ -59,9 +59,7 @@ def lstm_new_model(symbol: str):
     lstm_model.add(Dropout(0.2))
     lstm_model.add(Dense(n_forecast))
 
-    lstm_model.compile(
-        optimizer="adam", loss="mean_squared_error"
-    )
+    lstm_model.compile(optimizer="adam", loss="mean_squared_error")
     history = lstm_model.fit(X, Y, epochs=30, batch_size=256)
 
     # Plot loss graph

@@ -2,11 +2,19 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
 from ..dependencies.session import get_session_token, get_session_user
-from ..models.user import (UserLoginSchema, UserModel, UserRegisterSchema,
-                           UserUpdatePasswordSchema)
+from ..models.user import (
+    UserLoginSchema,
+    UserModel,
+    UserRegisterSchema,
+    UserUpdatePasswordSchema,
+)
 from ..services.session import create_session, destroy_session
-from ..services.user import (UserRegisterError, create_user, get_password_hash,
-                             update_password)
+from ..services.user import (
+    UserRegisterError,
+    create_user,
+    get_password_hash,
+    update_password,
+)
 from ..utils.password import hash_password, validate_password
 
 router = APIRouter(prefix="/user", tags=["user"])
