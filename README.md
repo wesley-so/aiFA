@@ -26,7 +26,10 @@ artificial intelligence (AI) system to predict 20 NASDAQ stock price.
    # Copy sample frontend environment
    cp web/.env.sample web/.env
 
-   # Edit "server/.env" and "web/.env" and fill up environment variables
+   # Copy sample object storage environment
+   cp minio/.env.sample minio/.env
+
+   # Edit "server/.env", "web/.env" and "minio/.env" and fill up environment variables
    ```
 
 2. If you have a NVIDIA CUDA capable GPU, uncomment the lines in
@@ -56,7 +59,9 @@ Please refer to [frontend guide](web/README.md).
 - `docker-compose.yaml`: Docker Compose configuration for backend server and MongoDB
 - `README.md`: This project setup instructions
 - `/.gitlab`: GitLab related configuration
+- `/cron`: Cronjob server
 - `/docs`: Detail documentation of system archictecture and design
+- `/minio`: MinIO configuration
 - `/mongo`: MongoDB configuration
 - `/server`: Backend server
 - `/web`: Frontend website

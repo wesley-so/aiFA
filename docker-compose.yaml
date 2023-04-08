@@ -38,10 +38,12 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
+      minio:
+        condition: service_started
     volumes:
       - ./server:/aifa
   cron:
-    build: 
+    build:
       context: ./cron
     ###########################################################
     # Uncomment below lines to use Tensorflow with Nvidia GPU #
@@ -56,14 +58,29 @@ services:
           devices:
             - driver: nvidia
               count: 1
-              capabilities: [compute,utility]
+              capabilities: [compute, utility]
     env_file:
       - cron/.env
     depends_on:
-      mongo: 
+      mongo:
         condition: service_healthy
+      minio:
+        condition: service_started
     volumes:
       - ./cron:/cron
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9090:9090"
+    command: ["server", "/data", "--console-address", ":9090"]
+    env_file:
+      - minio/.env
+    volumes:
+      - "minio_data:/data"
+
 volumes:
   mongo_data:
+    driver: local
+  minio_data:
     driver: local
