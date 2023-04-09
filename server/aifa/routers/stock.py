@@ -1,5 +1,5 @@
 from os import getenv
-
+import base64
 import boto3
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -26,8 +26,9 @@ async def grab_graph(stock: StockModel):
     )
     bucket_name = "stockgraph"
     try:
-        result = s3_client.get_object(Bucket=bucket_name, Key=f"{stock.symbol}.html")
-        return StreamingResponse(content=result["Body"].iter_chunks(), media_type="text/html")
+        file_byte = s3_client.get_object(Bucket=bucket_name, Key=f"{stock.symbol}.png")["Body"].read()
+        encoded_string = base64.b64encode(file_byte)
+        return JSONResponse(status_code=200, content=encoded_string.decode("utf-8"))
     except Exception as error:
         if hasattr(error, "message"):
             raise HTTPException(

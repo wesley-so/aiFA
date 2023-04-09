@@ -1,5 +1,7 @@
+/* eslint-disable jsx-a11y/iframe-has-title */
 import {
   Box,
+  CardMedia,
   CircularProgress,
   FormControl,
   Grid,
@@ -13,6 +15,7 @@ import { FC, useEffect, useState } from "react";
 import CardDisplay from "../CardDisplay/CardDisplay";
 import useStockData from "../../hooks/useStockData";
 import StockType from "../../models/StockType";
+import useStockGraph from "../../hooks/useStockGraph";
 
 const StockQuotePage: FC = () => {
   const [symbol, setSymbol] = useState<StockType>("AAPL");
@@ -32,9 +35,12 @@ const StockQuotePage: FC = () => {
     TSLA: "Tesla, Inc.",
   };
   const { stockInfo, isLoading, fetch, error, success } = useStockData(symbol);
+  const { graph, isGraphLoading, fetchGraph, graphError, graphSuccess } =
+    useStockGraph(symbol ?? "");
   useEffect(() => {
     fetch();
-  }, [fetch]);
+    fetchGraph();
+  }, [fetch, fetchGraph]);
 
   return (
     <Grid
@@ -101,7 +107,24 @@ const StockQuotePage: FC = () => {
           <Typography variant="body1">
             Information may not be most updated!
           </Typography>
-          <Grid container paddingTop={2}></Grid>
+          <Grid container paddingTop={2} sx={{ alignContent: "center" }}>
+            {isGraphLoading && (
+              <Grid item>
+                <CircularProgress />
+              </Grid>
+            )}
+            {!isGraphLoading && !graphSuccess && (
+              <Grid item>
+                <Typography variant="h5">{graphError}</Typography>
+              </Grid>
+            )}
+            {graphSuccess && (
+              <CardMedia
+                component="img"
+                src={`data:image/png;base64, ${graph}`}
+              />
+            )}
+          </Grid>
         </>
       )}
     </Grid>

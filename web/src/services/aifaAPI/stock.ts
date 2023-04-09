@@ -10,11 +10,11 @@ export const daily = async (symbol: string) => {
   return response.data;
 };
 
-export const graphData = async (symbol: string) => {
-  const response = await axios.post<HTMLElement>(
+export const stockGraph = async (symbol: string) => {
+  const response = await axios.post<string>(
     `${config.apiUrl}/stock/graph`,
     { symbol },
-    { headers: { "Content-Type": "text/html" } }
+    {}
   );
-  return response;
+  return response.data;
 };

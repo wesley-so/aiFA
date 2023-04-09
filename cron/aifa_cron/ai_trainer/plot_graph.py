@@ -113,7 +113,7 @@ def plot_stock_graph(symbol: str):
 
     # Upload html file to MinIO
     s3_resource.Bucket("stockgraph").upload_file(
-        f"{folder}/html/{symbol}.html", f"{symbol}.html"
+        f"{folder}/png/{symbol}.png", f"{symbol}.png"
     )
     print("MinIO finish uploading file!")
 
