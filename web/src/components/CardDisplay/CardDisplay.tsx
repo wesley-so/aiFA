@@ -1,4 +1,4 @@
-import { Card, CardContent, Grid, Typography } from "@mui/material";
+import { Card, CardContent, Grid, Paper, Typography } from "@mui/material";
 import { FC } from "react";
 
 interface CardDisplayProps {
@@ -11,10 +11,9 @@ const CardDisplay: FC<CardDisplayProps> = ({ cardName, cardContent }) => {
     <Grid item xs={2} minWidth={220} sx={{ justifyItems: "center" }}>
       <Card
         variant="outlined"
+        component={Paper}
         sx={{
-          border: 1,
           borderRadius: "16px",
-          backgroundColor: "#eaecee",
           minHeight: 130,
         }}
       >

@@ -1,10 +1,11 @@
+from os import getenv
+
 import boto3
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from keras.layers import Dense, Dropout, SimpleRNN
 from keras.models import Sequential
-from os import getenv
 from sklearn.preprocessing import MinMaxScaler
 
 from ..find_stock import find_stock
@@ -24,10 +25,11 @@ grab_list = [
     "TSLA",
 ]
 
-s3_resource = boto3.resource("s3", 
+s3_resource = boto3.resource(
+    "s3",
     endpoint_url=getenv("S3_ENDPOINT"),
     aws_access_key_id=getenv("S3_ACCESS_KEY"),
-    aws_secret_access_key=getenv("S3_SECRET_KEY")
+    aws_secret_access_key=getenv("S3_SECRET_KEY"),
 )
 
 # Design AI Training Model (RNN machine learning model)
@@ -197,9 +199,12 @@ def rnn_model(symbol: str, feature: str):
     rnn_regressor.save(f"{folder}/model/{symbol}_{feature}_model.h5")
     print(f"{symbol} RNN Model finish training!!!")
 
-    # Upload .h5 file to MinIO 
-    s3_resource.Bucket("rnn").upload_file(f"{folder}/model/{symbol}_{feature}_model.h5", f"{symbol}_{feature}_model.h5")
+    # Upload .h5 file to MinIO
+    s3_resource.Bucket("rnn").upload_file(
+        f"{folder}/model/{symbol}_{feature}_model.h5", f"{symbol}_{feature}_model.h5"
+    )
     print("MinIO finish uploading file!")
+
 
 if __name__ == "__main__":
     try:
