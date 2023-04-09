@@ -1,8 +1,10 @@
+import boto3
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from keras.layers import LSTM, Dense, Dropout
 from keras.models import Sequential
+from os import getenv
 from sklearn.preprocessing import MinMaxScaler
 
 from ..find_stock import find_stock
@@ -22,6 +24,11 @@ grab_list = [
     "TSLA",
 ]
 
+s3_resource = boto3.resource("s3", 
+    endpoint_url=getenv("S3_ENDPOINT"),
+    aws_access_key_id=getenv("S3_ACCESS_KEY"),
+    aws_secret_access_key=getenv("S3_SECRET_KEY")
+)
 
 def lstm_new_model(symbol: str):
     # Grab stock data
@@ -38,7 +45,7 @@ def lstm_new_model(symbol: str):
     scaled_dataset = scaler.fit_transform(dataset)
 
     # Genereate the input and output sequences
-    n_lookback = 3910  # 5-days lookback
+    n_lookback = 1955  # 5-days lookback
     n_forecast = 1955  # 5-days forecast
 
     X = []
@@ -87,8 +94,8 @@ def lstm_new_model(symbol: str):
 
     # Resulting data in DataFrame format
     # Creat known data as df_past
-    df_past = stock_data["close"].reset_index()
-    df_past.rename(columns={"index": "date", "Close": "actual"}, inplace=True)
+    df_past = stock_data.loc[:, ["date","close"]]
+    df_past.rename(columns={"close": "actual"}, inplace=True)
     df_past["date"] = pd.to_datetime(df_past["date"])
     df_past["forecast"] = np.nan
     df_past["forecast"].iloc[-1] = df_past["actual"].iloc[-1]
@@ -103,7 +110,8 @@ def lstm_new_model(symbol: str):
     df_future["actual"] = np.nan
     print("Predict data:", df_future)
 
-    result = df_past.append(df_future).set_index("date")
+    result = pd.concat([df_past, df_future]).set_index("date")
+    print(result)
 
     # Plot result
     fig2, ax2 = plt.subplots(figsize=(30, 15))
@@ -115,10 +123,18 @@ def lstm_new_model(symbol: str):
     fig2.savefig(f"{folder}/images/png/{symbol}_close_graph.jpg")
 
     # Save LSTM trained model
-    lstm_new_model.save(f"{folder}/model/{symbol}_close_model.h5")
+    lstm_model.save(f"{folder}/model/{symbol}_close_model.h5")
     print(f"{symbol} LSTM new model finish training!!!")
+
+    # Upload .h5 file to MinIO 
+    s3_resource.Bucket("lstm").upload_file(f"{folder}/model/{symbol}_close_model.h5", f"{symbol}_close_model.h5")
+    print("MinIO finish uploading file!")
 
 
 if __name__ == "__main__":
+    try: 
+        s3_resource.create_bucket(Bucket="lstm")
+    except Exception:
+        pass
     for i in grab_list:
         lstm_new_model(i)

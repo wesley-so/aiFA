@@ -1,4 +1,7 @@
+from os import getenv
 import plotly.graph_objects as go
+import boto3
+import botocore
 from plotly.subplots import make_subplots
 
 from .find_stock import find_stock
@@ -16,6 +19,12 @@ grab_list = [
     "ORCL",
     "TSLA",
 ]
+
+s3_resource = boto3.resource("s3", 
+    endpoint_url=getenv("S3_ENDPOINT"),
+    aws_access_key_id=getenv("S3_ACCESS_KEY"),
+    aws_secret_access_key=getenv("S3_SECRET_KEY")
+)
 
 
 def plot_stock_graph(symbol: str):
@@ -96,9 +105,17 @@ def plot_stock_graph(symbol: str):
     stock_fig.update_yaxes(title_text="Volume (USD$)", row=3, col=1)
     stock_fig.write_html(f"{folder}/html/{symbol}.html")
     stock_fig.write_image(f"{folder}/png/{symbol}.png", height=1000, width=1500)
-    print("Plotly visualisation finished!!!")
+    print("Plotly visualisation finished!")
+
+    # Upload html file to MinIO
+    s3_resource.Bucket("stockgraph").upload_file(f"{folder}/html/{symbol}.html", f"{symbol}.html")
+    print("MinIO finish uploading file!")
 
 
 if __name__ == "__main__":
+    try: 
+        s3_resource.create_bucket(Bucket="stockgraph")
+    except Exception:
+        pass
     for i in grab_list:
         plot_stock_graph(i)
