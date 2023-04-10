@@ -6,7 +6,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from aifa.dependencies.session import get_session_user
+from aifa.models.portfolio import Portfolio
 from aifa.models.stock import StockModel
+from aifa.services.portfolio import create_portfolio
 from aifa.services.stock import grab_daily_ohlcv
 
 router = APIRouter(prefix="/stock", tags=["stock"])
@@ -43,3 +45,11 @@ async def grab_graph(stock: StockModel, user=Depends(get_session_user)):
             )
         else:
             raise HTTPException(status_code=500, detail=str(error))
+
+
+@router.post("/portfolio", response_class=JSONResponse)
+async def portfolio(portfolio: Portfolio):
+    result = await create_portfolio(portfolio.username, portfolio.portfolio)
+    if not result:
+        raise HTTPException(status_code=401, detail="User unauthorized.")
+    return JSONResponse(status_code=200, content="Portfolio created successfully.")
