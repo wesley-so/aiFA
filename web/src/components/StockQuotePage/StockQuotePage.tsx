@@ -16,6 +16,7 @@ import CardDisplay from "../CardDisplay/CardDisplay";
 import useStockData from "../../hooks/useStockData";
 import StockType from "../../models/StockType";
 import useStockGraph from "../../hooks/useStockGraph";
+import { getSessionToken } from "../../services/session";
 
 const StockQuotePage: FC = () => {
   const [symbol, setSymbol] = useState<StockType>("AAPL");
@@ -37,10 +38,11 @@ const StockQuotePage: FC = () => {
   const { stockInfo, isLoading, fetch, error, success } = useStockData();
   const { graph, isGraphLoading, fetchGraph, graphError, graphSuccess } =
     useStockGraph();
+  const token = getSessionToken();
   useEffect(() => {
-    fetch(symbol);
-    fetchGraph(symbol);
-  }, [fetch, fetchGraph, symbol]);
+    fetch(token ?? "", symbol);
+    fetchGraph(token ?? "", symbol);
+  }, [fetch, fetchGraph, symbol, token]);
 
   return (
     <Grid
@@ -50,7 +52,7 @@ const StockQuotePage: FC = () => {
       alignItems="left"
       justifyContent="left"
       padding="15px"
-      overflow="scroll"
+      sx={{ overflow: "scroll" }}
     >
       {!isLoading && !success && (
         <Grid item>

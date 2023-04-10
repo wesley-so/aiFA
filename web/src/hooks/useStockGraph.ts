@@ -7,13 +7,13 @@ const useStockGraph = () => {
   const [isGraphLoading, setIsGraphLoading] = useState(false);
   const [graphError, setGraphError] = useState<string>();
   const [graphSuccess, setGraphSuccess] = useState(false);
-  const fetchGraph = useCallback(async (symbol: string) => {
+  const fetchGraph = useCallback(async (token: string, symbol: string) => {
     setGraph(undefined);
     setIsGraphLoading(true);
     setGraphError(undefined);
     setGraphSuccess(false);
     try {
-      const image = await stockGraph(symbol);
+      const image = await stockGraph(token, symbol);
       setGraph(image);
       setGraphSuccess(true);
     } catch (error) {

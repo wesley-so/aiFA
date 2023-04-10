@@ -8,12 +8,12 @@ const useStockData = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [success, setSuccess] = useState(false);
-  const fetch = useCallback(async (symbol: string) => {
+  const fetch = useCallback(async (token: string, symbol: string) => {
     setIsLoading(true);
     setError(undefined);
     setSuccess(false);
     try {
-      const stockData = await daily(symbol);
+      const stockData = await daily(token, symbol);
       setStockInfo(stockData);
       setSuccess(true);
     } catch (error) {
