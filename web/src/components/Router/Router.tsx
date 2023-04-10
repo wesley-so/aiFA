@@ -16,6 +16,7 @@ import ProfilePage from "../ProfilePage/ProfilePage";
 import RequireLoginRoute from "./RequireLoginRoute";
 import StockQuotePage from "../StockQuotePage/StockQuotePage";
 import InvestmentPage from "../InvestmentPage/InvestmentPage";
+import PortfolioPage from "../PortfolioPage/PortfolioPage";
 
 const Router: FC = () => {
   const {
@@ -52,6 +53,7 @@ const Router: FC = () => {
           />
           <Route path="/dashboard/quote" element={<StockQuotePage />} />
           <Route path="/dashboard/investment" element={<InvestmentPage />} />
+          <Route path="/dashboard/portfolio" element={<PortfolioPage />} />
         </Route>
         <Route
           path="/login"
