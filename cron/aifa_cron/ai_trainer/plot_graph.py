@@ -106,7 +106,9 @@ def plot_stock_graph(symbol: str):
     stock_fig.update_yaxes(title_text="Price (USD$)", row=2, col=1)
     stock_fig.update_yaxes(title_text="Volume (USD$)", row=3, col=1)
     stock_fig.write_image(f"{folder}/png/{symbol}.png", height=1000, width=1500)
-    fig_div = plotly.offline.plot(stock_fig, include_plotlyjs=False, filename=f"{symbol}.html", output_type="div")
+    fig_div = plotly.offline.plot(
+        stock_fig, include_plotlyjs=False, filename=f"{symbol}.html", output_type="div"
+    )
     with open(f"{folder}/html/{symbol}.html", "w") as f:
         f.write(fig_div)
     print("Plotly visualisation finished!")

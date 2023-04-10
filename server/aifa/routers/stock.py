@@ -1,8 +1,9 @@
-from os import getenv
 import base64
+from os import getenv
+
 import boto3
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse
 
 from aifa.models.stock import StockModel
 from aifa.services.stock import grab_daily_ohlcv
@@ -26,7 +27,9 @@ async def grab_graph(stock: StockModel):
     )
     bucket_name = "stockgraph"
     try:
-        file_byte = s3_client.get_object(Bucket=bucket_name, Key=f"{stock.symbol}.png")["Body"].read()
+        file_byte = s3_client.get_object(Bucket=bucket_name, Key=f"{stock.symbol}.png")[
+            "Body"
+        ].read()
         encoded_string = base64.b64encode(file_byte)
         return JSONResponse(status_code=200, content=encoded_string.decode("utf-8"))
     except Exception as error:

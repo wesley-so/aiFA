@@ -32,6 +32,7 @@ s3_resource = boto3.resource(
     aws_secret_access_key=getenv("S3_SECRET_KEY"),
 )
 
+
 # Design AI Training Model (RNN machine learning model)
 def rnn_model(symbol: str, feature: str):
     stock_data = find_stock(symbol)

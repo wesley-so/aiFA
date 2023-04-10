@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import config
-from .routers import user, stock
+from .routers import stock, user
 from .services.database import init_database
 
 app = FastAPI()

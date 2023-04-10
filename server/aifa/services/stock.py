@@ -2,8 +2,6 @@ from os import getenv
 
 import requests
 
-from aifa.models.stock import StockModel
-
 required_cols = ["date", "open", "high", "low", "close", "volume"]
 
 
