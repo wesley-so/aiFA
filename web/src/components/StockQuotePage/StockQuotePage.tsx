@@ -50,42 +50,46 @@ const StockQuotePage: FC = () => {
       alignItems="left"
       justifyContent="left"
       padding="15px"
-      sx={{ overflow: "scroll" }}
+      overflow="scroll"
     >
-      {isLoading && (
-        <Grid item>
-          <CircularProgress />
-        </Grid>
-      )}
       {!isLoading && !success && (
         <Grid item>
           <Typography variant="h5">{error}</Typography>
         </Grid>
       )}
+      <Typography variant="h3">Stock Quote</Typography>
+      <Box maxWidth={250} paddingTop={2}>
+        <FormControl fullWidth>
+          <InputLabel id="symbol">Stock Symbol</InputLabel>
+          <Select
+            labelId="symbol"
+            id="symbol"
+            value={symbol}
+            label="Stock Symbol"
+            onChange={handleChange}
+          >
+            {Object.keys(symbolList).map((symbols, index) => {
+              return (
+                <MenuItem key={index} value={symbols}>
+                  {symbols}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      </Box>
+
+      {isLoading && (
+        <Grid item paddingTop={2}>
+          <Box display="flex" justifyContent="center" alignItems="center">
+            <CircularProgress />
+          </Box>
+        </Grid>
+      )}
+
       {success && (
         <>
-          <Typography variant="h3">Stock Quote</Typography>
-          <Box sx={{ maxWidth: 250, paddingTop: 2 }}>
-            <FormControl fullWidth>
-              <InputLabel id="symbol">Stock Symbol</InputLabel>
-              <Select
-                labelId="symbol"
-                id="symbol"
-                value={symbol}
-                label="Stock Symbol"
-                onChange={handleChange}
-              >
-                {Object.keys(symbolList).map((symbols, index) => {
-                  return (
-                    <MenuItem key={index} value={symbols}>
-                      {symbols}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-          </Box>
-          <Grid container spacing={3} paddingTop={2}>
+          <Grid container spacing={3} paddingTop={2} justifyContent="center">
             <CardDisplay
               cardName="Stock Name"
               cardContent={symbolList[symbol]}
@@ -105,10 +109,10 @@ const StockQuotePage: FC = () => {
               cardContent={stockInfo?.volume}
             />
           </Grid>
-          <Typography variant="body1">
+          <Typography variant="subtitle2" paddingTop={2}>
             Information may not be most updated!
           </Typography>
-          <Grid container paddingTop={2} sx={{ alignContent: "center" }}>
+          <Grid container paddingTop={2} alignItems="center">
             {isGraphLoading && (
               <Grid item>
                 <CircularProgress />
