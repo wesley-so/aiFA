@@ -50,13 +50,12 @@ async def grab_graph(stock: StockModel, user=Depends(get_session_user)):
             raise HTTPException(status_code=500, detail=str(error))
 
 
-@router.post("/portfolio", response_class=JSONResponse)
+@router.post("/portfolio/create", response_class=JSONResponse)
 async def portfolio(
     portfolio: Portfolio, self_info: UserModel = Depends(get_session_user)
 ):
     token = await get_session_token()
     username = self_info.username
-    print(username)
     if token:
         timestamp = time()
         await portfolio_collection.insert_one(
