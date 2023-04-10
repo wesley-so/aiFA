@@ -28,3 +28,29 @@ async def grab_daily_ohlcv(symbol: str):
         return stock_data
     else:
         return None
+from os import getenv
+from aifa.dependencies.session import get_session_token
+
+import requests
+
+
+async def grab_latest_close(symbol: str):
+    token = await get_session_token()
+    if token:
+        api_key = getenv("FMP_API_KEY")
+        r = requests.get(
+            "https://financialmodelingprep.com/api/v3"
+            +f"/quote-short/{symbol}?apikey={api_key}"
+        )
+        price = r.json()
+        close_data = {
+            "symbol": price[0]["symbol"],
+            "close": price[0]["price"],
+            "volume": price[0]["volume"]
+        }
+        return close_data
+    else: 
+        return None 
+
+if __name__ == "__main__":
+    grab_latest_close("AAPL")

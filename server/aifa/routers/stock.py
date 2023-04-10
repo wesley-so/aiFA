@@ -8,6 +8,10 @@ from fastapi.responses import JSONResponse
 from aifa.dependencies.session import get_session_user
 from aifa.models.stock import StockModel
 from aifa.services.stock import grab_daily_ohlcv
+from aifa.models.stock import StockModel
+from aifa.services.stock import grab_latest_close
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
 
 router = APIRouter(prefix="/stock", tags=["stock"])
 
