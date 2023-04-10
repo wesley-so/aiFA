@@ -19,7 +19,7 @@ import useStockGraph from "../../hooks/useStockGraph";
 import { getSessionToken } from "../../services/session";
 
 const StockQuotePage: FC = () => {
-  const [symbol, setSymbol] = useState<StockType>("AAPL");
+  const [symbol, setSymbol] = useState<StockType>();
   const handleChange = (event: SelectChangeEvent<StockType>) => {
     setSymbol(event.target.value as StockType);
   };
@@ -40,8 +40,10 @@ const StockQuotePage: FC = () => {
     useStockGraph();
   const token = getSessionToken();
   useEffect(() => {
-    fetch(token ?? "", symbol);
-    fetchGraph(token ?? "", symbol);
+    if (symbol) {
+      fetch(token ?? "", symbol);
+      fetchGraph(token ?? "", symbol);
+    }
   }, [fetch, fetchGraph, symbol, token]);
 
   return (
@@ -52,7 +54,7 @@ const StockQuotePage: FC = () => {
       alignItems="left"
       justifyContent="left"
       padding="15px"
-      sx={{ overflow: "scroll" }}
+      overflow="scroll"
     >
       {!isLoading && !success && (
         <Grid item>
@@ -89,7 +91,7 @@ const StockQuotePage: FC = () => {
         </Grid>
       )}
 
-      {success && (
+      {symbol && success && (
         <>
           <Grid container spacing={3} paddingTop={2} justifyContent="center">
             <CardDisplay
