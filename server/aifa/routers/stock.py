@@ -1,15 +1,18 @@
 import base64
 from os import getenv
+from time import time
 
 import boto3
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
-from aifa.dependencies.session import get_session_user
+from aifa.dependencies.session import get_session_token, get_session_user
 from aifa.models.portfolio import Portfolio
 from aifa.models.stock import StockModel
-from aifa.services.portfolio import create_portfolio
+from aifa.models.user import UserModel
 from aifa.services.stock import grab_daily_ohlcv
+
+from ..services.database import portfolio_collection
 
 router = APIRouter(prefix="/stock", tags=["stock"])
 
@@ -48,8 +51,21 @@ async def grab_graph(stock: StockModel, user=Depends(get_session_user)):
 
 
 @router.post("/portfolio", response_class=JSONResponse)
-async def portfolio(portfolio: Portfolio):
-    result = await create_portfolio(portfolio.username, portfolio.portfolio)
-    if not result:
+async def portfolio(
+    portfolio: Portfolio, self_info: UserModel = Depends(get_session_user)
+):
+    token = await get_session_token()
+    username = self_info.username
+    print(username)
+    if token:
+        timestamp = time()
+        await portfolio_collection.insert_one(
+            {
+                "username": username,
+                "portfolio": portfolio.portfolio,
+                "timestamp": timestamp,
+            }
+        )
+        return JSONResponse(status_code=200, content="Portfolio created successfully.")
+    else:
         raise HTTPException(status_code=401, detail="User unauthorized.")
-    return JSONResponse(status_code=200, content="Portfolio created successfully.")
