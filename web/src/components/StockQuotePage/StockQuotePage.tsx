@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { FC, useEffect, useState } from "react";
-import CardDisplay from "../CardDisplay/CardDisplay";
+import StockCard from "./StockCard";
 import useStockData from "../../hooks/useStockData";
 import StockType from "../../models/StockType";
 import useStockGraph from "../../hooks/useStockGraph";
@@ -54,7 +54,6 @@ const StockQuotePage: FC = () => {
       alignItems="left"
       justifyContent="left"
       padding="15px"
-      overflow="scroll"
     >
       {!isLoading && !success && (
         <Grid item>
@@ -94,24 +93,20 @@ const StockQuotePage: FC = () => {
       {symbol && success && (
         <>
           <Grid container spacing={3} paddingTop={2} justifyContent="center">
-            <CardDisplay
+            <StockCard
               cardName="Stock Name"
               cardContent={symbolList[symbol]}
+              xs={6}
             />
-            <CardDisplay cardName="Open Price" cardContent={stockInfo?.open} />
-            <CardDisplay
-              cardName="Highest Price"
-              cardContent={stockInfo?.high}
-            />
-            <CardDisplay cardName="Lowest Price" cardContent={stockInfo?.low} />
-            <CardDisplay
-              cardName="Close Price"
-              cardContent={stockInfo?.close}
-            />
-            <CardDisplay
+            <StockCard
               cardName="Total Volume"
               cardContent={stockInfo?.volume}
+              xs={6}
             />
+            <StockCard cardName="Open Price" cardContent={stockInfo?.open} />
+            <StockCard cardName="Highest Price" cardContent={stockInfo?.high} />
+            <StockCard cardName="Lowest Price" cardContent={stockInfo?.low} />
+            <StockCard cardName="Close Price" cardContent={stockInfo?.close} />
           </Grid>
           <Typography variant="subtitle2" paddingTop={2}>
             Information may not be most updated!

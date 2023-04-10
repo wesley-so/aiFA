@@ -38,7 +38,8 @@ const DashboardLayout: FC = () => {
       />
       <Box
         component="main"
-        sx={{ flexGrow: 1, width: { md: `calc(100% - ${drawerWidth}px)` } }}
+        flexGrow={1}
+        sx={{ width: { md: `calc(100% - ${drawerWidth}px)` } }}
       >
         <Toolbar />
         <Outlet />

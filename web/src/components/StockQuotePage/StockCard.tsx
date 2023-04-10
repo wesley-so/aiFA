@@ -1,14 +1,15 @@
 import { Card, CardContent, Grid, Typography } from "@mui/material";
 import { FC } from "react";
 
-interface CardDisplayProps {
+interface StockCardProps {
   cardName: string;
   cardContent: string | number | undefined;
+  xs?: number;
 }
 
-const CardDisplay: FC<CardDisplayProps> = ({ cardName, cardContent }) => {
+const StockCard: FC<StockCardProps> = ({ cardName, cardContent, xs }) => {
   return (
-    <Grid item xs={2} minWidth={220}>
+    <Grid item xs={xs ?? 3} minWidth={300}>
       <Card elevation={4}>
         <CardContent>
           <Typography component="div" variant="subtitle1">
@@ -23,4 +24,4 @@ const CardDisplay: FC<CardDisplayProps> = ({ cardName, cardContent }) => {
   );
 };
 
-export default CardDisplay;
+export default StockCard;
