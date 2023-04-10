@@ -201,7 +201,7 @@ def rnn_model(symbol: str, feature: str):
     print(f"{symbol} RNN Model finish training!!!")
 
     # Upload .h5 file to MinIO
-    s3_resource.Bucket("rnn").upload_file(
+    s3_resource.Bucket(getenv("S3_BUCKET_RNN")).upload_file(
         f"{folder}/model/{symbol}_{feature}_model.h5", f"{symbol}_{feature}_model.h5"
     )
     print("MinIO finish uploading file!")
@@ -209,7 +209,7 @@ def rnn_model(symbol: str, feature: str):
 
 if __name__ == "__main__":
     try:
-        s3_resource.create_bucket(Bucket="rnn")
+        s3_resource.create_bucket(Bucket=getenv("S3_BUCKET_RNN"))
     except Exception:
         pass
     for i in grab_list:

@@ -114,7 +114,7 @@ def plot_stock_graph(symbol: str):
     print("Plotly visualisation finished!")
 
     # Upload html file to MinIO
-    s3_resource.Bucket("stockgraph").upload_file(
+    s3_resource.Bucket(getenv("S3_BUCKET_GRAPH")).upload_file(
         f"{folder}/png/{symbol}.png", f"{symbol}.png"
     )
     print("MinIO finish uploading file!")
@@ -122,7 +122,7 @@ def plot_stock_graph(symbol: str):
 
 if __name__ == "__main__":
     try:
-        s3_resource.create_bucket(Bucket="stockgraph")
+        s3_resource.create_bucket(Bucket=getenv("S3_BUCKET_GRAPH"))
     except Exception:
         pass
     for i in grab_list:

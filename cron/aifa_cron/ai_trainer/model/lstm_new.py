@@ -130,7 +130,7 @@ def lstm_new_model(symbol: str):
     print(f"{symbol} LSTM new model finish training!!!")
 
     # Upload .h5 file to MinIO
-    s3_resource.Bucket("lstm").upload_file(
+    s3_resource.Bucket(getenv("S3_BUCKET_LSTM")).upload_file(
         f"{folder}/model/{symbol}_close_model.h5", f"{symbol}_close_model.h5"
     )
     print("MinIO finish uploading file!")
@@ -138,7 +138,7 @@ def lstm_new_model(symbol: str):
 
 if __name__ == "__main__":
     try:
-        s3_resource.create_bucket(Bucket="lstm")
+        s3_resource.create_bucket(Bucket=getenv("S3_BUCKET_LSTM"))
     except Exception:
         pass
     for i in grab_list:
