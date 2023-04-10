@@ -15,9 +15,15 @@
 - [Setup and build](../server/README.md)
 - [Configuration options](server/config.md)
 
+## Cronjob
+
+- [Setup and build](../cron/README.md)
+
 ## Database (MongoDB)
 
 - [Setup and configuration](mongo/config.md)
 - Schema
   - [Session](mongo/schema/session.md)
   - [User](mongo/schema/user.md)
+  - [Stock](mongo/schema/stock.md)
+  - [Portfolio](mongo/schema/portfolio.md)

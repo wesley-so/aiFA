@@ -15,6 +15,37 @@ artificial intelligence (AI) system to predict 20 NASDAQ stock price.
 
 ## Quick start
 
+### Cronjob
+
+1. Copy necessary files and fill up the environment variables:
+
+   ```bash
+   # Copy sample cronjob environment
+   cp cron/.env.sample cron/.env
+
+   # Copy sample object storage environment
+   cp minio/.env.sample minio/.env
+
+   # Edit "cron/.env" and "minio/.env" and fill up environment variables
+   ```
+
+   2. If you have a NVIDIA CUDA capable GPU, uncomment the lines in
+   `docker-compose.yaml` to enable GPU support in Docker container.
+
+   3. Build docker images:
+
+   ```bash
+   docker compose build
+   ```
+
+   4. Start the backend server with MongoDB:
+
+   ```bash
+   docker compose up
+   ```
+
+For detail setup, please refer to [backend guide](cron/README.md).
+
 ### Backend server
 
 1. Copy necessary files and fill up the environment variables:
