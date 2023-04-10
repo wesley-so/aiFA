@@ -34,13 +34,13 @@ const StockQuotePage: FC = () => {
     ORCL: "Oracle Corporation",
     TSLA: "Tesla, Inc.",
   };
-  const { stockInfo, isLoading, fetch, error, success } = useStockData(symbol);
+  const { stockInfo, isLoading, fetch, error, success } = useStockData();
   const { graph, isGraphLoading, fetchGraph, graphError, graphSuccess } =
-    useStockGraph(symbol ?? "");
+    useStockGraph();
   useEffect(() => {
-    fetch();
-    fetchGraph();
-  }, [fetch, fetchGraph]);
+    fetch(symbol);
+    fetchGraph(symbol);
+  }, [fetch, fetchGraph, symbol]);
 
   return (
     <Grid
@@ -50,6 +50,7 @@ const StockQuotePage: FC = () => {
       alignItems="left"
       justifyContent="left"
       padding="15px"
+      sx={{ overflow: "scroll" }}
     >
       {isLoading && (
         <Grid item>

@@ -2,12 +2,12 @@ import { useCallback, useState } from "react";
 import { stockGraph } from "../services/aifaAPI/stock";
 import { AxiosError } from "axios";
 
-const useStockGraph = (symbol: string) => {
+const useStockGraph = () => {
   const [graph, setGraph] = useState<string>();
   const [isGraphLoading, setIsGraphLoading] = useState(false);
   const [graphError, setGraphError] = useState<string>();
   const [graphSuccess, setGraphSuccess] = useState(false);
-  const fetchGraph = useCallback(async () => {
+  const fetchGraph = useCallback(async (symbol: string) => {
     setGraph(undefined);
     setIsGraphLoading(true);
     setGraphError(undefined);
@@ -24,7 +24,7 @@ const useStockGraph = (symbol: string) => {
       setGraphError(errorMsg);
     }
     setIsGraphLoading(false);
-  }, [symbol]);
+  }, []);
   return { graph, isGraphLoading, fetchGraph, graphError, graphSuccess };
 };
 
