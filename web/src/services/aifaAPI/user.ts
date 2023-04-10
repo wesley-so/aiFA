@@ -27,11 +27,11 @@ export const register = async (
   username: string,
   email: string,
   password: string,
-  password_confirm: string
+  passwordConfirm: string
 ) => {
   const response = await axios.post(
     `${config.apiUrl}/user/register`,
-    { username, email, password, password_confirm },
+    { username, email, password, password_confirm: passwordConfirm },
     { headers: { "Content-Type": "application/json" } }
   );
   return response.data.user_id;

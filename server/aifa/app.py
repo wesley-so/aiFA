@@ -2,11 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import config
-from .routers import user
+from .routers import stock, user
 from .services.database import init_database
 
 app = FastAPI()
 app.include_router(user.router)
+app.include_router(stock.router)
 
 origins = ["http://localhost:8000", "http://localhost:3000"]
 

@@ -9,6 +9,7 @@ import RegisterPage from "../RegisterPage/RegisterPage";
 import ProfilePage from "../ProfilePage/ProfilePage";
 import RequireLoginRoute from "./RequireLoginRoute";
 import DashboardPage from "../DashboardPage/DashboardPage";
+import StockQuotePage from "../StockQuotePage/StockQuotePage";
 
 const Router: FC = () => {
   const {
@@ -40,6 +41,7 @@ const Router: FC = () => {
           }
         >
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard/quote" element={<StockQuotePage />} />
         </Route>
         <Route
           path="/login"

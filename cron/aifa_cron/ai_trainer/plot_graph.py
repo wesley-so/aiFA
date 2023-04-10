@@ -1,3 +1,7 @@
+from os import getenv
+
+import boto3
+import plotly
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
@@ -16,6 +20,13 @@ grab_list = [
     "ORCL",
     "TSLA",
 ]
+
+s3_resource = boto3.resource(
+    "s3",
+    endpoint_url=getenv("S3_ENDPOINT"),
+    aws_access_key_id=getenv("S3_ACCESS_KEY"),
+    aws_secret_access_key=getenv("S3_SECRET_KEY"),
+)
 
 
 def plot_stock_graph(symbol: str):
@@ -94,11 +105,25 @@ def plot_stock_graph(symbol: str):
     stock_fig.update_yaxes(title_text="Price (USD$)", row=1, col=1)
     stock_fig.update_yaxes(title_text="Price (USD$)", row=2, col=1)
     stock_fig.update_yaxes(title_text="Volume (USD$)", row=3, col=1)
-    stock_fig.write_html(f"{folder}/html/{symbol}.html")
     stock_fig.write_image(f"{folder}/png/{symbol}.png", height=1000, width=1500)
-    print("Plotly visualisation finished!!!")
+    fig_div = plotly.offline.plot(
+        stock_fig, include_plotlyjs=False, filename=f"{symbol}.html", output_type="div"
+    )
+    with open(f"{folder}/html/{symbol}.html", "w") as f:
+        f.write(fig_div)
+    print("Plotly visualisation finished!")
+
+    # Upload html file to MinIO
+    s3_resource.Bucket(getenv("S3_BUCKET_GRAPH")).upload_file(
+        f"{folder}/png/{symbol}.png", f"{symbol}.png"
+    )
+    print("MinIO finish uploading file!")
 
 
 if __name__ == "__main__":
+    try:
+        s3_resource.create_bucket(Bucket=getenv("S3_BUCKET_GRAPH"))
+    except Exception:
+        pass
     for i in grab_list:
         plot_stock_graph(i)

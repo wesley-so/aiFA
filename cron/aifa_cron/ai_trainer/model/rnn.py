@@ -1,3 +1,6 @@
+from os import getenv
+
+import boto3
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -22,8 +25,15 @@ grab_list = [
     "TSLA",
 ]
 
+s3_resource = boto3.resource(
+    "s3",
+    endpoint_url=getenv("S3_ENDPOINT"),
+    aws_access_key_id=getenv("S3_ACCESS_KEY"),
+    aws_secret_access_key=getenv("S3_SECRET_KEY"),
+)
 
-# Design AI Training Model (RNN with LSTM machine learning model)
+
+# Design AI Training Model (RNN machine learning model)
 def rnn_model(symbol: str, feature: str):
     stock_data = find_stock(symbol)
     for i in ohlcv:
@@ -190,7 +200,17 @@ def rnn_model(symbol: str, feature: str):
     rnn_regressor.save(f"{folder}/model/{symbol}_{feature}_model.h5")
     print(f"{symbol} RNN Model finish training!!!")
 
+    # Upload .h5 file to MinIO
+    s3_resource.Bucket(getenv("S3_BUCKET_RNN")).upload_file(
+        f"{folder}/model/{symbol}_{feature}_model.h5", f"{symbol}_{feature}_model.h5"
+    )
+    print("MinIO finish uploading file!")
+
 
 if __name__ == "__main__":
+    try:
+        s3_resource.create_bucket(Bucket=getenv("S3_BUCKET_RNN"))
+    except Exception:
+        pass
     for i in grab_list:
         rnn_model(i, "close")
