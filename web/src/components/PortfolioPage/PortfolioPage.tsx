@@ -147,11 +147,16 @@ const PortfolioPage: FC = () => {
             )}
             {success &&
               historyPortfolios.flatMap(({ portfolio, timestamp }) => {
-                return portfolio.map(({ symbol, weight, price }) => (
+                return portfolio.map(({ symbol, weight, price }, index) => (
                   <TableRow key={`${timestamp}-${symbol}`}>
-                    <TableCell sx={{ fontSize: 20 }}>
-                      {new Date(timestamp * 1000).toString()}
-                    </TableCell>
+                    {index === 0 && (
+                      <TableCell
+                        sx={{ fontSize: 20 }}
+                        rowSpan={portfolio.length}
+                      >
+                        {new Date(timestamp * 1000).toString()}
+                      </TableCell>
+                    )}
                     <TableCell align="right" sx={{ fontSize: 20 }}>
                       {symbol}
                     </TableCell>
