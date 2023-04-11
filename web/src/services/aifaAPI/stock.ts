@@ -18,3 +18,15 @@ export const stockGraph = async (token: string, symbol: string) => {
   );
   return response.data;
 };
+
+export const create_portfolio = async (
+  token: string,
+  portfolio: Array<object>
+) => {
+  const response = await axios.post(
+    `${config.apiUrl}/stock/portfolio/create`,
+    { portfolio },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response;
+};
