@@ -2,7 +2,6 @@ from os import getenv, path
 from tempfile import TemporaryDirectory
 
 import boto3
-import numpy as np
 import pandas as pd
 import requests
 from keras.models import load_model
@@ -14,8 +13,6 @@ from aifa.dependencies.session import get_session_token
 from .database import stock_collection
 
 ohlcv = ["open", "low", "high", "close", "volume"]
-required_cols = ["date", "open", "high", "low", "close", "volume"]
-
 
 async def grab_daily_ohlcv(symbol: str):
     token = await get_session_token()

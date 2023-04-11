@@ -1,10 +1,13 @@
+import base64
+from os import getenv
+import boto3
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from aifa.dependencies.session import get_session_user
 from aifa.models.stock import StockModel
 from aifa.models.user import UserModel
-from aifa.services.stock import grab_latest_close, grab_predict_data, grab_daily_ohlcv
+from aifa.services.stock import grab_daily_ohlcv, grab_latest_close, grab_predict_data
 
 from ..services.database import portfolio_collection
 
@@ -43,14 +46,6 @@ async def grab_graph(stock: StockModel, user=Depends(get_session_user)):
         else:
             raise HTTPException(status_code=500, detail=str(error))
         
-@router.post("/latest/close", response_class=JSONResponse)
-async def close(stock: StockModel):
-    close_data = await grab_latest_close(stock.symbol)
-    if not close_data:
-        raise HTTPException(status_code=401, detail="User unauthorized.")
-    return JSONResponse(status_code=200, content=close_data)
-
-
 @router.post("/latest/close", response_class=JSONResponse)
 async def close(stock: StockModel):
     close_data = await grab_latest_close(stock.symbol)
