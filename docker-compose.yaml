@@ -39,15 +39,17 @@ services:
       mongo:
         condition: service_healthy
       minio:
-        condition: service_started
+        condition: service_healthy
+      mc:
+        condition: service_completed_successfully
     volumes:
       - ./server:/aifa
   cron:
     build:
       context: ./cron
-    ###########################################################
-    # Uncomment below lines to use Tensorflow with Nvidia GPU #
-    ###########################################################
+      ###########################################################
+      # Uncomment below lines to use Tensorflow with Nvidia GPU #
+      ###########################################################
       dockerfile: Dockerfile.gpu
     environment:
       NVIDIA_VISIBLE_DEVICES: all
@@ -65,7 +67,9 @@ services:
       mongo:
         condition: service_healthy
       minio:
-        condition: service_started
+        condition: service_healthy
+      mc:
+        condition: service_completed_successfully
     volumes:
       - ./cron:/cron
   minio:
@@ -78,7 +82,25 @@ services:
       - minio/.env
     volumes:
       - "minio_data:/data"
-
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      retries: 10
+  mc:
+    image: minio/mc:latest
+    entrypoint:
+      - bash
+      - -c
+      - >
+        mc alias set myminio "$$MC_MINIO_HOST" "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD";
+        for BUCKET in $$MC_BUCKET_LIST; do 
+          mc mb --ignore-existing "myminio/$$BUCKET"
+        done;
+    env_file:
+      - minio/.env
+    depends_on:
+      minio:
+        condition: service_healthy
 volumes:
   mongo_data:
     driver: local
