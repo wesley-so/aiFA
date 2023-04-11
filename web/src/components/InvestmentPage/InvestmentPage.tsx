@@ -118,6 +118,13 @@ const InvestmentPage: FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
+              {choice.length === 0 && (
+                <TableRow>
+                  <TableCell align="center" colSpan={4}>
+                    No portfolio currently.
+                  </TableCell>
+                </TableRow>
+              )}
               {choice.map((value) => {
                 return (
                   <TableRow key={value.symbol}>
