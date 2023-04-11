@@ -18,7 +18,6 @@ const DashboardLayout: FC = () => {
   ];
   const userMenuItems: Array<DrawerMenuItemModel> = [
     { url: useHref("/user/profile"), text: "My Profile" },
-    { url: useHref("/user/setting"), text: "Settings" },
     { url: useHref("/logout"), text: "Logout" },
   ];
 

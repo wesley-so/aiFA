@@ -1,5 +1,11 @@
 import { FC, useCallback } from "react";
-import { BrowserRouter, redirect, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  redirect,
+  Route,
+  Routes,
+} from "react-router-dom";
 import useUser from "../../hooks/useUser";
 import DashboardLayout from "../DashboardLayout/DashboardLayout";
 import HomePage from "../HomePage/HomePage";
@@ -8,7 +14,6 @@ import LogoutPage from "../LogoutPage/LogoutPage";
 import RegisterPage from "../RegisterPage/RegisterPage";
 import ProfilePage from "../ProfilePage/ProfilePage";
 import RequireLoginRoute from "./RequireLoginRoute";
-import DashboardPage from "../DashboardPage/DashboardPage";
 import StockQuotePage from "../StockQuotePage/StockQuotePage";
 import InvestmentPage from "../InvestmentPage/InvestmentPage";
 
@@ -41,7 +46,10 @@ const Router: FC = () => {
             </RequireLoginRoute>
           }
         >
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route
+            path="/dashboard"
+            element={<Navigate to="/dashboard/quote" />}
+          />
           <Route path="/dashboard/quote" element={<StockQuotePage />} />
           <Route path="/dashboard/investment" element={<InvestmentPage />} />
         </Route>
