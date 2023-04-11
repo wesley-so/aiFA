@@ -13,8 +13,8 @@ from aifa.dependencies.session import get_session_token
 
 from .database import stock_collection
 
-required_cols = ["date", "open", "high", "low", "close", "volume"]
 ohlcv = ["open", "low", "high", "close", "volume"]
+required_cols = ["date", "open", "high", "low", "close", "volume"]
 
 
 async def grab_daily_ohlcv(symbol: str):
@@ -38,6 +38,7 @@ async def grab_daily_ohlcv(symbol: str):
         return stock_data
     else:
         return None
+
 
 async def grab_latest_close(symbol: str):
     token = await get_session_token()
