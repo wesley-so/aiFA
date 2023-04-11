@@ -17,19 +17,19 @@ services:
     ###########################################################
     # Uncomment below lines to use Tensorflow with Nvidia GPU #
     ###########################################################
-    #   dockerfile: Dockerfile.gpu
-    # environment:
-    #   NVIDIA_VISIBLE_DEVICES: all
-    #   NVIDIA_DRIVER_CAPABILITIES: compute,utility
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities:
-    #             - compute
-    #             - utility
+      dockerfile: Dockerfile.gpu
+    environment:
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities:
+                - compute
+                - utility
     command: make dev
     ports:
       - "8000:8000"
