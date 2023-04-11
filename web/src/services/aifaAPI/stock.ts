@@ -53,7 +53,7 @@ export const all_portfolio = async (token: string) => {
 export const prediction = async (token: string, symbol: string) => {
   const response = await axios.post<Prediction>(
     `${config.apiUrl}/stock/predict`,
-    { stock: symbol },
+    { symbol },
     { headers: { Authorization: `Bearer ${token}` } }
   );
   return response.data;
