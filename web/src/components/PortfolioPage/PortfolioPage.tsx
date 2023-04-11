@@ -13,23 +13,16 @@ import {
 import { FC, useEffect } from "react";
 import usePortfolio from "../../hooks/usePortfolio";
 import { getSessionToken } from "../../services/session";
-import usePredict from "../../hooks/usePredict";
+import PredictRow from "./PredictRow/PredictRow";
+import ClosePriceRow from "./ClosePriceRow/ClosePriceRow";
 
 const PortfolioPage: FC = () => {
   const { portfolio, isLoading, fetchPortfolio, error, success } =
     usePortfolio();
-  const {
-    predict,
-    isPredictLoading,
-    fetchPredict,
-    predictError,
-    predictSuccess,
-  } = usePredict();
   const token = getSessionToken();
   useEffect(() => {
     fetchPortfolio(token ?? "");
-    fetchPredict(token ?? "", portfolio[0].symbol);
-  }, [fetchPortfolio, fetchPredict, portfolio, token]);
+  }, [fetchPortfolio, token]);
   return (
     <Grid
       container
@@ -74,27 +67,23 @@ const PortfolioPage: FC = () => {
             {success &&
               portfolio.map((value, index) => {
                 return (
-                  <TableRow key={index}>
-                    <TableCell sx={{ fontSize: 16 }}>{value.symbol}</TableCell>
-                    <TableCell align="right" sx={{ fontSize: 16 }}>
-                      {value.weight}%
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontSize: 16 }}>
-                      ${value.price}
-                    </TableCell>
-                  </TableRow>
+                  <>
+                    <TableRow key={index}>
+                      <TableCell sx={{ fontSize: 16 }}>
+                        {value.symbol}
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontSize: 16 }}>
+                        {value.weight}%
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontSize: 16 }}>
+                        ${value.price}
+                      </TableCell>
+                      <ClosePriceRow symbol={value.symbol} />
+                      <PredictRow symbol={value.symbol} />
+                    </TableRow>
+                  </>
                 );
               })}
-            {/* {predictSuccess &&
-              predict.map((value, index) => {
-                return (
-                  <TableRow key={index}>
-                    <TableCell align="right" sx={{ fontSize: 16 }}>
-                      {value}
-                    </TableCell>
-                  </TableRow>
-                );
-              })} */}
           </TableBody>
         </Table>
       </TableContainer>

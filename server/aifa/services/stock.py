@@ -47,9 +47,7 @@ async def grab_latest_close(symbol: str):
         )
         price = r.json()
         close_data = {
-            "symbol": price[0]["symbol"],
             "close": price[0]["price"],
-            "volume": price[0]["volume"],
         }
         return close_data
     else:
@@ -117,10 +115,10 @@ async def grab_predict_data(stock: str):
     predict = lstm_model.predict(X_input).reshape(-1, 1)
     predict = scaler.inverse_transform(predict)
 
-    predict_list = [
-        {"predict_day_1": float(predict[1].tolist()[0])},
-        {"predict_day_3": float(predict[3].tolist()[0])},
-        {"predict_day_5": float(predict[5].tolist()[0])},
-    ]
+    predict_list = {
+        "predict_1": float(predict[1].tolist()[0]),
+        "predict_3": float(predict[3].tolist()[0]),
+        "predict_5": float(predict[5].tolist()[0])
+    }    
 
     return predict_list
