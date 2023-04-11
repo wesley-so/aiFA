@@ -10,19 +10,27 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useMemo } from "react";
 import usePortfolio from "../../hooks/usePortfolio";
 import { getSessionToken } from "../../services/session";
-import PredictRow from "./PredictRow/PredictRow";
-import ClosePriceRow from "./ClosePriceRow/ClosePriceRow";
+import PortfolioTableRow from "./PortfolioTableRow";
 
 const PortfolioPage: FC = () => {
-  const { portfolio, isLoading, fetchPortfolio, error, success } =
-    usePortfolio();
   const token = getSessionToken();
+
+  const { portfolios, isLoading, fetchPortfolio, error, success } =
+    usePortfolio();
+
   useEffect(() => {
     fetchPortfolio(token ?? "");
   }, [fetchPortfolio, token]);
+
+  const [currentPortfolio, historyPortfolios] = useMemo(() => {
+    const sortedPortfolios = portfolios.sort((a, b) => {
+      return a.timestamp < b.timestamp ? -1 : a.timestamp > b.timestamp ? 1 : 0;
+    });
+    return [sortedPortfolios.at(-1), sortedPortfolios.slice(0, -1).reverse()];
+  }, [portfolios]);
   return (
     <Grid
       container
@@ -60,30 +68,37 @@ const PortfolioPage: FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {isLoading && <CircularProgress />}
+            {isLoading && (
+              <TableRow>
+                <TableCell colSpan={7} align="center">
+                  <CircularProgress />
+                </TableCell>
+              </TableRow>
+            )}
             {!isLoading && !success && (
-              <Typography variant="body1">{error}</Typography>
+              <TableRow>
+                <TableCell colSpan={7} align="center">
+                  <Typography variant="body1" color="red">
+                    {error}
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            )}
+            {success && !currentPortfolio && (
+              <TableRow>
+                <TableCell colSpan={7} align="center">
+                  No portfolio found.
+                </TableCell>
+              </TableRow>
             )}
             {success &&
-              portfolio.map((value, index) => {
-                return (
-                  <>
-                    <TableRow key={index}>
-                      <TableCell sx={{ fontSize: 16 }}>
-                        {value.symbol}
-                      </TableCell>
-                      <TableCell align="right" sx={{ fontSize: 16 }}>
-                        {value.weight}%
-                      </TableCell>
-                      <TableCell align="right" sx={{ fontSize: 16 }}>
-                        ${value.price}
-                      </TableCell>
-                      <ClosePriceRow symbol={value.symbol} />
-                      <PredictRow symbol={value.symbol} />
-                    </TableRow>
-                  </>
-                );
-              })}
+              currentPortfolio &&
+              currentPortfolio.portfolio.map((investment) => (
+                <PortfolioTableRow
+                  key={investment.symbol}
+                  investment={investment}
+                />
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
@@ -106,7 +121,50 @@ const PortfolioPage: FC = () => {
               </TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>{}</TableBody>
+          <TableBody>
+            {isLoading && (
+              <TableRow>
+                <TableCell colSpan={4} align="center">
+                  <CircularProgress />
+                </TableCell>
+              </TableRow>
+            )}
+            {!isLoading && !success && (
+              <TableRow>
+                <TableCell colSpan={4} align="center">
+                  <Typography variant="body1" color="red">
+                    {error}
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            )}
+            {success && historyPortfolios.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={7} align="center">
+                  No portfolio history.
+                </TableCell>
+              </TableRow>
+            )}
+            {success &&
+              historyPortfolios.flatMap(({ portfolio, timestamp }) => {
+                return portfolio.map(({ symbol, weight, price }) => (
+                  <TableRow key={`${timestamp}-${symbol}`}>
+                    <TableCell sx={{ fontSize: 20 }}>
+                      {new Date(timestamp * 1000).toString()}
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontSize: 20 }}>
+                      {symbol}
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontSize: 20 }}>
+                      {weight}%
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontSize: 20 }}>
+                      ${price}
+                    </TableCell>
+                  </TableRow>
+                ));
+              })}
+          </TableBody>
         </Table>
       </TableContainer>
     </Grid>

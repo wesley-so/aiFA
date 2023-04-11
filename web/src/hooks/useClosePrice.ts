@@ -3,12 +3,12 @@ import { latest_close } from "../services/aifaAPI/stock";
 import { AxiosError } from "axios";
 
 const useClosePrice = () => {
-  const [close, setClose] = useState<object>({});
+  const [close, setClose] = useState<{ close: number }>();
   const [isCloseLoading, setIsCloseLoading] = useState(false);
   const [closeError, setCloseError] = useState(undefined);
   const [closeSuccess, setCloseSuccess] = useState(false);
   const fetchClose = useCallback(async (token: string, symbol: string) => {
-    setClose({});
+    setClose(undefined);
     setIsCloseLoading(true);
     setCloseError(undefined);
     setCloseSuccess(false);

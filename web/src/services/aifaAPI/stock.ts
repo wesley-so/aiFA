@@ -1,5 +1,6 @@
 import axios from "axios";
 import config from "../../config";
+import Prediction from "../../models/Prediction";
 
 export const daily = async (token: string, symbol: string) => {
   const response = await axios.post(
@@ -32,7 +33,7 @@ export const create_portfolio = async (
 };
 
 export const latest_close = async (token: string, symbol: string) => {
-  const response = await axios.post<object>(
+  const response = await axios.post<{ close: number }>(
     `${config.apiUrl}/stock/latest/close`,
     { symbol },
     { headers: { Authorization: `Bearer ${token}` } }
@@ -50,7 +51,7 @@ export const all_portfolio = async (token: string) => {
 };
 
 export const prediction = async (token: string, symbol: string) => {
-  const response = await axios.post<object>(
+  const response = await axios.post<Prediction>(
     `${config.apiUrl}/stock/predict`,
     { stock: symbol },
     { headers: { Authorization: `Bearer ${token}` } }

@@ -1,14 +1,15 @@
 import { useCallback, useState } from "react";
 import { prediction } from "../services/aifaAPI/stock";
 import { AxiosError } from "axios";
+import Prediction from "../models/Prediction";
 
 const usePredict = () => {
-  const [predict, setPredict] = useState<object>({});
+  const [predict, setPredict] = useState<Prediction>();
   const [isPredictLoading, setIsPredictLoading] = useState(false);
   const [predictError, setPredictError] = useState(undefined);
   const [predictSuccess, setPredictSuccess] = useState(false);
   const fetchPredict = useCallback(async (token: string, symbol: string) => {
-    setPredict({});
+    setPredict(undefined);
     setIsPredictLoading(true);
     setPredictError(undefined);
     setPredictSuccess(false);
