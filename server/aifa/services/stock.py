@@ -85,7 +85,7 @@ async def grab_predict_data(stock: str):
         aws_access_key_id=getenv("S3_ACCESS_KEY"),
         aws_secret_access_key=getenv("S3_SECRET_KEY"),
     )
-    bucket_name = "lstm"
+    bucket_name = getenv("S3_BUCKET_LSTM")
     with TemporaryDirectory() as tmpdirname:
         print(tmpdirname)
         s3_client.download_file(
