@@ -9,6 +9,8 @@ client = AsyncIOMotorClient(config["mongo_uri"])
 db = client[config["mongo_db"]]
 user_collection = db[config["mongo_collection_user"]]
 session_collection = db[config["mongo_collection_session"]]
+portfolio_collection = db[config["mongo_collection_portfolio"]]
+stock_collection = db[config["mongo_collection_stock"]]
 
 
 async def init_database():
