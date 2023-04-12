@@ -208,9 +208,5 @@ def rnn_model(symbol: str, feature: str):
 
 
 if __name__ == "__main__":
-    try:
-        s3_resource.create_bucket(Bucket=getenv("S3_BUCKET_RNN"))
-    except Exception:
-        pass
     for i in grab_list:
         rnn_model(i, "close")

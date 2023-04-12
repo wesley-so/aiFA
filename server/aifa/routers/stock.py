@@ -33,11 +33,10 @@ async def grab_graph(stock: StockModel, user=Depends(get_session_user)):
         aws_access_key_id=getenv("S3_ACCESS_KEY"),
         aws_secret_access_key=getenv("S3_SECRET_KEY"),
     )
-    bucket_name = "stockgraph"
     try:
-        file_byte = s3_client.get_object(Bucket=bucket_name, Key=f"{stock.symbol}.png")[
-            "Body"
-        ].read()
+        file_byte = s3_client.get_object(
+            Bucket=getenv("S3_BUCKET_GRAPH"), Key=f"{stock.symbol}.png"
+        )["Body"].read()
         encoded_string = base64.b64encode(file_byte).decode("utf-8")
         return JSONResponse(status_code=200, content=encoded_string)
     except Exception as error:

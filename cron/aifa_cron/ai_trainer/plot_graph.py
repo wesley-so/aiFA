@@ -121,9 +121,5 @@ def plot_stock_graph(symbol: str):
 
 
 if __name__ == "__main__":
-    try:
-        s3_resource.create_bucket(Bucket=getenv("S3_BUCKET_GRAPH"))
-    except Exception:
-        pass
     for i in grab_list:
         plot_stock_graph(i)
